@@ -68,6 +68,4 @@ Any help is entirely voluntary, yet very much appreciated. If you see any bugs, 
 - Prerequisites: `gcc`, `make` (I use the GnuWin port)
 ### Mac OS X
 
-Fuck you, get a normal OS
-
-(just kidding, I can't be bothered to add Mac support)
+For now, there's no official support, but the build scripts should in theory work with any unix-like OS. You can try to use the linux instructions

@@ -64,7 +64,7 @@ uninstall:
 version:
 	cmd /c "set /a $(version-build) + 1 > build.version"
 
-else ifeq ($(os),Linux)
+else
 
 ldflags += -lpthread
 
@@ -86,7 +86,7 @@ clear:
 install: build
 	echo Installing ++C compiler to your system...
 	sudo cp $(bin)/*.so /usr/lib
-	sudo cp $(bin)/$(output)-linux /usr/bin/$(output)
+	sudo cp $(binary) /usr/bin/$(output)
 	sudo chmod +777 /usr/bin/$(output)
 	sudo chmod +777 $(patsubst $(bin)/%,/usr/lib/%,$(wildcard $(bin)/*.so))
 uninstall:
@@ -103,7 +103,4 @@ leak: build
 lint:
 	echo ========================= Linting ==========================
 	cppcheck $(src) --track-origins=yes --suppress=unusedFunction --suppress=missingInclude --enable=all
-
-else
-$(error Unknown OS)
 endif
