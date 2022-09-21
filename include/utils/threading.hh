@@ -21,7 +21,7 @@ namespace ppc::threading {
 
         thread_t(void *handle) { this->handle = handle; }
         template <class T>
-        inline static thread_t start(thread_func_t<T> func, T const &args) {
+        inline static thread_t start(thread_func_t<T> func, const T &args) {
             T _args = args;
             return start_impl((void*)func, &_args);
         }

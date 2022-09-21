@@ -21,7 +21,7 @@ namespace ppc::comp::tree::lex {
         std::string data;
         ppc::location_t location;
 
-        static std::vector<token_t> parse_file(ppc::messages::msg_stack_t &msg_stack, std::string const &filename, std::istream &f);
-        static std::vector<token_t> parse_many(ppc::messages::msg_stack_t &msg_stack, std::string const &filename, std::string const &src);
+        static std::vector<token_t> parse_file(ppc::messages::msg_stack_t &msg_stack, const std::string &filename, std::istream &f);
+        static std::vector<token_t> parse_many(ppc::messages::msg_stack_t &msg_stack, const std::string &filename, const std::string &src);
     };
 }

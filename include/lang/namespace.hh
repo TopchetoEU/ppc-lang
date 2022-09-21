@@ -16,21 +16,21 @@ namespace ppc::lang {
         // A list of all the defined fields inside the namespace
         std::vector<field_t> fields;
 
-        bool contains_def(std::string const &name, location_t &ploc) const;
-        inline bool contains_def(std::string const &name) const {
+        bool contains_def(const std::string &name, location_t &ploc) const;
+        inline bool contains_def(const std::string &name) const {
             location_t ploc;
             return contains_def(name, ploc);
         }
 
         template <class T>
-        static bool contains_def(T namespaces, namespace_name_t const &def_nmsp, std::string const &name, location_t &ploc) {
-            for (namespace_t const &nmsp : namespaces) {
+        static bool contains_def(T namespaces, const namespace_name_t &def_nmsp, const std::string &name, location_t &ploc) {
+            for (const namespace_t &nmsp : namespaces) {
                 if (nmsp.name == def_nmsp && nmsp.contains_def(name)) return true;
             }
             return false;
         }
         template <class T>
-        static inline bool contains_def(T namespaces, namespace_name_t const &def_nmsp, std::string const &name) {
+        static inline bool contains_def(T namespaces, const namespace_name_t &def_nmsp, const std::string &name) {
             location_t ploc;
             return contains_def(namespaces, def_nmsp, name, ploc);
         }

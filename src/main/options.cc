@@ -3,7 +3,7 @@
 
 using namespace ppc;
 
-bool check_shorthand(std::string &option, options::flag_t const &flag) {
+bool check_shorthand(std::string &option, const options::flag_t &flag) {
     if (option.size() < 2 || option[0] != '-') return false;
 
     if (option.size() == 2 && std::string { flag.shorthands }.find(option[1]) != -1u) {
@@ -17,7 +17,7 @@ bool check_shorthand(std::string &option, options::flag_t const &flag) {
     }
     return false;
 }
-bool check_name(std::string &option, options::flag_t const &flag) {
+bool check_name(std::string &option, const options::flag_t &flag) {
     if (option.size() > 2 && option[0] == '-' && option[1] == '-') {
         std::string candidate = option.substr(2);
         if (flag.match_type == options::MATCH_WHOLE) {
@@ -41,19 +41,19 @@ bool check_name(std::string &option, options::flag_t const &flag) {
     return false;
 }
 
-void ppc::options::parser_t::add_flag(flag_t const &flag) {
+void ppc::options::parser_t::add_flag(const flag_t &flag) {
     flags.push_back(flag);
 }
 void ppc::options::parser_t::clear_flags() {
     flags.clear();
 }
 
-bool ppc::options::parser_t::parse(std::string const &option, messages::msg_stack_t &msg_stack, data::map_t &conf) {
+bool ppc::options::parser_t::parse(const std::string &option, messages::msg_stack_t &msg_stack, data::map_t &conf) {
     if (option.empty()) return false;
 
     std::string opt = option;
 
-    for (auto const &flag : flags) {
+    for (const auto &flag : flags) {
         if (check_name(opt, flag) || check_shorthand(opt, flag)) {
             flag.execute(*this, opt, msg_stack);
             return true;

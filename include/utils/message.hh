@@ -28,7 +28,7 @@ namespace ppc::messages {
         inline auto begin() { return messages.begin(); }
         inline auto end() { return messages.end(); }
 
-        void push(message_t const &msg) { messages.push_back(msg); }
+        void push(const message_t &msg) { messages.push_back(msg); }
         void clear() { messages.clear(); }
 
         bool is_failed() const;

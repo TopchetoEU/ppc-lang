@@ -12,19 +12,19 @@ std::vector<std::string> operators = {
     "+", "-", "/", "*", "%",
     "?", "??",
     "=", "+=", "-=", "*=", "/=", "%=", "<<=", ">>=", "^=", "&=", "|=", "&&=", "||=", "??=",
-    "->", ".", ",", ";", ":",
+    "->", ".", ",", ";", ":", "::",
     "=>",
     "[", "]", "{", "}", "(", ")"
 };
 
 
-std::string const &tok::operator_stringify(tok::operator_t kw) {
+const std::string &tok::operator_stringify(tok::operator_t kw) {
     if (kw < 0 || kw >= operators.size()) throw "Invalid operator ID given."s;
     return operators[kw];
 }
 tok::operator_t tok::operator_find(const std::string &raw) {
     std::size_t i = 0;
-    for (auto const &op : operators) {
+    for (const auto &op : operators) {
         if (op == raw) return (tok::operator_t)i;
         i++;
     }

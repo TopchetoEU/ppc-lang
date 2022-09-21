@@ -99,7 +99,7 @@ namespace ppc::comp::tree::tok {
         bool is_char_lit() { return kind == CHAR; }
         bool is_string_lit() { return kind == STRING; }
 
-        auto const &identifier() {
+        const auto &identifier() {
             if (!is_identifier()) throw std::string { "Token is not an identifier." };
             else return *data.identifier;
         }
@@ -119,7 +119,7 @@ namespace ppc::comp::tree::tok {
             if (!is_char_lit()) throw std::string { "Token is not a char literal." };
             else return data.char_literal;
         }
-        auto const &string_lit() {
+        const auto &string_lit() {
             if (!is_string_lit()) throw std::string { "Token is not a string literal." };
             else return *data.string_literal;
         }
@@ -128,7 +128,7 @@ namespace ppc::comp::tree::tok {
         bool is_identifier(std::string &&val) { return is_identifier() && identifier() == val; }
 
         token_t() { kind = NONE; }
-        token_t(std::string const &identifier, location_t loc = NO_LOCATION) {
+        token_t(const std::string &identifier, location_t loc = NO_LOCATION) {
             kind = IDENTIFIER;
             data.identifier = new std::string { identifier };
             location = loc;
@@ -153,12 +153,12 @@ namespace ppc::comp::tree::tok {
             data.char_literal = c;
             location = loc;
         }
-        token_t(std::vector<char> const &val, location_t loc = NO_LOCATION) {
+        token_t(const std::vector<char> &val, location_t loc = NO_LOCATION) {
             kind = STRING;
             data.string_literal = new std::vector<char> { val };
             location = loc;
         }
-        token_t(token_t const &tok) {
+        token_t(const token_t &tok) {
             kind = tok.kind;
             switch (kind) {
                 case NONE: break;
@@ -184,6 +184,6 @@ namespace ppc::comp::tree::tok {
         static std::vector<token_t> parse_many(messages::msg_stack_t &msg_stack, std::vector<lex::token_t> tokens);
     };
 
-    operator_t operator_find(std::string const &text);
-    std::string const &operator_stringify(operator_t kw);
+    operator_t operator_find(const std::string &text);
+    const std::string &operator_stringify(operator_t kw);
 }

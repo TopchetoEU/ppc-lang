@@ -3,7 +3,7 @@
 
 using namespace ppc;
 
-std::vector<std::string> str::split(std::string const &splittable, std::initializer_list<char> splitters, bool remove_empty_entries) {
+std::vector<std::string> str::split(const std::string &splittable, std::initializer_list<char> splitters, bool remove_empty_entries) {
     std::stringstream buff;
     std::vector<std::string> res;
 

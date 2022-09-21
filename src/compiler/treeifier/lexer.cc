@@ -330,7 +330,7 @@ const lexlet_t LEXLET_MULTICOMMENT = {
     .type = token_t::NONE,
 };
 
-std::vector<token_t> token_t::parse_many(ppc::messages::msg_stack_t &msg_stack, std::string const &filename, std::string const &src) {
+std::vector<token_t> token_t::parse_many(ppc::messages::msg_stack_t &msg_stack, const std::string &filename, const std::string &src) {
     std::vector<token_t> tokens;
     std::vector<char> curr_token;
     lexlet_t curr = LEXLET_DEFAULT;
@@ -377,7 +377,7 @@ std::vector<token_t> token_t::parse_many(ppc::messages::msg_stack_t &msg_stack, 
                 i++;
             }
         }
-        catch (messages::message_t const &msg) { 
+        catch (const messages::message_t &msg) { 
             throw messages::message_t { msg.level, { filename, line, start, i - length, length }, msg.content };
         }
     }
@@ -392,7 +392,7 @@ std::vector<token_t> token_t::parse_many(ppc::messages::msg_stack_t &msg_stack, 
 
     return tokens;
 }
-std::vector<token_t> token_t::parse_file(ppc::messages::msg_stack_t &msg_stack, std::string const &filename, std::istream &f) {
+std::vector<token_t> token_t::parse_file(ppc::messages::msg_stack_t &msg_stack, const std::string &filename, std::istream &f) {
     std::vector<char> contents;
     int c;
 

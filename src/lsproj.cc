@@ -8,7 +8,7 @@ struct project_t {
     std::vector<std::string> deps;
 };
 
-std::string read_str(std::istream &f, std::string const &skip_chars, std::string const &end_chars, int &end_char) {
+std::string read_str(std::istream &f, const std::string &skip_chars, const std::string &end_chars, int &end_char) {
     std::vector<char> res { };
     int c;
 
@@ -41,7 +41,7 @@ std::string read_str(std::istream &f, std::string const &skip_chars, std::string
 
     return std::string { res.begin(), res.end() };
 }
-std::string read_str(std::istream &f, std::string const &skip_chars, std::string const &end_chars) {
+std::string read_str(std::istream &f, const std::string &skip_chars, const std::string &end_chars) {
     int end_char;
     return read_str(f, skip_chars, end_chars, end_char);
 }
@@ -87,7 +87,7 @@ project_t read_project(std::istream &f) {
     };
 }
 
-void print_err(std::string const &error, std::string const &context) {
+void print_err(const std::string &error, const std::string &context) {
     std::cerr << context << ": " << error;
 }
 

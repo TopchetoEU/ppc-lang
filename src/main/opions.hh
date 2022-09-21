@@ -17,19 +17,19 @@ namespace ppc::options {
         std::string shorthands;
         std::string description;
         flag_match_type_t match_type;
-        void (*execute)(parser_t &parser, std::string const &option, messages::msg_stack_t &global_stack);
+        void (*execute)(parser_t &parser, const std::string &option, messages::msg_stack_t &global_stack);
     };
 
     struct parser_t {
     private:
         std::vector<flag_t> flags;
     public:
-        void add_flag(flag_t const &flag);
+        void add_flag(const flag_t &flag);
         void clear_flags();
 
         auto begin() { return flags.begin(); }
         auto end() { return flags.end(); }
 
-        bool parse(std::string const &option, messages::msg_stack_t &msg_stack, data::map_t &conf);
+        bool parse(const std::string &option, messages::msg_stack_t &msg_stack, data::map_t &conf);
     };
 }

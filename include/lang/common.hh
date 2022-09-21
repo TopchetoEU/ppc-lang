@@ -8,11 +8,11 @@ namespace ppc::lang {
         std::vector<std::string> segments;
         ppc::location_t location;
 
-        bool operator ==(namespace_name_t const &other);
+        bool operator ==(const namespace_name_t &other);
     };
 
-    bool is_identifier_valid(messages::msg_stack_t &msg_stack, ppc::location_t location, std::string const &name);
-    inline bool is_identifier_valid(std::string const &name) {
+    bool is_identifier_valid(messages::msg_stack_t &msg_stack, ppc::location_t location, const std::string &name);
+    inline bool is_identifier_valid(const std::string &name) {
         messages::msg_stack_t ms { };
         return is_identifier_valid(ms, { }, name);
     }

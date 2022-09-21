@@ -29,7 +29,7 @@ bool messages::message_t::is_severe() const {
 }
 
 bool messages::msg_stack_t::is_failed() const {
-    for (auto const &msg : messages) {
+    for (const auto &msg : messages) {
         if (msg.is_severe()) return true;
     }
     return false;
@@ -37,7 +37,7 @@ bool messages::msg_stack_t::is_failed() const {
 void messages::msg_stack_t::print(std::ostream &output, messages::message_t::level_t threshold, bool color_output) const {
     if (!messages.size()) return;
 
-    for (auto const &msg : messages) {
+    for (const auto &msg : messages) {
         if (msg.level < threshold) continue;
 
         std::string loc_readable = msg.location.to_string();

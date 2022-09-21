@@ -1,9 +1,5 @@
 #include "data.hh"
 
-template<typename ... Ts>
-struct overload : Ts ... { using Ts::operator() ...; };
-template<class... Ts> overload(Ts...) -> overload<Ts...>;
-
 bool ppc::data::value_t::is_null() const {
     return type == type_t::Null;
 }
@@ -59,11 +55,11 @@ bool ppc::data::value_t::boolean(ppc::data::bool_t &out) const {
     return false;
 }
 
-ppc::data::array_t const &ppc::data::value_t::array() const {
+const ppc::data::array_t &ppc::data::value_t::array() const {
     if (is_array()) return *val.arr;
     else throw (std::string)"The value isn't an array.";
 }
-ppc::data::map_t const &ppc::data::value_t::map() const {
+const ppc::data::map_t &ppc::data::value_t::map() const {
     if (is_map()) return *val.map;
     else throw (std::string)"The value isn't a map.";
 }
@@ -71,7 +67,7 @@ ppc::data::number_t ppc::data::value_t::number() const {
     if (is_number()) return val.num;
     else throw (std::string)"The value isn't a number.";
 }
-ppc::data::string_t const &ppc::data::value_t::string() const {
+const ppc::data::string_t &ppc::data::value_t::string() const {
     if (is_string()) return *val.str;
     else throw (std::string)"The value isn't a string.";
 }
@@ -83,15 +79,15 @@ ppc::data::bool_t ppc::data::value_t::boolean() const {
 ppc::data::value_t::value_t() {
     this->type = type_t::Null;
 }
-ppc::data::value_t::value_t(ppc::data::array_t const &val) {
+ppc::data::value_t::value_t(const ppc::data::array_t &val) {
     this->type = type_t::Arr;
     this->val.arr = new array_t { val };
 }
-ppc::data::value_t::value_t(ppc::data::map_t const &val) {
+ppc::data::value_t::value_t(const ppc::data::map_t &val) {
     this->type = type_t::Map;
     this->val.map = new map_t { val };
 }
-ppc::data::value_t::value_t(ppc::data::string_t const &val) {
+ppc::data::value_t::value_t(const ppc::data::string_t &val) {
     this->type = type_t::Str;
     this->val.str = new string_t { val };
 }
@@ -103,7 +99,7 @@ ppc::data::value_t::value_t(ppc::data::number_t val) {
     this->type = type_t::Num;
     this->val.num = val;
 }
-ppc::data::value_t::value_t(ppc::data::value_t const &other) {
+ppc::data::value_t::value_t(const ppc::data::value_t &other) {
     type = other.type;
     switch (other.type) {
         case type_t::Map:
@@ -137,6 +133,3 @@ ppc::data::value_t::~value_t() {
     }
 }
 
-// ppc::data::value_t &ppc::data::value_t::operator=(ppc::data::value_t const &other) {
-//     return *this;
-// }

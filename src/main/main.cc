@@ -33,7 +33,7 @@ void add_flags(options::parser_t &parser) {
         .name = "version",
         .shorthands = "v",
         .description = "Displays version and license agreement of this binary",
-        .execute = [](options::parser_t &parser, std::string const &option, ppc::messages::msg_stack_t &global_stack) {
+        .execute = [](options::parser_t &parser, const std::string &option, ppc::messages::msg_stack_t &global_stack) {
             cout << "++C compiler\n"
                  << "    Version: v" << PPC_VERSION_MAJOR << '.' << PPC_VERSION_MINOR << '.' << PPC_VERSION_BUILD
             #if WINDOWS
@@ -50,13 +50,13 @@ void add_flags(options::parser_t &parser) {
         .name = "help",
         .shorthands = "h",
         .description = "Displays a list of all flags and their meaning",
-        .execute = [](options::parser_t &parser, std::string const &option, ppc::messages::msg_stack_t &global_stack) {
+        .execute = [](options::parser_t &parser, const std::string &option, ppc::messages::msg_stack_t &global_stack) {
             cout << "Usage: ...flags ...files\n\n"
                  << "Flags and file names can be interlaced\n"
                  << "Flags will execute in the order they're written, then compilation begins\n\n"
                  << "Flags:\n";
 
-            for (auto const &flag : parser) {
+            for (const auto &flag : parser) {
                 std::stringstream buff;
                 buff << "    --" << flag.name;
 
@@ -116,7 +116,7 @@ void add_flags(options::parser_t &parser) {
         .name = "print-what",
         .description = "Prints a 'what?' type of message (you'll see)",
         .match_type = options::MATCH_PREFIX,
-        .execute = [](options::parser_t &parser, std::string const &option, ppc::messages::msg_stack_t &global_stack) {
+        .execute = [](options::parser_t &parser, const std::string &option, ppc::messages::msg_stack_t &global_stack) {
             global_stack.push({ (messages::message_t::level_t)69, NO_LOCATION, "IDK LOL." });
         }
     });
@@ -140,28 +140,28 @@ int main(int argc, const char *argv[]) {
     data::map_t conf;
     add_flags(parser);
 
-    for (auto const &arg : args) {
+    for (const auto &arg : args) {
         if (!parser.parse(arg, msg_stack, conf)) {
             files.push_back(arg);
         }
     }
 
-    for (auto const &file : files) {
+    for (const auto &file : files) {
         std::ifstream f { file, std::ios_base::in };
         try {
             auto res = tok::token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
 
             for (auto tok : res) {
-                if (tok.is_identifier()) std::cout << "Identifier: " << tok.identifier();
-                if (tok.is_operator()) std::cout << "Operator: " << tok::operator_stringify(tok._operator());
-                if (tok.is_float_lit()) std::cout << "Float: " << tok.float_lit();
-                if (tok.is_int_lit()) std::cout << "Int: " << tok.int_lit();
-                if (tok.is_char_lit()) std::cout << "Char: " << tok.char_lit();
-                if (tok.is_string_lit()) std::cout << "String: " << std::string { tok.string_lit().begin(), tok.string_lit().end() };
+                if (tok.is_identifier()) std::cout << "Identifier: \t" << tok.identifier();
+                if (tok.is_operator()) std::cout << "Operator: \t" << tok::operator_stringify(tok._operator());
+                if (tok.is_float_lit()) std::cout << "Float: \t" << tok.float_lit();
+                if (tok.is_int_lit()) std::cout << "Int: \t" << tok.int_lit();
+                if (tok.is_char_lit()) std::cout << "Char: \t" << tok.char_lit();
+                if (tok.is_string_lit()) std::cout << "String: \t" << std::string { tok.string_lit().begin(), tok.string_lit().end() };
                 std::cout << std::endl;
             }
         }
-        catch (messages::message_t const &msg) {
+        catch (const messages::message_t &msg) {
             msg_stack.push(msg);
         }
     }
