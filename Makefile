@@ -1,5 +1,5 @@
 export MAKEFLAGS += --silent -r
-export flags=-std=c++17 -Wall -Wno-main -Wno-trigraphs -Wno-missing-braces -Wno-stringop-overflow -m32
+export flags=-std=c++17 -Wall -Wno-main -Wno-trigraphs -Wno-missing-braces -Wno-stringop-overflow
 export ldflags=-L$(bin)/$(profile)
 export lib=ppc$(version-major)-
 export profile=release
@@ -49,8 +49,8 @@ export binary = $(bin)/$(output)$(version-major)-windows.exe
 build: version
 	echo ======================== Compiling =========================
 	make -f scripts/common.mak
-	if exist $(bin)\++c-windows.exe del $(bin)\++c-windows.exe
-	mklink /H $(bin)\$(output).exe "$(subst /,\,$(binary))" > NUL
+	if exist "$(subst /,\,$(bin)\$(output).exe)" del "$(subst /,\,$(bin)\$(output).exe)"
+	mklink /H "$(subst /,\,$(bin)\$(output).exe)" "$(subst /,\,$(binary))" > NUL
 
 clear:
 	if exist $(subst /,\,$(oldbin)) rmdir /s /q $(subst /,\,$(oldbin))

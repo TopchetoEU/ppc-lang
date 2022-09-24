@@ -11,6 +11,9 @@
 #include <windows.h>
 #include <conio.h>
 
+#undef ERROR
+#undef INFO
+
 #endif
 
 #include <sstream>
