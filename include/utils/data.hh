@@ -45,22 +45,22 @@ namespace ppc::data {
         bool string(string_t &out) const;
         bool boolean(bool_t &out) const;
 
-        array_t const &array() const;
-        map_t const &map() const;
+        const array_t &array() const;
+        const map_t &map() const;
         number_t number() const;
-        string_t const &string() const;
+        const string_t &string() const;
         bool_t boolean() const;
 
-        // value_t &operator=(value_t const &other);
+        // value_t &operator=(const value_t &other);
 
         ~value_t();
         value_t();
-        value_t(array_t const &val);
-        value_t(map_t const &val);
+        value_t(const array_t &val);
+        value_t(const map_t &val);
         value_t(number_t val);
-        value_t(string_t const &val);
+        value_t(const string_t &val);
         value_t(bool_t val);
-        value_t(value_t const &other);
+        value_t(const value_t &other);
     };
 
 
@@ -91,8 +91,8 @@ namespace ppc::data {
         auto begin() { return values.begin(); }
         auto end() { return values.end(); }
 
-        void push(value_t const &val) { values.push_back(val); }
-        void insert(value_t const &val, std::size_t i = 0) { values.insert(begin() + i, val); }
+        void push(const value_t &val) { values.push_back(val); }
+        void insert(const value_t &val, std::size_t i = 0) { values.insert(begin() + i, val); }
         void pop() { values.pop_back(); }
         void remove(std::size_t i = 0) { values.erase(begin() + i); }
 
