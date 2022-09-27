@@ -38,4 +38,6 @@ namespace ppc::comp::tree::ast {
 
         group_parser_t();
     };
+
+    extern const constr_parser_t &glob_parser;
 }
