@@ -12,8 +12,7 @@ namespace ppc {
         auto end() const { return iterable->end() + start + n; }
 
         auto size() const { return n; }
-        auto &operator[](std::size_t i) { return iterable[start + i]; }
-        const auto &operator[](std::size_t i) const { return iterable[start + i]; }
+        auto &operator[](std::size_t i) const { return (iterable*)[start + i]; }
 
         slice_t(T &iterable, std::size_t start, std::size_t n) {
             this->iterable = &iterable;
