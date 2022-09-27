@@ -23,6 +23,9 @@ namespace ppc {
         }
     };
 
+    template <class T>
+    using vec_slice_t = slice_t<std::vector<T>>;
+
 
     template <class T>
     inline slice_t<T> slice(slice_t<T> &sl) {
