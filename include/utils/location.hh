@@ -4,6 +4,8 @@
 
 namespace ppc {
     struct location_t {
+        static const location_t NONE;
+
         std::size_t line;
         std::size_t start;
         std::size_t length;
@@ -22,6 +24,4 @@ namespace ppc {
         location_t(std::size_t line, std::size_t start, std::size_t code_start, std::size_t length);
         location_t(std::string filename, std::size_t line, std::size_t start, std::size_t code_start, std::size_t length);
     };
-
-    static const location_t NO_LOCATION = { };
 }
