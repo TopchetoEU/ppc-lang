@@ -38,19 +38,18 @@ flags +=  "-I$(inc)" -D$(OS) -DPPC_VERSION_MAJOR=$(version-major) -DPPC_VERSION_
 build: $(binary)
 
 .SECONDEXPANSION:
-$(binary): $$(call frdeps,$(mainmodule)) $$(call sources,$$*)
+$(binary): $$(call frdeps,$(mainmodule)) $$(call binaries,$(mainmodule))
 	$(call mkdir,$(dir $@))
 	echo Compiling executable '$(notdir $(binary))'...
-	$(CXX) $(flags) $(call sources,$(mainmodule)) -o $@ $(ldflags) $(call ldeps,$(mainmodule)) -L$(bin) "-I$(inc)"
-	$(call rmdir,$(bin)/lsproj$(exe))
+	$(CXX) $(flags) $(call binaries,$(mainmodule)) -o $@ $(ldflags) $(call ldeps,$(mainmodule)) -L$(bin) "-I$(inc)"
 
 .SECONDEXPANSION:
-$(bin)/lib$(lib)%$(so): $$(call sources,$$*) $(headers)
+$(bin)/lib$(lib)%$(so): $$(call frdeps,$$*) $$(call binaries,$$*)
 	$(call mkdir,$(bin))
 	echo Compiling library '$(notdir $@)'...
-	$(CXX) -shared -fPIC $(flags) $(call sources,$*) -o $@ $(ldflags) $(call ldeps,$*) -L$(bin) "-I$(inc)"
+	$(CXX) -shared -fPIC $(flags) $(call binaries,$*) -o $@ $(ldflags) $(call ldeps,$*) -L$(bin) "-I$(inc)"
 
-# $(bin)/%.o: $(src)/%.cc $(headers)
-# 	echo - Compiling '$*.cc'...
-# 	$(call mkdir,$(dir $@))
-# 	$(CXX) -fPIC -c $(flags) $< -o $@
+$(bin)/%.o: $(src)/%.cc $(headers)
+	echo - Compiling '$*.cc'...
+	$(call mkdir,$(dir $@))
+	$(CXX) -fPIC -c $(flags) $< -o $@
