@@ -120,7 +120,7 @@ void add_flags(options::parser_t &parser) {
         .description = "Prints a 'what?' type of message (you'll see)",
         .match_type = options::MATCH_PREFIX,
         .execute = [](options::parser_t &parser, const std::string &option, ppc::messages::msg_stack_t &global_stack) {
-            global_stack.push({ (messages::message_t::level_t)69, NO_LOCATION, "IDK LOL." });
+            global_stack.push(messages::message_t((messages::message_t::level_t)69, "IDK LOL."));
         }
     });
 }

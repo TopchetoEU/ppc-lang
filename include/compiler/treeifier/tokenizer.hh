@@ -128,32 +128,32 @@ namespace ppc::comp::tree::tok {
         bool is_identifier(std::string &&val) { return is_identifier() && identifier() == val; }
 
         token_t() { kind = NONE; }
-        token_t(const std::string &identifier, location_t loc = NO_LOCATION) {
+        token_t(const std::string &identifier, location_t loc = location_t::NONE) {
             kind = IDENTIFIER;
             data.identifier = new std::string { identifier };
             location = loc;
         }
-        token_t(operator_t op, location_t loc = NO_LOCATION) {
+        token_t(operator_t op, location_t loc = location_t::NONE) {
             kind = OPERATOR;
             data._operator = op;
             location = loc;
         }
-        token_t(std::uint64_t val, location_t loc = NO_LOCATION) {
+        token_t(std::uint64_t val, location_t loc = location_t::NONE) {
             kind = INT;
             data.int_literal = val;
             location = loc;
         }
-        token_t(double val, location_t loc = NO_LOCATION) {
+        token_t(double val, location_t loc = location_t::NONE) {
             kind = FLOAT;
             data.float_literal = val;
             location = loc;
         }
-        token_t(char c, location_t loc = NO_LOCATION) {
+        token_t(char c, location_t loc = location_t::NONE) {
             kind = CHAR;
             data.char_literal = c;
             location = loc;
         }
-        token_t(const std::vector<char> &val, location_t loc = NO_LOCATION) {
+        token_t(const std::vector<char> &val, location_t loc = location_t::NONE) {
             kind = STRING;
             data.string_literal = new std::vector<char> { val };
             location = loc;
