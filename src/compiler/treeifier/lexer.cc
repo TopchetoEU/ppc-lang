@@ -231,13 +231,13 @@ static process_res_t hex_process(char curr) {
 static process_res_t bin_process(char curr) {
     if (curr == '0' || curr == '1') return lexer_none();
     else if (is_digit(curr))
-        throw messages::message_t {  messages::message_t::ERROR, NO_LOCATION, "A binary literal may only contain zeroes and ones." };
+        throw messages::message_t(messages::message_t::ERROR, "A binary literal may only contain zeroes and ones.", location_t::NONE);
     else return lexer_end();
 }
 static process_res_t oct_process(char curr) {
     if (is_oct(curr)) return lexer_none();
     else if (is_digit(curr))
-        throw messages::message_t { messages::message_t::ERROR, NO_LOCATION, "An octal literal may only contain octal digits." };
+        throw messages::message_t(messages::message_t::ERROR, "An octal literal may only contain octal digits.", location_t::NONE);
     else return lexer_end();
 }
 
@@ -378,13 +378,13 @@ std::vector<token_t> token_t::parse_many(ppc::messages::msg_stack_t &msg_stack, 
             }
         }
         catch (const messages::message_t &msg) { 
-            throw messages::message_t { msg.level, { filename, line, start, i - length, length }, msg.content };
+            throw messages::message_t(msg.level, msg.content, location_t(filename, line, start, i - length, length));
         }
     }
 
     location_t loc = { filename, line, start, i - length, length };
     if (curr.type) {
-        tokens.push_back(token_t {
+        tokens.push_back({
             curr.type, std::string { curr_token.begin(), curr_token.end() },
             { filename, line, start, i - length, length }
         });

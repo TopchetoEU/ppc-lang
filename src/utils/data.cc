@@ -81,15 +81,15 @@ ppc::data::value_t::value_t() {
 }
 ppc::data::value_t::value_t(const ppc::data::array_t &val) {
     this->type = type_t::Arr;
-    this->val.arr = new array_t { val };
+    this->val.arr = new array_t(val);
 }
 ppc::data::value_t::value_t(const ppc::data::map_t &val) {
     this->type = type_t::Map;
-    this->val.map = new map_t { val };
+    this->val.map = new map_t(val);
 }
 ppc::data::value_t::value_t(const ppc::data::string_t &val) {
     this->type = type_t::Str;
-    this->val.str = new string_t { val };
+    this->val.str = new string_t(val);
 }
 ppc::data::value_t::value_t(ppc::data::bool_t val) {
     this->type = type_t::Bool;
@@ -103,13 +103,13 @@ ppc::data::value_t::value_t(const ppc::data::value_t &other) {
     type = other.type;
     switch (other.type) {
         case type_t::Map:
-            val.map = new map_t { *other.val.map };
+            val.map = new map_t(*other.val.map);
             break;
         case type_t::Arr:
-            val.arr = new array_t { *other.val.arr };
+            val.arr = new array_t(*other.val.arr);
             break;
         case type_t::Str:
-            val.str = new string_t { *other.val.str };
+            val.str = new string_t(*other.val.str);
             break;
         default:
             val = other.val;

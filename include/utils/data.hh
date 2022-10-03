@@ -70,7 +70,7 @@ namespace ppc::data {
     public:
         value_t &operator [](std::string name) {
             if (values.find(name) == values.end()) {
-                values.emplace(name, value_t { });
+                values.emplace(name, value_t());
             }
 
             return values[name];

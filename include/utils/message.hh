@@ -17,6 +17,12 @@ namespace ppc::messages {
         location_t location;
         std::string content;
 
+        message_t(level_t level, std::string content, location_t loc = location_t::NONE) :
+            level(level),
+            content(content),
+            location(loc) { }
+        message_t() : message_t(DEBUG, "") { }
+
         std::string to_string() const;
         bool is_severe() const;
     };

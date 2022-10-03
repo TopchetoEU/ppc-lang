@@ -12,7 +12,7 @@ static std::vector<char> parse_string(msg_stack_t &msg_stack, bool is_char, lex:
 
     bool escaping = false;
 
-    std::vector<char> res { };
+    std::vector<char> res;
     location_t curr_char_loc = token.location;
     curr_char_loc.length = 1;
     curr_char_loc.start++;
@@ -34,7 +34,7 @@ static std::vector<char> parse_string(msg_stack_t &msg_stack, bool is_char, lex:
             // TODO: Add support for oct, hex and utf8 literals
             else if (c == literal_char || c == '\\') new_c = c;
             else {
-                throw message_t { message_t::ERROR, curr_char_loc, "Unescapable character." };
+                throw message_t(message_t::ERROR, "Unescapable character.", curr_char_loc);
             }
             res.push_back(new_c);
             escaping = false;
@@ -49,8 +49,8 @@ static std::vector<char> parse_string(msg_stack_t &msg_stack, bool is_char, lex:
         if (c == '\n') break;
     }
 
-    if (is_char) throw message_t { message_t::ERROR, token.location, "Unterminated char literal." };
-    else throw message_t { message_t::ERROR, token.location, "Unterminated string literal." };
+    if (is_char) throw message_t(message_t::ERROR, "Unterminated char literal.", token.location);
+    else throw message_t(message_t::ERROR, "Unterminated string literal.", token.location);
 }
 static tok::token_t parse_int(msg_stack_t &msg_stack, lex::token_t token) {
     enum radix_t {
@@ -98,7 +98,7 @@ static tok::token_t parse_int(msg_stack_t &msg_stack, lex::token_t token) {
             case OCTAL:
                 digit = c - '0';
                 if (digit < 0 || digit > 7) {
-                    throw message_t { message_t::ERROR, token.location, "Octal literals may contain numbers between 0 and 7." };
+                    throw message_t(message_t::ERROR, "Octal literals may contain numbers between 0 and 7.", token.location);
                 }
                 res <<= 3;
                 res |= digit;
@@ -112,14 +112,14 @@ static tok::token_t parse_int(msg_stack_t &msg_stack, lex::token_t token) {
                 if (c >= 'a' && c <= 'f') digit = c - 'a' + 9;
                 else if (c >= 'A' && c <= 'F') digit = c - 'A' + 9;
                 else if (c >= '0' && c <= '9') digit = c - '0';
-                else throw message_t { message_t::ERROR, token.location, "Invalid character '"s + c + "' in hex literal." };
+                else throw message_t(message_t::ERROR, "Invalid character '"s + c + "' in hex literal.", token.location);
                 res <<= 4;
                 res |= digit;
                 break;
         }
     }
 
-    return tok::token_t { res, token.location };
+    return tok::token_t(res, token.location);
 }
 static tok::token_t parse_float(msg_stack_t &msg_stack, lex::token_t token) {
     double whole = 0, fract = 0;
@@ -143,20 +143,20 @@ static tok::token_t parse_float(msg_stack_t &msg_stack, lex::token_t token) {
         }
     }
 
-    return tok::token_t { whole + fract, token.location };
+    return tok::token_t(whole + fract, token.location);
 }
 
 tok::token_t tok::token_t::parse(messages::msg_stack_t &msg_stack, lex::token_t in) {
     switch (in.type) {
         case lex::token_t::IDENTIFIER:
-            return tok::token_t { in.data, in.location };
+            return tok::token_t(in.data, in.location);
         case lex::token_t::OPERATOR:
             try {
                 auto op = tok::operator_find(in.data);
-                return token_t { op, in.location };
+                return token_t(op, in.location);
             }
             catch (std::string &err) {
-                throw message_t { message_t::ERROR, in.location, "Operator not recognised."s };
+                throw message_t(message_t::ERROR, "Operator not recognised."s, in.location);
             }
         case lex::token_t::BIN_LITERAL:
         case lex::token_t::OCT_LITERAL:
@@ -169,11 +169,11 @@ tok::token_t tok::token_t::parse(messages::msg_stack_t &msg_stack, lex::token_t 
             return { parse_string(msg_stack, false, in) };
         case lex::token_t::CHAR_LITERAL: {
             auto str = parse_string(msg_stack, true, in);
-            if (str.size() != 1) throw message_t { message_t::ERROR, in.location, "Char literal must consist of just one character." };
+            if (str.size() != 1) throw message_t(message_t::ERROR, "Char literal must consist of just one character.", in.location);
             return str.front();
         }
         default:
-            throw message_t { message_t::ERROR, in.location, "Token type not recognised." };
+            throw message_t(message_t::ERROR, "Token type not recognised.", in.location);
     }
 }
 std::vector<tok::token_t> tok::token_t::parse_many(messages::msg_stack_t &msg_stack, std::vector<lex::token_t> tokens) {

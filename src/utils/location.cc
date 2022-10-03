@@ -115,3 +115,5 @@ location_t::location_t(std::string filename, std::size_t line, std::size_t start
     this->code_start = code_start;
     this->filename = filename;
 }
+
+const location_t location_t::NONE = { };
