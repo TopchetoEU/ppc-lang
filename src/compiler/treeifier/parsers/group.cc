@@ -4,6 +4,11 @@
 using namespace ppc::comp::tree::ast;
 using namespace std::string_literals;
 
+bool group_parser_t::parse(ast_ctx_t &ctx, size_t &i, data::map_t &out) const {
+    return false;
+}
+
+
 group_parser_t &group_parser_t::add(parser_t &parser) {
     parsers.push_back(&parser);
     return *this;
