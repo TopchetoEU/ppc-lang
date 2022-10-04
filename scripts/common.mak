@@ -34,6 +34,7 @@ binaries = $(patsubst $(src)/%.cc,$(bin)/%.o,$(call sources,$1))
 flags +=  "-I$(inc)" -D$(OS) -DPPC_VERSION_MAJOR=$(version-major) -DPPC_VERSION_MINOR=$(version-minor) -DPPC_VERSION_BUILD=$(version-build)
 
 .PHONY: build
+.PRECIOUS: $(bin)/%.o
 
 build: $(binary)
 
