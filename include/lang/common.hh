@@ -8,10 +8,9 @@ namespace ppc::lang {
     struct located_t : T {
         location_t location;
 
-        template <class ...Args>
-        located_t(location_t loc, Args ...args): T(args...), location(loc) { }
-        template <class ...Args>
-        located_t(Args ...args): T(args...), location(location_t::NONE) { }
+        located_t(location_t loc, const T &val): T(val), location(loc) { }
+        located_t(const T &val): T(val), location(location_t::NONE) { }
+        located_t() { }
     };
 
     struct namespace_name_t : public std::vector<std::string> {

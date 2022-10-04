@@ -1,4 +1,4 @@
-export MAKEFLAGS += --silent -r
+export MAKEFLAGS += --silent -r -j
 export flags=-std=c++17 -Wall -Wno-main -Wno-trigraphs -Wno-missing-braces -Wno-stringop-overflow
 export ldflags=-L$(bin)/$(profile)
 export lib=ppc$(version-major)-
@@ -51,7 +51,7 @@ build: version
 	make -f scripts/common.mak
 	if exist "$(subst /,\,$(bin)\$(output).exe)" del "$(subst /,\,$(bin)\$(output).exe)"
 	mklink /H "$(subst /,\,$(bin)\$(output).exe)" "$(subst /,\,$(binary))" > NUL
-
+	echo Done!
 clear:
 	if exist $(subst /,\,$(oldbin)) rmdir /s /q $(subst /,\,$(oldbin))
 

@@ -17,7 +17,7 @@ namespace ppc::messages {
         std::string content;
         location_t location;
 
-        message_t(level_t level, std::string content, location_t loc = location_t::NONE) :
+        message_t(level_t level, const std::string &content, location_t loc = location_t::NONE) :
             level(level),
             content(content),
             location(loc) { }
@@ -25,6 +25,8 @@ namespace ppc::messages {
 
         std::string to_string() const;
         bool is_severe() const;
+
+        static message_t error(const std::string &message, location_t loc = location_t::NONE) { return message_t(ERROR, message, loc); }
     };
 
     struct msg_stack_t {

@@ -152,11 +152,11 @@ int main(int argc, const char *argv[]) {
     for (const auto &file : files) {
         std::ifstream f { file, std::ios_base::in };
         try {
-            auto res = tok::token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
+            auto res = token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
 
             for (auto tok : res) {
                 if (tok.is_identifier()) std::cout << "Identifier: \t" << tok.identifier();
-                if (tok.is_operator()) std::cout << "Operator: \t" << tok::operator_stringify(tok._operator());
+                if (tok.is_operator()) std::cout << "Operator: \t" << operator_stringify(tok._operator());
                 if (tok.is_float_lit()) std::cout << "Float: \t" << tok.float_lit();
                 if (tok.is_int_lit()) std::cout << "Int: \t" << tok.int_lit();
                 if (tok.is_char_lit()) std::cout << "Char: \t" << tok.char_lit();

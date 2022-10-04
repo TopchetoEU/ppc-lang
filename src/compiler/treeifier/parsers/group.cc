@@ -41,12 +41,14 @@ bool group_parser_t::parse(ast_ctx_t &ctx, size_t &i, data::map_t &out) const {
         try {
             return h.parse(*parser, out);
         }
-        catch (std::string) {
+        catch (const message_t &err) {
+            ctx.messages.push(err);
             return false;
         }
     }
-}
 
+    return false;
+}
 
 group_parser_t &group_parser_t::add(parser_t &parser) {
     parsers.push_back(&parser);

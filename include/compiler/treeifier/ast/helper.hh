@@ -5,14 +5,19 @@ namespace ppc::comp::tree::ast {
     private:
         ast_ctx_t &ctx;
         size_t &res_i;
-        size_t i;
 
         void throw_ended() {
             if (ended()) throw messages::message_t(message_t::ERROR, "Unexpected end.", loc());
         }
+        void throw_ended(const std::string &reason) {
+            if (ended()) throw messages::message_t(message_t::ERROR, "Unexpected end: " + reason, loc());
+        }
     public:
-        void submit() {
+        size_t i;
+
+        bool submit() {
             res_i = i;
+            return true;
         }
 
         bool ended() {
@@ -82,6 +87,11 @@ namespace ppc::comp::tree::ast {
             throw_ended();
             i++;
             throw_ended();
+        }
+        void advance(const std::string &reason) {
+            throw_ended(reason);
+            i++;
+            throw_ended(reason);
         }
 
         tree_helper_t(ast_ctx_t &ctx, size_t &i): ctx(ctx), res_i(i) {

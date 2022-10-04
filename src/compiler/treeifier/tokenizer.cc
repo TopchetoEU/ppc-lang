@@ -52,7 +52,7 @@ static std::vector<char> parse_string(msg_stack_t &msg_stack, bool is_char, lex:
     if (is_char) throw message_t(message_t::ERROR, "Unterminated char literal.", token.location);
     else throw message_t(message_t::ERROR, "Unterminated string literal.", token.location);
 }
-static tok::token_t parse_int(msg_stack_t &msg_stack, lex::token_t token) {
+static token_t parse_int(msg_stack_t &msg_stack, lex::token_t token) {
     enum radix_t {
         BINARY,
         OCTAL,
@@ -119,9 +119,9 @@ static tok::token_t parse_int(msg_stack_t &msg_stack, lex::token_t token) {
         }
     }
 
-    return tok::token_t(res, token.location);
+    return token_t(res, token.location);
 }
-static tok::token_t parse_float(msg_stack_t &msg_stack, lex::token_t token) {
+static token_t parse_float(msg_stack_t &msg_stack, lex::token_t token) {
     double whole = 0, fract = 0;
 
     char c;
@@ -143,16 +143,16 @@ static tok::token_t parse_float(msg_stack_t &msg_stack, lex::token_t token) {
         }
     }
 
-    return tok::token_t(whole + fract, token.location);
+    return token_t(whole + fract, token.location);
 }
 
-tok::token_t tok::token_t::parse(messages::msg_stack_t &msg_stack, lex::token_t in) {
+token_t token_t::parse(messages::msg_stack_t &msg_stack, lex::token_t in) {
     switch (in.type) {
         case lex::token_t::IDENTIFIER:
-            return tok::token_t(in.data, in.location);
+            return token_t(in.data, in.location);
         case lex::token_t::OPERATOR:
             try {
-                auto op = tok::operator_find(in.data);
+                auto op = operator_find(in.data);
                 return token_t(op, in.location);
             }
             catch (std::string &err) {
@@ -176,11 +176,11 @@ tok::token_t tok::token_t::parse(messages::msg_stack_t &msg_stack, lex::token_t 
             throw message_t(message_t::ERROR, "Token type not recognised.", in.location);
     }
 }
-std::vector<tok::token_t> tok::token_t::parse_many(messages::msg_stack_t &msg_stack, std::vector<lex::token_t> tokens) {
-    std::vector<tok::token_t> res;
+std::vector<token_t> token_t::parse_many(messages::msg_stack_t &msg_stack, std::vector<lex::token_t> tokens) {
+    std::vector<token_t> res;
 
     for (auto &tok : tokens) {
-        res.push_back(tok::token_t::parse(msg_stack, tok));
+        res.push_back(token_t::parse(msg_stack, tok));
     }
 
     return res;

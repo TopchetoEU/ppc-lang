@@ -10,6 +10,7 @@
 
 using namespace std::string_literals;
 using namespace ppc;
+using namespace ppc::lang;
 using namespace ppc::messages;
 
 namespace ppc::comp::tree::ast {
@@ -42,6 +43,8 @@ namespace ppc::comp::tree::ast {
     public:
         msg_stack_t &messages;
         std::vector<token_t> &tokens;
+        std::set<lang::namespace_name_t> imports;
+        located_t<namespace_name_t> nmsp;
 
         void add_parser(std::string name, parser_t &parser);
         void add_parser(std::string name, group_parser_t &parser);
@@ -57,10 +60,7 @@ namespace ppc::comp::tree::ast {
     };
 
     class parser_t {
-    private:
-        std::string _name;
     public:
-        const std::string &name() { return _name; }
         virtual bool parse(ast_ctx_t &ctx, size_t &res_i, data::map_t &out) const = 0;
         bool operator()(ast_ctx_t &ctx, size_t &i, data::map_t &out) const {
             return parse(ctx, i, out);

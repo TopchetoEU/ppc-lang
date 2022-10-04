@@ -1,14 +1,16 @@
 export lsproj = $(bin)/lsproj$(exe)
 export flags += "-I$(inc)" -D$(OS) -DPPC_VERSION_MAJOR=$(version-major) -DPPC_VERSION_MINOR=$(version-minor) -DPPC_VERSION_BUILD=$(version-build)
 
-rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
+rwildcard=$(foreach d, $(wildcard $(1:=/*)),\
+	$(call rwildcard,$d,$2)\
+	$(filter $(subst *,%,$2),$d)\
+)
 
 uniq=$(if $1,$(firstword $1) $(call uniq,$(filter-out $(firstword $1),$1)))
 modoutput=$(shell ./$(lsproj) $(src) $1 output)
 deps=$(strip \
 	$(foreach dep, $(shell ./$(lsproj) $(src) $1 deps),\
-		$(if $(wildcard src/$(dep)),\
-			$(dep),\
+		$(if $(wildcard src/$(dep)), $(dep),\
 			$(error The module '$(dep)' (dependency of '$1') doesn't exist)\
 		)\
 	)\
@@ -29,15 +31,14 @@ lrdeps=$(foreach dep,$(call rdeps,$1),-l$(lib)$(call modoutput,$(dep)))
 modules = $(patsubst $(src)/%/,$(bin)/lib$(lib)%$(so),$(filter-out $(src)/$(mainmodule)/,$(wildcard $(src)/*/)))
 sources = $(call rwildcard,$(src)/$1,*.cc)
 headers = $(call rwildcard,$(inc),*.h)
-binaries = $(patsubst $(src)/%.cc,$(bin)/%.o,$(call sources,$1))
+binaries = $(patsubst $(src)/%.cc,$(bin)/tmp/%.o,$(call sources,$1))
 
 ifneq ($(nolsproj),yes)
-$(shell make -f scripts/lsproj.mak $(lsproj))
+$(shell make -f scripts/lsproj.mak lsproj=$(lsproj) src=$(src) $(lsproj))
 endif
 
-
 .PHONY: build
-.PRECIOUS: $(bin)/%.o
+.PRECIOUS: $(bin)/tmp/%.o
 
 build: $(binary)
 
@@ -53,7 +54,7 @@ $(bin)/lib$(lib)%$(so): $$(call frdeps,$$*) $$(call binaries,$$*)
 	echo Compiling library '$(notdir $@)'...
 	$(CXX) -shared -fPIC $(flags) $(call binaries,$*) -o $@ $(ldflags) $(call ldeps,$*) -L$(bin) "-I$(inc)"
 
-$(bin)/%.o: $(src)/%.cc $(headers)
+$(bin)/tmp/%.o: $(src)/%.cc $(headers)
 	echo - Compiling '$*.cc'...
 	$(call mkdir,$(dir $@))
 	$(CXX) -fPIC -c $(flags) $< -o $@
