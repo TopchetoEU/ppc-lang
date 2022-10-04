@@ -51,20 +51,24 @@ namespace ppc::comp::tree::ast {
             else return ctx.tokens[res_i].location.intersect(loc());
         }
 
-        bool try_parse(const parser_t &parser, data::map_t &out, messages::msg_stack_t &messages) {
+        bool parse(const parser_t &parser, data::map_t &out) {
+            return parser(ctx, i, out);
+        }
+        bool try_parse(const parser_t &parser, data::map_t &out, bool silent = true) {
             try {
                 return parser(ctx, i, out);
             }
             catch (messages::message_t msg) {
-                messages.push(msg);
+                if (!silent) ctx.messages.push(msg);
                 return false;
             }
         }
-        bool try_parse(const parser_t &parser, data::map_t &out) {
+        bool try_parse(const parser_t &parser, data::map_t &out, message_t &err) {
             try {
                 return parser(ctx, i, out);
             }
             catch (messages::message_t msg) {
+                err = msg;
                 return false;
             }
         }
