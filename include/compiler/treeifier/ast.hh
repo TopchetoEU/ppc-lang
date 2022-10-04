@@ -1,43 +1,84 @@
 #pragma once
 
 #include <string>
-#include <list>
+#include <set>
 #include <unordered_map>
 #include <memory>
 #include "compiler/treeifier/tokenizer.hh"
 #include "utils/data.hh"
-#include "utils/slice.hh"
 #include "lang/common.hh"
 
 using namespace std::string_literals;
 using namespace ppc;
+using namespace ppc::messages;
 
 namespace ppc::comp::tree::ast {
-    class constr_parser_t {
-    private:
-        std::string name;
-    public:
-        const std::string &name() { return name; }
-        virtual bool parse(messages::msg_stack_t &messages, vec_slice_t<tok::token_t> &tokens, data::map_t &out) = 0;
-    };
+    class parser_t;
+    class group_parser_t;
 
-    class group_parser_t : constr_parser_t {
+    struct ast_ctx_t {
     private:
-        struct named_parser {
-            constr_parser_t *parser;
-            std::string name;
+        using named_parser_t = std::pair<std::string, parser_t*>;
+
+        struct parser_proxy_t {
+        private:
+            ast_ctx_t &parent;
+        public:
+            parser_t &operator[](const std::string &name) const;
+            parser_proxy_t(ast_ctx_t &parent): parent(parent) { }
         };
-        std::list<constr_parser_t*> parsers;
-        std::unordered_map<std::string, constr_parser_t*> insertion_points;
+
+        struct group_proxy_t {
+        private:
+            ast_ctx_t &parent;
+        public:
+            group_parser_t &operator[](const std::string &name) const;
+            group_proxy_t(ast_ctx_t &parent): parent(parent) { }
+        };
+
+        std::unordered_map<std::string, parser_t*> parsers;
+        std::set<parser_t*> groups;
+
     public:
-        void add_insertion_point(constr_parser_t &parser, const std::string &name);
-        void add(constr_parser_t &parser);
-        void add(const std::string &ins_point, constr_parser_t &parser);
+        msg_stack_t &messages;
+        std::vector<tok::token_t> &tokens;
 
-        bool parse(messages::msg_stack_t &messages, data::map_t &out);
+        void add_parser(std::string name, parser_t &parser);
+        void add_parser(std::string name, group_parser_t &parser);
 
-        group_parser_t();
+        const parser_proxy_t parser;
+        const group_proxy_t group;
+
+        ast_ctx_t(msg_stack_t &messages, std::vector<tok::token_t> tokens):
+            messages(messages),
+            tokens(tokens),
+            parser(*this),
+            group(*this) { }
     };
 
-    extern const constr_parser_t &glob_parser;
+    class parser_t {
+    private:
+        std::string _name;
+    public:
+        const std::string &name() { return _name; }
+        virtual bool parse(ast_ctx_t &ctx, size_t &res_i, data::map_t &out) const = 0;
+        bool operator()(ast_ctx_t &ctx, size_t &i, data::map_t &out) const {
+            return parse(ctx, i, out);
+        }
+    };
+
+    class group_parser_t : public parser_t {
+    private:
+        std::vector<std::pair<lang::namespace_name_t, parser_t*>> named_parsers;
+        std::vector<parser_t*> parsers;
+    public:
+        group_parser_t &add(parser_t &parser);
+        group_parser_t &add(parser_t &parser, const lang::namespace_name_t &name);
+
+        bool parse(ast_ctx_t &ctx, size_t &i, data::map_t &out) const;
+    };
+
+    extern const parser_t &glob_parser;
+
+    const group_parser_t &get_group(std::string name);
 }

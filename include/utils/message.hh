@@ -14,8 +14,8 @@ namespace ppc::messages {
             WARNING,
             ERROR,
         } level;
-        location_t location;
         std::string content;
+        location_t location;
 
         message_t(level_t level, std::string content, location_t loc = location_t::NONE) :
             level(level),
