@@ -4,7 +4,7 @@
 #include "utils/message.hh"
 #include "compiler/treeifier/lexer.hh"
 
-namespace ppc::comp::tree::tok {
+namespace ppc::comp::tree {
     enum operator_t {
         LESS_THAN,
         GREATER_THAN,
@@ -55,6 +55,7 @@ namespace ppc::comp::tree::tok {
         COMMA,
         SEMICOLON,
         COLON,
+        DOUBLE_COLON,
         
         LAMBDA,
         
@@ -180,7 +181,7 @@ namespace ppc::comp::tree::tok {
             }
         }
 
-        static tok::token_t parse(messages::msg_stack_t &msg_stack, lex::token_t token);
+        static token_t parse(messages::msg_stack_t &msg_stack, lex::token_t token);
         static std::vector<token_t> parse_many(messages::msg_stack_t &msg_stack, std::vector<lex::token_t> tokens);
     };
 
