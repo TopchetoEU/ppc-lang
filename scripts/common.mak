@@ -1,12 +1,12 @@
-$(shell $(call mkdir,$(bin)))
-$(shell $(CXX) $(src)/lsproj.cc -o $(bin)/lsproj$(exe))
+export lsproj = $(bin)/lsproj$(exe)
+export flags += "-I$(inc)" -D$(OS) -DPPC_VERSION_MAJOR=$(version-major) -DPPC_VERSION_MINOR=$(version-minor) -DPPC_VERSION_BUILD=$(version-build)
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
 uniq=$(if $1,$(firstword $1) $(call uniq,$(filter-out $(firstword $1),$1)))
-modoutput=$(shell ./$(bin)/lsproj$(exe) $(src) $1 output)
+modoutput=$(shell ./$(lsproj) $(src) $1 output)
 deps=$(strip \
-	$(foreach dep, $(shell ./$(bin)/lsproj$(exe) $(src) $1 deps),\
+	$(foreach dep, $(shell ./$(lsproj) $(src) $1 deps),\
 		$(if $(wildcard src/$(dep)),\
 			$(dep),\
 			$(error The module '$(dep)' (dependency of '$1') doesn't exist)\
@@ -31,7 +31,10 @@ sources = $(call rwildcard,$(src)/$1,*.cc)
 headers = $(call rwildcard,$(inc),*.h)
 binaries = $(patsubst $(src)/%.cc,$(bin)/%.o,$(call sources,$1))
 
-flags +=  "-I$(inc)" -D$(OS) -DPPC_VERSION_MAJOR=$(version-major) -DPPC_VERSION_MINOR=$(version-minor) -DPPC_VERSION_BUILD=$(version-build)
+ifneq ($(nolsproj),yes)
+$(shell make -f scripts/lsproj.mak $(lsproj))
+endif
+
 
 .PHONY: build
 .PRECIOUS: $(bin)/%.o
