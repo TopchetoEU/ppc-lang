@@ -14,21 +14,16 @@ namespace ppc::lang {
         located_t(Args ...args): T(args...), location(location_t::NONE) { }
     };
 
-    struct namespace_name_t {
-        std::vector<std::string> segments;
-
-        bool is_empty() const { return segments.empty(); }
-
-        auto begin() { return segments.begin(); }
-        auto end() { return segments.end(); }
+    struct namespace_name_t : public std::vector<std::string> {
+        using base = std::vector<std::string>;
 
         bool operator ==(const namespace_name_t &other)  const;
-        const std::string &operator[](size_t i) const { return segments[i]; }
+        bool operator !=(const namespace_name_t &other)  const;
 
         std::string to_string() const;
 
         namespace_name_t() { }
-        namespace_name_t(std::initializer_list<std::string> segments): segments(segments.begin(), segments.end()) { }
+        namespace_name_t(std::initializer_list<std::string> segments): base(segments.begin(), segments.end()) { }
     };
 
     bool is_identifier_valid(messages::msg_stack_t &msg_stack, ppc::location_t location, const std::string &name);
