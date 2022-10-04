@@ -41,7 +41,7 @@ namespace ppc::comp::tree::ast {
 
     public:
         msg_stack_t &messages;
-        std::vector<tok::token_t> &tokens;
+        std::vector<token_t> &tokens;
 
         void add_parser(std::string name, parser_t &parser);
         void add_parser(std::string name, group_parser_t &parser);
@@ -49,7 +49,7 @@ namespace ppc::comp::tree::ast {
         const parser_proxy_t parser;
         const group_proxy_t group;
 
-        ast_ctx_t(msg_stack_t &messages, std::vector<tok::token_t> tokens):
+        ast_ctx_t(msg_stack_t &messages, std::vector<token_t> tokens):
             messages(messages),
             tokens(tokens),
             parser(*this),
