@@ -40,11 +40,7 @@ location_t location_t::intersect(location_t other) const {
 
     if (a.start == -1u || b.start == -1u) return { };
 
-    if (a.start > b.start) {
-        location_t c = a;
-        a = b;
-        b = c;
-    }
+    if (a.start > b.start) return other.intersect(*this);
 
     fix_location(a);
     fix_location(b);
@@ -59,61 +55,27 @@ location_t location_t::intersect(location_t other) const {
     return a;
 }
 
-location_t::location_t() {
-    this->line = -1;
-    this->start = -1;
-    this->length = -1;
-    this->code_start = -1;
-    this->filename = "";
-}
-location_t::location_t(std::string filename) {
-    this->line = -1;
-    this->start = -1;
-    this->length = -1;
-    this->code_start = -1;
-    this->filename = filename;
-}
-location_t::location_t(std::size_t line, std::size_t start) {
-    this->line = line;
-    this->start = start;
-    this->length = -1;
-    this->code_start = -1;
-    this->filename = "";
-}
-location_t::location_t(std::string filename, std::size_t line, std::size_t start) {
-    this->line = line;
-    this->start = start;
-    this->length = -1;
-    this->code_start = -1;
-    this->filename = filename;
-}
-location_t::location_t(std::size_t line, std::size_t start, std::size_t code_start) {
-    this->line = line;
-    this->start = start;
-    this->length = -1;
+std::string empty = "";
+
+location_t::location_t():
+    location_t(empty, -1, -1, -1, -1) { }
+location_t::location_t(const std::string &filename):
+    location_t(filename, -1, -1, -1, -1) { }
+location_t::location_t(std::size_t line, std::size_t start):
+    location_t(empty, line, start, -1, -1) { }
+location_t::location_t(const std::string &filename, std::size_t line, std::size_t start):
+    location_t(filename, line, start, -1, -1) { }
+location_t::location_t(std::size_t line, std::size_t start, std::size_t code_start):
+    location_t(empty, line, start, code_start, -1) { }
+location_t::location_t(const std::string &filename, std::size_t line, std::size_t start, std::size_t code_start):
+    location_t(filename, line, start, code_start, -1) { }
+location_t::location_t(std::size_t line, std::size_t start, std::size_t code_start, std::size_t length):
+    location_t(empty, line, start, code_start, length) { }
+location_t::location_t(const std::string &filename, std::size_t line, std::size_t start, std::size_t code_start, std::size_t length): filename(filename) {
+    this->length = length;
     this->code_start = code_start;
-    this->filename = "";
-}
-location_t::location_t(std::string filename, std::size_t line, std::size_t start, std::size_t code_start) {
     this->line = line;
     this->start = start;
-    this->length = -1;
-    this->code_start = code_start;
-    this->filename = filename;
-}
-location_t::location_t(std::size_t line, std::size_t start, std::size_t code_start, std::size_t length) {
-    this->line = line;
-    this->start = start;
-    this->length = line;
-    this->code_start = code_start;
-    this->filename = "";
-}
-location_t::location_t(std::string filename, std::size_t line, std::size_t start, std::size_t code_start, std::size_t length) {
-    this->line = line;
-    this->start = start;
-    this->length = line;
-    this->code_start = code_start;
-    this->filename = filename;
 }
 
 const location_t location_t::NONE = { };

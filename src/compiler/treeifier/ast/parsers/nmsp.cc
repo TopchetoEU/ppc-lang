@@ -8,12 +8,12 @@ class nmsp_parser_t : public parser_t {
 
         auto &arr = (out["content"] = array_t()).array();
 
-        if (!h.push_parse(identifier_parser, arr)) return false;
+        if (!h.push_parse("$_identifier", arr)) return false;
 
         while (true) {
             if (h.ended()) break;
             if (!h.curr().is_operator(operator_t::DOUBLE_COLON)) break;
-            h.force_push_parse(identifier_parser, "Expected an identifier.", arr);
+            h.force_push_parse("$_identifier", "Expected an identifier.", arr);
         }
 
         out["location"] = conv::loc_to_map(h.res_loc());
@@ -23,4 +23,4 @@ class nmsp_parser_t : public parser_t {
     public: nmsp_parser_t(): parser_t("$_nmsp") { }
 };
 
-const parser_t &ppc::comp::tree::ast::nmsp_parser = nmsp_parser_t();
+parser_factory_t ppc::comp::tree::ast::nmsp_parser = []() { return (parser_t*)new nmsp_parser_t(); };

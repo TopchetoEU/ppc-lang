@@ -153,26 +153,29 @@ int main(int argc, const char *argv[]) {
 
     for (const auto &file : files) {
         std::ifstream f { file, std::ios_base::in };
+        std::stringstream res;
         try {
             auto tokens = token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
             data::map_t ast;
             if (!ast::ast_ctx_t::parse(msg_stack, tokens, ast)) throw msg_stack.peek();
 
             for (auto tok : tokens) {
-                if (tok.is_identifier()) std::cout << "Identifier: \t" << tok.identifier();
-                if (tok.is_operator()) std::cout << "Operator: \t" << operator_stringify(tok._operator());
-                if (tok.is_float_lit()) std::cout << "Float: \t" << tok.float_lit();
-                if (tok.is_int_lit()) std::cout << "Int: \t" << tok.int_lit();
-                if (tok.is_char_lit()) std::cout << "Char: \t" << tok.char_lit();
-                if (tok.is_string_lit()) std::cout << "String: \t" << std::string { tok.string_lit().begin(), tok.string_lit().end() };
-                std::cout << std::endl;
+                if (tok.is_identifier()) res << "Identifier: \t" << tok.identifier();
+                if (tok.is_operator()) res << "Operator: \t" << operator_stringify(tok._operator());
+                if (tok.is_float_lit()) res << "Float: \t" << tok.float_lit();
+                if (tok.is_int_lit()) res << "Int: \t" << tok.int_lit();
+                if (tok.is_char_lit()) res << "Char: \t" << tok.char_lit();
+                if (tok.is_string_lit()) res << "String: \t" << std::string { tok.string_lit().begin(), tok.string_lit().end() };
+                res << '\n';
             }
 
-            std::cout << std::endl << data::json::stringify(ast);
+            res << '\n' << data::json::stringify(ast);
         }
         catch (const messages::message_t &msg) {
             msg_stack.push(msg);
         }
+
+        std::cout << res.str() << std::endl;
     }
 
     msg_stack.print(std::cout, messages::message_t::DEBUG, true);

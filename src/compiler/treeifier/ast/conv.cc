@@ -5,7 +5,7 @@ namespace ppc::comp::tree::ast::conv {
         return {
             { "location", conv::loc_to_map(loc.location) },
             { "content", loc },
-            { "$_name", identifier_parser.name() },
+            { "$_name", "$_identifier" },
         };
     }
     located_t<std::string> map_to_identifier(const data::map_t &map) {
@@ -17,20 +17,17 @@ namespace ppc::comp::tree::ast::conv {
             { "$_name", "$_loc" },
         };
 
-        if (loc.filename != "") res["filename"] = loc.filename;
+        res["filename"] = loc.filename;
         if (loc.start != -1u) res["start"] = (float)loc.start;
+        if (loc.start != -1u) res["line"] = (float)loc.line;
         if (loc.code_start != -1u) res["code_start"] = (float)loc.code_start;
         if (loc.length != -1u) res["length"] = (float)loc.length;
 
         return res;
     }
     location_t map_to_loc(const data::map_t &map) {
-        location_t res;
+        location_t res(map["filename"].string());
 
-        if (map.has("filename")) {
-            if (map["filename"].is_string()) res.filename = map["filename"].string();
-            else throw "Expected key 'filename' to be a string.";
-        }
         if (map.has("start")) {
             if (map["start"].is_number()) res.start = (size_t)map["start"].number();
             else throw "Expected key 'start' to be a number.";
@@ -42,6 +39,10 @@ namespace ppc::comp::tree::ast::conv {
         if (map.has("code_start")) {
             if (map["code_start"].is_number()) res.code_start = (size_t)map["code_start"].number();
             else throw "Expected key 'code_start' to be a number.";
+        }
+        if (map.has("line")) {
+            if (map["line"].is_number()) res.line = (size_t)map["line"].number();
+            else throw "Expected key 'line' to be a number.";
         }
 
         return res;
@@ -56,7 +57,7 @@ namespace ppc::comp::tree::ast::conv {
             arr.push({
                 { "location", loc_to_map(segment.location) },
                 { "content", segment },
-                { "$_name", nmsp_parser.name() },
+                { "$_name", "$_nmsp" },
             });
         }
 

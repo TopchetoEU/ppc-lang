@@ -129,37 +129,31 @@ namespace ppc::comp::tree {
         bool is_identifier(std::string &&val) { return is_identifier() && identifier() == val; }
 
         token_t() { kind = NONE; }
-        token_t(const std::string &identifier, location_t loc = location_t::NONE) {
+        token_t(const std::string &identifier, location_t loc = location_t::NONE): location(loc) {
             kind = IDENTIFIER;
             data.identifier = new std::string { identifier };
-            location = loc;
         }
-        token_t(operator_t op, location_t loc = location_t::NONE) {
+        token_t(operator_t op, location_t loc = location_t::NONE): location(loc) {
             kind = OPERATOR;
             data._operator = op;
-            location = loc;
         }
-        token_t(std::uint64_t val, location_t loc = location_t::NONE) {
+        token_t(std::uint64_t val, location_t loc = location_t::NONE): location(loc) {
             kind = INT;
             data.int_literal = val;
-            location = loc;
         }
-        token_t(double val, location_t loc = location_t::NONE) {
+        token_t(double val, location_t loc = location_t::NONE): location(loc) {
             kind = FLOAT;
             data.float_literal = val;
-            location = loc;
         }
-        token_t(char c, location_t loc = location_t::NONE) {
+        token_t(char c, location_t loc = location_t::NONE): location(loc) {
             kind = CHAR;
             data.char_literal = c;
-            location = loc;
         }
-        token_t(const std::vector<char> &val, location_t loc = location_t::NONE) {
+        token_t(const std::vector<char> &val, location_t loc = location_t::NONE): location(loc) {
             kind = STRING;
             data.string_literal = new std::vector<char> { val };
-            location = loc;
         }
-        token_t(const token_t &tok) {
+        token_t(const token_t &tok): location(tok.location) {
             kind = tok.kind;
             switch (kind) {
                 case NONE: break;
@@ -170,7 +164,6 @@ namespace ppc::comp::tree {
                 case CHAR: data.char_literal = tok.data.char_literal; break;
                 case STRING: data.string_literal = new std::vector<char> { *tok.data.string_literal }; break;
             }
-            location = tok.location;
         }
         
         ~token_t() {

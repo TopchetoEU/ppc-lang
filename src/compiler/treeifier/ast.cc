@@ -14,14 +14,20 @@ namespace ppc::comp::tree::ast {
         return *(const group_parser_t*)p;
     }
 
-    void ast_ctx_t::add_parser(const parser_t &parser) {
-        if (parsers.find(parser.name()) != parsers.end()) throw "The parser '" + parser.name() + "' already exists.";
-        parsers[parser.name()] = &parser;
+    ast_ctx_t::~ast_ctx_t() {
+        for (auto pair : parsers) {
+            delete pair.second;
+        }
     }
-    void ast_ctx_t::add_parser(const group_parser_t &parser) {
-        if (parsers.find(parser.name()) != parsers.end()) throw "The parser '" + parser.name() + "' already exists.";
-        parsers[parser.name()] = &parser;
-        groups.emplace(&parser);
+
+    void ast_ctx_t::add_parser(const parser_t *parser) {
+        if (parsers.find(parser->name()) != parsers.end()) throw "The parser '" + parser->name() + "' already exists.";
+        parsers[parser->name()] = parser;
+    }
+    void ast_ctx_t::add_parser(const group_parser_t *parser) {
+        if (parsers.find(parser->name()) != parsers.end()) throw "The parser '" + parser->name() + "' already exists.";
+        parsers[parser->name()] = parser;
+        groups.emplace(parser);
     }
 
     bool ast_ctx_t::parse(msg_stack_t &messages, std::vector<token_t> &tokens, data::map_t &out) {
@@ -30,12 +36,15 @@ namespace ppc::comp::tree::ast {
         size_t i = 0;
 
         try {
-            return glob_parser(ctx, i, out);
+            return ctx.parse("$_glob", i, out);
         }
         catch (const message_t &msg) {
             messages.push(msg);
             return false;
         }
+    }
+    bool ast_ctx_t::parse(std::string parser, size_t &pi, data::map_t &out) {
+        return this->parser[parser] (*this, pi, out);
     }
 }
 

@@ -18,4 +18,4 @@ class identifier_parser_t : public parser_t {
     public: identifier_parser_t(): parser_t("$_identifier") { }
 };
 
-const parser_t &ppc::comp::tree::ast::identifier_parser = identifier_parser_t();
+parser_factory_t ppc::comp::tree::ast::identifier_parser = []() { return (parser_t*)new identifier_parser_t(); };

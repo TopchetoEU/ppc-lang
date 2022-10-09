@@ -29,17 +29,18 @@ static bool read_nmsp(ast_ctx_t &ctx, size_t &i, const lang::namespace_name_t &n
     return equal_i != name.size();
 }
 
+
 bool group_parser_t::parse(ast_ctx_t &ctx, size_t &i, data::map_t &out) const {
     tree_helper_t h(ctx, i);
 
     for (auto &pair : named_parsers) {
         if (!read_nmsp(ctx, i, pair.first)) continue;
         auto &parser = *pair.second;
-        return h.parse(parser, out);
+        return parser(ctx, i, out);
     }
     for (auto parser : parsers) {
         try {
-            return h.parse(*parser, out);
+            return (*parser)(ctx, i, out);
         }
         catch (const message_t &err) {
             ctx.messages.push(err);
