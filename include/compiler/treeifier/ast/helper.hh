@@ -1,5 +1,11 @@
 #include "compiler/treeifier/ast.hh"
 
+using namespace ppc;
+using namespace ppc::lang;
+using namespace ppc::data;
+using namespace ppc::comp::tree;
+using namespace ppc::comp::tree::ast;
+
 namespace ppc::comp::tree::ast {
     struct tree_helper_t {
     private:
@@ -14,20 +20,6 @@ namespace ppc::comp::tree::ast {
         }
     public:
         size_t i;
-
-        bool submit() {
-            res_i = i;
-            return true;
-        }
-
-        bool ended() {
-            return i == ctx.tokens.size();
-        }
-
-        token_t &curr() {
-            throw_ended();
-            return ctx.tokens[i];
-        }
 
         location_t next_loc(size_t n = 1) {
             location_t res = loc();
@@ -56,26 +48,22 @@ namespace ppc::comp::tree::ast {
             else return ctx.tokens[res_i].location.intersect(loc());
         }
 
-        bool parse(const parser_t &parser, data::map_t &out) {
-            return parser(ctx, i, out);
+        void err(std::string message) {
+            throw message_t::error(message, loc());
         }
-        bool try_parse(const parser_t &parser, data::map_t &out, bool silent = true) {
-            try {
-                return parser(ctx, i, out);
-            }
-            catch (messages::message_t msg) {
-                if (!silent) ctx.messages.push(msg);
-                return false;
-            }
+
+        bool submit(bool inc_i = true) {
+            res_i = (i += inc_i);
+            return true;
         }
-        bool try_parse(const parser_t &parser, data::map_t &out, message_t &err) {
-            try {
-                return parser(ctx, i, out);
-            }
-            catch (messages::message_t msg) {
-                err = msg;
-                return false;
-            }
+
+        bool ended() {
+            return i == ctx.tokens.size();
+        }
+
+        token_t &curr() {
+            throw_ended();
+            return ctx.tokens[i];
         }
 
         bool try_advance() {
@@ -92,6 +80,48 @@ namespace ppc::comp::tree::ast {
             throw_ended(reason);
             i++;
             throw_ended(reason);
+        }
+
+        bool push_parse(const parser_t &parser, data::array_t &out) {
+            data::map_t res;
+            if (parser(ctx, i, res)) {
+                out.push(res);
+                return true;
+            }
+            else return false;
+        }
+
+        bool parse(const parser_t &parser, data::map_t &out) {
+            return parser(ctx, i, out);
+        }
+
+        void force_push_parse(const parser_t &parser, std::string message, data::array_t &out) {
+            advance(message);
+            bool success;
+
+            try {
+                success = push_parse(parser, out);
+            }
+            catch (const message_t &msg) {
+                ctx.messages.push(msg);
+                success = false;
+            }
+            
+            if (!success) err(message);
+        }
+        void force_parse(const parser_t &parser, std::string message, data::map_t &out) {
+            advance(message);
+            bool success;
+
+            try {
+                success = parse(parser, out);
+            }
+            catch (const message_t &msg) {
+                ctx.messages.push(msg);
+                success = false;
+            }
+            
+            if (!success) err(message);
         }
 
         tree_helper_t(ast_ctx_t &ctx, size_t &i): ctx(ctx), res_i(i) {

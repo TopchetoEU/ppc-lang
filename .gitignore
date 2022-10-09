@@ -18,7 +18,7 @@
 !src/*/**/*.cc
 !src/*/**/*.h
 !src/*/**/*.hh
-!src/*/proj.txt
+!src/*.proj
 !src/lsproj.cc
 
 !scripts

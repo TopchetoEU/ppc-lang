@@ -189,7 +189,7 @@ const lexlet_t LEXLET_OPERATOR = (lexlet_t) {
     },
     .process = [] (char curr) {
         bool failed = true;
-        if (first_op == curr && op_i == 1 && is_any(curr, "+-&|?<>")) failed = false;
+        if (first_op == curr && op_i == 1 && is_any(curr, ":+-&|?<>")) failed = false;
         if (curr == '=') {
             if (op_i == 1 && is_any(first_op, "<>=!+-/*%")) failed = false;
             if (op_i == 2 && is_any(first_op, "<>?")) failed = false;

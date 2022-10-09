@@ -24,6 +24,7 @@
 #include "utils/strings.hh"
 #include "compiler/treeifier/lexer.hh"
 #include "compiler/treeifier/tokenizer.hh"
+#include "compiler/treeifier/ast.hh"
 #include "./opions.hh"
 
 using std::cout;
@@ -152,9 +153,10 @@ int main(int argc, const char *argv[]) {
     for (const auto &file : files) {
         std::ifstream f { file, std::ios_base::in };
         try {
-            auto res = token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
-
-            for (auto tok : res) {
+            auto tokens = token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
+            data::map_t ast;
+            if (!ast::ast_ctx_t::parse(msg_stack, tokens, ast)) throw msg_stack.peek();
+            for (auto tok : tokens) {
                 if (tok.is_identifier()) std::cout << "Identifier: \t" << tok.identifier();
                 if (tok.is_operator()) std::cout << "Operator: \t" << operator_stringify(tok._operator());
                 if (tok.is_float_lit()) std::cout << "Float: \t" << tok.float_lit();

@@ -12,6 +12,7 @@ namespace ppc {
         std::size_t code_start;
         std::string filename;
 
+        operator std::string() const { return to_string(); }
         std::string to_string() const;
         location_t intersect(location_t other) const;
 

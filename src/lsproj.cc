@@ -101,7 +101,7 @@ int main(int argc, const char* argv[]) {
             throw (std::string)"Incorrect usage. Syntax: [src-dir] [project-name] [output|deps].";
         }
 
-        std::string proj_path = (std::string)argv[0] + "/" + argv[1] + "/proj.txt";
+        std::string proj_path = (std::string)argv[0] + "/" + argv[1] + ".proj";
         proj_name = argv[1];
 
         std::ifstream f { proj_path, std::ios_base::in };

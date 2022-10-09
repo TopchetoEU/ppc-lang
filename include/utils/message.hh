@@ -23,6 +23,8 @@ namespace ppc::messages {
             location(loc) { }
         message_t() : message_t(DEBUG, "") { }
 
+        operator std::string() const { return to_string(); }
+
         std::string to_string() const;
         bool is_severe() const;
 
@@ -37,6 +39,7 @@ namespace ppc::messages {
         inline auto end() { return messages.end(); }
 
         void push(const message_t &msg) { messages.push_back(msg); }
+        const message_t &peek() { return messages.back(); }
         void clear() { messages.clear(); }
 
         bool is_failed() const;

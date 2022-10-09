@@ -1,6 +1,8 @@
 export lsproj = $(bin)/lsproj$(exe)
 export flags += "-I$(inc)" -D$(OS) -DPPC_VERSION_MAJOR=$(version-major) -DPPC_VERSION_MINOR=$(version-minor) -DPPC_VERSION_BUILD=$(version-build)
 
+$(shell make -f scripts/lsproj.mak lsproj=$(lsproj) src=$(src) $(lsproj))
+
 rwildcard=$(foreach d, $(wildcard $(1:=/*)),\
 	$(call rwildcard,$d,$2)\
 	$(filter $(subst *,%,$2),$d)\
@@ -30,12 +32,8 @@ lrdeps=$(foreach dep,$(call rdeps,$1),-l$(lib)$(call modoutput,$(dep)))
 
 modules = $(patsubst $(src)/%/,$(bin)/lib$(lib)%$(so),$(filter-out $(src)/$(mainmodule)/,$(wildcard $(src)/*/)))
 sources = $(call rwildcard,$(src)/$1,*.cc)
-headers = $(call rwildcard,$(inc),*.h)
+headers = $(call rwildcard,$(inc),*.hh)
 binaries = $(patsubst $(src)/%.cc,$(bin)/tmp/%.o,$(call sources,$1))
-
-ifneq ($(nolsproj),yes)
-$(shell make -f scripts/lsproj.mak lsproj=$(lsproj) src=$(src) $(lsproj))
-endif
 
 .PHONY: build
 .PRECIOUS: $(bin)/tmp/%.o
