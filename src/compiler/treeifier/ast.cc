@@ -27,15 +27,10 @@ namespace ppc::comp::tree::ast {
     bool ast_ctx_t::parse(msg_stack_t &messages, std::vector<token_t> &tokens, data::map_t &out) {
         ast_ctx_t ctx(messages, tokens);
         ctx.init();
-        data::map_t res;
         size_t i = 0;
 
         try {
-            if (glob_parser(ctx, i, out)) {
-                out = res;
-                return true;
-            }
-            else return false;
+            return glob_parser(ctx, i, out);
         }
         catch (const message_t &msg) {
             messages.push(msg);

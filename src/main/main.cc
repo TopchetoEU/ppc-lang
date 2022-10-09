@@ -22,6 +22,7 @@
 #include <cstdio>
 #include "utils/threading.hh"
 #include "utils/strings.hh"
+#include "utils/json.hh"
 #include "compiler/treeifier/lexer.hh"
 #include "compiler/treeifier/tokenizer.hh"
 #include "compiler/treeifier/ast.hh"
@@ -156,6 +157,7 @@ int main(int argc, const char *argv[]) {
             auto tokens = token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
             data::map_t ast;
             if (!ast::ast_ctx_t::parse(msg_stack, tokens, ast)) throw msg_stack.peek();
+
             for (auto tok : tokens) {
                 if (tok.is_identifier()) std::cout << "Identifier: \t" << tok.identifier();
                 if (tok.is_operator()) std::cout << "Operator: \t" << operator_stringify(tok._operator());
@@ -165,6 +167,8 @@ int main(int argc, const char *argv[]) {
                 if (tok.is_string_lit()) std::cout << "String: \t" << std::string { tok.string_lit().begin(), tok.string_lit().end() };
                 std::cout << std::endl;
             }
+
+            std::cout << std::endl << data::json::stringify(ast);
         }
         catch (const messages::message_t &msg) {
             msg_stack.push(msg);
