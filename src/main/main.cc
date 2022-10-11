@@ -141,31 +141,43 @@ int main(int argc, const char *argv[]) {
     std::vector<std::string> files;
     messages::msg_stack_t msg_stack;
 
-    options::parser_t parser;
-    data::map_t conf;
-    add_flags(parser);
+    try {
+        options::parser_t parser;
+        data::map_t conf;
+        add_flags(parser);
 
-    for (const auto &arg : args) {
-        if (!parser.parse(arg, msg_stack, conf)) {
-            files.push_back(arg);
+        for (const auto &arg : args) {
+            if (!parser.parse(arg, msg_stack, conf)) {
+                files.push_back(arg);
+            }
         }
-    }
 
-    for (const auto &file : files) {
-        std::ifstream f { file, std::ios_base::in };
-        try {
+        for (const auto &file : files) {
+            std::ifstream f { file, std::ios_base::in };
             auto tokens = token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
             data::map_t ast;
             if (!ast::ast_ctx_t::parse(msg_stack, tokens, ast)) continue;
 
             std::cout << data::json::stringify(ast) << std::endl;
         }
-        catch (const messages::message_t &msg) {
-            msg_stack.push(msg);
-        }
+        throw 15.0f;
+    }
+    catch (const messages::message_t &msg) {
+        msg_stack.push(msg);
+    }
+    catch (const std::string &msg) {
+        msg_stack.push(message_t::error(msg));
+    }
+    catch (...) {
+        std::cout << std::endl;
+        msg_stack.push(message_t::error("A fatal error occurred."));
     }
 
     msg_stack.print(std::cout, messages::message_t::DEBUG, true);
+
+    #ifdef PROFILE_debug
+    system("pause");
+    #endif
 
     return 0;
 }
