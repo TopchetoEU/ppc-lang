@@ -1,5 +1,5 @@
 export MAKEFLAGS += --silent -r -j
-export flags=-std=c++17 -Wall -Wno-main -Wno-trigraphs -Wno-missing-braces -Wno-stringop-overflow
+export flags=-std=c++17 -Wall -Wno-main -Wno-trigraphs -Wno-missing-braces -Wno-stringop-overflow -DPROFILE_$(profile)
 export ldflags=-L$(bin)/$(profile)
 export lib=ppc$(version-major)-
 export profile=release
