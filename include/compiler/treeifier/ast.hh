@@ -23,6 +23,7 @@ namespace ppc::comp::tree::ast {
     extern parser_factory_t glob_parser;
     extern parser_factory_t identifier_parser;
     extern parser_factory_t nmsp_parser;
+    extern parser_factory_t type_parser;
     extern group_parser_factory_t def_parser;
 
     struct ast_ctx_t {
@@ -67,6 +68,7 @@ namespace ppc::comp::tree::ast {
             add_parser(identifier_parser);
             add_parser(nmsp_parser);
             add_parser(def_parser);
+            add_parser(type_parser);
             return *this;
         }
 
