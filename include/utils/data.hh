@@ -52,6 +52,7 @@ namespace ppc::data {
         bool_t boolean() const;
 
         value_t &operator=(const value_t &other);
+        value_t &operator=(const char *other);
 
         ~value_t();
         value_t();
@@ -60,6 +61,7 @@ namespace ppc::data {
         value_t(std::initializer_list<std::pair<std::string, value_t>> map);
         value_t(number_t val);
         value_t(const string_t &val);
+        value_t(const char *val);
         value_t(bool_t val);
         value_t(const value_t &other);
 

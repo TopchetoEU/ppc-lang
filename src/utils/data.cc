@@ -92,6 +92,10 @@ namespace ppc::data {
         this->type = type_t::Str;
         this->val.str = new string_t(val);
     }
+    value_t::value_t(const char *val) {
+        this->type = type_t::Str;
+        this->val.str = new string_t(val);
+    }
     value_t::value_t(bool_t val) {
         this->type = type_t::Bool;
         this->val.bl = val;
@@ -159,6 +163,11 @@ namespace ppc::data {
                 val = other.val;
                 break;
         }
+        return *this;
+    }
+    value_t &value_t::operator=(const char *other) {
+        type = type_t::Str;
+        val.str = new string_t(other);
         return *this;
     }
 
