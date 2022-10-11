@@ -11,17 +11,17 @@ std::string location_t::to_string() const {
         res << filename;
         written_anything = true;
     }
-    if (line != -1u) {
+    if (line + 1 != 0) {
         if (written_anything) res << ':';
         res << line + 1;
         written_anything = true;
     }
-    if (start != -1u) {
+    if (start + 1 != 0) {
         if (written_anything) res << ':';
         res << start + 1;
         written_anything = true;
     }
-    if (length != -1u) {
+    if (length + 1 != 0) {
         if (written_anything) res << '(' << length << ')';
         written_anything = true;
     }
