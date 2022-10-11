@@ -21,6 +21,20 @@ namespace ppc::comp::tree::ast {
     public:
         size_t i;
 
+        location_t loc(size_t n) {
+            location_t res = prev_loc();
+            res.start += res.length;
+            res.code_start += res.length;
+            res.length = n;
+            return res;
+        }
+        location_t prev_loc() {
+            auto prev_i = i;
+            if (i > 0) i--;
+            auto res  = loc();
+            i = prev_i;
+            return res;
+        }
         location_t next_loc(size_t n = 1) {
             location_t res = loc();
             res.start += res.length;
@@ -50,6 +64,9 @@ namespace ppc::comp::tree::ast {
 
         void err(std::string message) {
             throw message_t::error(message, loc());
+        }
+        void err(std::string message, size_t n) {
+            throw message_t::error(message, loc(n));
         }
 
         bool submit(bool inc_i = true) {

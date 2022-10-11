@@ -10,8 +10,10 @@ class nmsp_def_parser_t : public parser_t {
 
         if (!h.curr().is_identifier("namespace")) return false;
         h.force_parse("$_nmsp", "Expected a namespace.", res);
-        if (!h.curr().is_operator(operator_t::SEMICOLON)) h.err("Expected a semicolon.");
-
+        if (!h.curr().is_operator(operator_t::SEMICOLON)) {
+            ctx.messages.push(message_t::error("Expected a semicolon.", h.loc(1)));
+            return h.submit(false);
+        }
         return h.submit(true);
     }
 
@@ -24,7 +26,10 @@ class import_parser_t : public parser_t {
 
         if (!h.curr().is_identifier("import")) return false;
         h.force_parse("$_nmsp", "Expected a namespace.", res);
-        if (!h.curr().is_operator(operator_t::SEMICOLON)) h.err("Expected a semicolon.");
+        if (!h.curr().is_operator(operator_t::SEMICOLON)) {
+            ctx.messages.push(message_t::error("Expected a semicolon.", h.loc(1)));
+            return h.submit(false);
+        }
 
         return h.submit(true);
     }
@@ -39,11 +44,12 @@ class glob_parser_t : public parser_t {
     bool parse(ast_ctx_t &ctx, size_t &res_i, data::map_t &out) const {
         tree_helper_t h(ctx, res_i);
         if (h.ended()) return true;
-        nmsp_def_parser(ctx, h.i, (out["namespace"] = map_t()).map());
-        ctx.nmsp = conv::map_to_nmsp(out["namespace"].map());
+        if (nmsp_def_parser(ctx, h.i, (out["namespace"] = map_t()).map())) {
+            ctx.nmsp = conv::map_to_nmsp(out["namespace"].map());
+        }
 
         auto &imports = (out["imports"] = array_t()).array();
-        auto &contents = (out["content"] = array_t()).array();
+        /* auto &contents = */ (out["content"] = array_t()).array();
 
         while (true) {
             map_t map;
@@ -56,6 +62,7 @@ class glob_parser_t : public parser_t {
 
         if (!h.ended()) h.err("Invalid token.");
 
+        if (ctx.messages.is_failed()) return false;
         return h.submit();
     }
 
