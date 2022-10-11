@@ -15,7 +15,7 @@ struct res_t {
     bool _repeat;
     bool _add;
 
-    res_t add(bool val = false) {
+    res_t add(bool val = true) {
         this->_add = val;
         return *this;
     }
@@ -26,14 +26,14 @@ struct res_t {
 };
 
 
-static bool isoct(char c) {
+static inline bool isoct(char c) {
     return c >= '0' && c <= '7';
 }
-static bool is_any(char c, std::string chars) {
+static inline bool is_any(char c, std::string chars) {
     auto res = chars.find(c) != std::string::npos;
     return res;
 }
-static bool is_operator(char c) {
+static inline bool is_operator(char c) {
     return is_any(c, "=!<>+-*/%&|^?:,.(){}[];");
 }
 
@@ -85,9 +85,9 @@ static res_t lexlet_dec(char c, std::vector<char> &tok) {
 };
 
 static res_t lexlet_zero(char c, std::vector<char> &tok) {
-    if (c == '.') return lexer_switch(lexlet_float);
-    else if (c == 'b') return lexer_switch(lexlet_bin);
-    else if (c == 'x') return lexer_switch(lexlet_hex);
+    if (c == '.') return lexer_switch(lexlet_float).add();
+    else if (c == 'b') return lexer_switch(lexlet_bin).add();
+    else if (c == 'x') return lexer_switch(lexlet_hex).add();
     else if (isdigit(c)) return lexer_switch(lexlet_oct, true);
     else return lexer_end(token_t::DEC_LITERAL);
 };
@@ -107,10 +107,13 @@ static res_t lexlet_multicomment(char c, std::vector<char> &tok) {
 static res_t lexlet_operator(char c, std::vector<char> &tok) {
     bool failed = false;
 
+
     if (tok.size() > 0) {
         failed = true;
         char first_op = tok[0];
         size_t op_i = tok.size();
+
+        if (first_op == '.' && isdigit(c)) return lexer_switch(lexlet_float).add();
 
         if (first_op == c && op_i == 1 && is_any(c, ":+-&|?<>")) failed = false;
         if (c == '=') {
@@ -138,18 +141,16 @@ static res_t lexlet_char(char c, std::vector<char> &tok) {
 };
 
 static res_t lexlet_default(char c, std::vector<char> &tok) {
-    tok.push_back(c);
-    if (c == '"') return lexer_switch(lexlet_string);
-    if (c == '\'') return lexer_switch(lexlet_char);
-    if (c == '0') return lexer_switch(lexlet_zero);
-    if (c == '.') return lexer_switch(lexlet_float);
-    if (is_operator(c)) return lexer_switch(lexlet_operator);
-    if (isdigit(c)) return lexer_switch(lexlet_dec);
+    if (c == '"') return lexer_switch(lexlet_string).add();
+    if (c == '\'') return lexer_switch(lexlet_char).add();
+    if (c == '0') return lexer_switch(lexlet_zero).add();
+    if (is_operator(c)) return lexer_switch(lexlet_operator).add();
+    if (isdigit(c)) return lexer_switch(lexlet_dec).add();
     if (isspace(c)) {
         tok.clear();
         return lexer_none().add(false);
     }
-    return lexer_switch(lexlet_identifier);
+    return lexer_switch(lexlet_identifier).add();
 };
 
 std::vector<token_t> token_t::parse_many(ppc::messages::msg_stack_t &msg_stack, const std::string &filename, const std::string &_src) {

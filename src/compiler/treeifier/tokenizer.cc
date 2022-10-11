@@ -7,7 +7,7 @@ using namespace messages;
 using namespace comp::tree;
 using namespace std::string_literals;
 
-static std::vector<char> parse_string(msg_stack_t &msg_stack, bool is_char, lex::token_t token) {
+static std::vector<char> parse_string(msg_stack_t &msg_stack, bool is_char, const lex::token_t &token) {
     char literal_char = is_char ? '\'' : '"';
 
     bool escaping = false;
@@ -52,7 +52,7 @@ static std::vector<char> parse_string(msg_stack_t &msg_stack, bool is_char, lex:
     if (is_char) throw message_t(message_t::ERROR, "Unterminated char literal.", token.location);
     else throw message_t(message_t::ERROR, "Unterminated string literal.", token.location);
 }
-static token_t parse_int(msg_stack_t &msg_stack, lex::token_t token) {
+static token_t parse_int(msg_stack_t &msg_stack, const lex::token_t &token) {
     enum radix_t {
         BINARY,
         OCTAL,
@@ -82,11 +82,9 @@ static token_t parse_int(msg_stack_t &msg_stack, lex::token_t token) {
             throw "WTF r u doing bro?"s;
     }
 
-    std::size_t j = token.data.length() - 1;
-
     uint64_t res = 0;
 
-    for (; i <= j; i++) {
+    for (; i <= token.data.length() - 1; i++) {
         char c = token.data[i];
         int8_t digit;
         switch (radix) {
@@ -109,8 +107,8 @@ static token_t parse_int(msg_stack_t &msg_stack, lex::token_t token) {
                 res += digit;
                 break;
             case 3:
-                if (c >= 'a' && c <= 'f') digit = c - 'a' + 9;
-                else if (c >= 'A' && c <= 'F') digit = c - 'A' + 9;
+                if (c >= 'a' && c <= 'f') digit = c - 'a' + 10;
+                else if (c >= 'A' && c <= 'F') digit = c - 'A' + 10;
                 else if (c >= '0' && c <= '9') digit = c - '0';
                 else throw message_t(message_t::ERROR, "Invalid character '"s + c + "' in hex literal.", token.location);
                 res <<= 4;
@@ -121,13 +119,13 @@ static token_t parse_int(msg_stack_t &msg_stack, lex::token_t token) {
 
     return token_t(res, token.location);
 }
-static token_t parse_float(msg_stack_t &msg_stack, lex::token_t token) {
+static token_t parse_float(msg_stack_t &msg_stack, const lex::token_t &token) {
     double whole = 0, fract = 0;
 
     char c;
     std::size_t i;
 
-    for (i = 0; i < token.data.length() && ((c = token.data[i]) > '0' && c < '9'); i++) {
+    for (i = 0; i < token.data.length() && isdigit(c = token.data[i]); i++) {
         if (c == '.') break;
         int digit = c - '0';
         whole *= 10;
@@ -136,7 +134,7 @@ static token_t parse_float(msg_stack_t &msg_stack, lex::token_t token) {
 
     if (c == '.') {
         i++;
-        for (; i < token.data.length() && ((c = token.data[i]) > '0' && c < '9'); i++) {
+        for (; i < token.data.length() && isdigit(c = token.data[i]); i++) {
             int digit = c - '0';
             fract += digit;
             fract /= 10;
