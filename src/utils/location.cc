@@ -22,7 +22,7 @@ std::string location_t::to_string() const {
         written_anything = true;
     }
     if (length != -1u) {
-        if (written_anything) res << '(' << length + 1 << ')';
+        if (written_anything) res << '(' << length << ')';
         written_anything = true;
     }
 
