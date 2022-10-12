@@ -32,6 +32,7 @@ using std::cout;
 using std::size_t;
 using namespace ppc;
 using namespace ppc::comp::tree;
+using namespace ppc::comp::tree::ast;
 
 void add_flags(options::parser_t &parser) {
     parser.add_flag({
@@ -153,14 +154,17 @@ int main(int argc, const char *argv[]) {
         }
 
         for (const auto &file : files) {
-            std::ifstream f { file, std::ios_base::in };
-            auto tokens = token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
-            data::map_t ast;
-            if (!ast::ast_ctx_t::parse(msg_stack, tokens, ast)) continue;
+            try {
+                std::ifstream f { file, std::ios_base::in };
+                auto tokens = token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
+                auto ast = ast_ctx_t::parse(msg_stack, tokens);
 
-            std::cout << data::json::stringify(ast) << std::endl;
+                std::cout << data::json::stringify(ast) << std::endl;
+            }
+            catch (const messages::message_t &msg) {
+                msg_stack.push(msg);
+            }
         }
-        throw 15.0f;
     }
     catch (const messages::message_t &msg) {
         msg_stack.push(msg);
