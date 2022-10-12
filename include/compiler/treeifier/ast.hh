@@ -73,7 +73,7 @@ namespace ppc::comp::tree::ast {
         }
 
         bool parse(std::string parser, size_t &pi, data::map_t &out);
-        static bool parse(msg_stack_t &messages, std::vector<token_t> &tokens, data::map_t &out);
+        static data::map_t parse(msg_stack_t &messages, std::vector<token_t> &tokens);
 
         ~ast_ctx_t();
         ast_ctx_t(msg_stack_t &messages, std::vector<token_t> &tokens):

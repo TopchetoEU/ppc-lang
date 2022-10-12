@@ -30,18 +30,14 @@ namespace ppc::comp::tree::ast {
         groups.emplace(parser);
     }
 
-    bool ast_ctx_t::parse(msg_stack_t &messages, std::vector<token_t> &tokens, data::map_t &out) {
+    data::map_t ast_ctx_t::parse(msg_stack_t &messages, std::vector<token_t> &tokens) {
         ast_ctx_t ctx(messages, tokens);
         ctx.init();
         size_t i = 0;
+        data::map_t res;
 
-        try {
-            return ctx.parse("$_glob", i, out);
-        }
-        catch (const message_t &msg) {
-            messages.push(msg);
-            return false;
-        }
+        if (!ctx.parse("$_glob", i, res)) throw message_t::error("Failed to compile.");
+        return res;
     }
     bool ast_ctx_t::parse(std::string parser, size_t &pi, data::map_t &out) {
         return this->parser[parser] (*this, pi, out);
