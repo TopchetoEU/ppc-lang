@@ -9,6 +9,7 @@ class type_parser_t : public parser_t {
         auto &nmsp = (out["namespace"] = map_t()).map();
         nmsp["$_name"] = "$_nmsp";
         auto &nmsp_content = (out["namespace"].map()["content"] = array_t()).array();
+        size_t ptr_n = 0;
 
         if (!h.push_parse("$_identifier", nmsp_content)) return false;
 
@@ -18,8 +19,14 @@ class type_parser_t : public parser_t {
             h.force_push_parse("$_identifier", "Expected an identifier.", nmsp_content);
         }
 
+        while (!h.ended() && h.curr().is_operator(operator_t::MULTIPLY)) {
+            ptr_n++;
+            if (!h.try_advance()) break;
+        }
+
         out["location"] = conv::loc_to_map(h.res_loc());
         out["name"] = nmsp_content[nmsp_content.size() - 1];
+        out["ptr_n"] = (float)ptr_n;
         nmsp_content.pop();
 
         if (nmsp_content.size() == 0) {
