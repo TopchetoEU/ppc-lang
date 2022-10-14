@@ -20,47 +20,55 @@ namespace ppc::data {
         return type == type_t::Bool;
     }
 
-    bool value_t::array(array_t &out) const {
-        if (is_array()) {
-            out = *val.arr;
-            return true;
-        }
-        return false;
+    array_t &value_t::array(const array_t &val) {
+        *this = val;
+        return *this->val.arr;
     }
-    bool value_t::map(map_t &out) const {
-        if (is_map()) {
-            out = *val.map;
-            return true;
-        }
-        return false;
+    map_t &value_t::map(const map_t &val) {
+        *this = val;
+        return *this->val.map;
     }
-    bool value_t::number(number_t &out) const {
-        if (is_number()) {
-            out = val.num;
-            return true;
-        }
-        return false;
+    number_t &value_t::number(number_t val) {
+        *this = val;
+        return this->val.num;
     }
-    bool value_t::string(string_t &out) const {
-        if (is_string()) {
-            out = *val.str;
-            return true;
-        }
-        return false;
+    string_t &value_t::string(const string_t &val) {
+        *this = val;
+        return *this->val.str;
     }
-    bool value_t::boolean(bool_t &out) const {
-        if (is_bool()) {
-            out = val.bl;
-            return true;
-        }
-        return false;
+    bool_t &value_t::boolean(bool_t val) {
+        *this = val;
+        return this->val.bl;
     }
 
-    array_t &value_t::array() const {
+
+    array_t &value_t::array() {
         if (is_array()) return *val.arr;
         else throw (std::string)"The value isn't an array.";
     }
-    map_t &value_t::map() const {
+    map_t &value_t::map() {
+        if (is_map()) return *val.map;
+        else throw (std::string)"The value isn't a map.";
+    }
+    number_t &value_t::number() {
+        if (is_number()) return val.num;
+        else throw (std::string)"The value isn't a number.";
+    }
+    string_t &value_t::string() {
+        if (is_string()) return *val.str;
+        else throw (std::string)"The value isn't a string.";
+    }
+    bool_t &value_t::boolean() {
+        if (is_bool()) return val.bl;
+        else throw (std::string)"The value isn't a bool.";
+    }
+
+
+    const array_t &value_t::array() const {
+        if (is_array()) return *val.arr;
+        else throw (std::string)"The value isn't an array.";
+    }
+    const map_t &value_t::map() const {
         if (is_map()) return *val.map;
         else throw (std::string)"The value isn't a map.";
     }
@@ -68,7 +76,7 @@ namespace ppc::data {
         if (is_number()) return val.num;
         else throw (std::string)"The value isn't a number.";
     }
-    string_t &value_t::string() const {
+    const string_t &value_t::string() const {
         if (is_string()) return *val.str;
         else throw (std::string)"The value isn't a string.";
     }
@@ -120,12 +128,6 @@ namespace ppc::data {
                 val = other.val;
                 break;
         }
-    }
-    value_t value_t::mk_arr() {
-        return value_t(array_t());
-    }
-    value_t value_t::mk_map() {
-        return value_t(map_t());
     }
 
     value_t::~value_t() {

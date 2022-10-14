@@ -12,14 +12,15 @@ namespace ppc::comp::tree::ast {
         ast_ctx_t &ctx;
         size_t &res_i;
 
+    public:
+        size_t i;
+
         void throw_ended() {
             if (ended()) throw messages::message_t(message_t::ERROR, "Unexpected end.", loc());
         }
         void throw_ended(const std::string &reason) {
             if (ended()) throw messages::message_t(message_t::ERROR, "Unexpected end: " + reason, loc());
         }
-    public:
-        size_t i;
 
         location_t loc(size_t n) {
             location_t res = prev_loc();
@@ -62,10 +63,10 @@ namespace ppc::comp::tree::ast {
             else return ctx.tokens[res_i].location.intersect(loc());
         }
 
-        void err(std::string message) {
+        bool err(std::string message) {
             throw message_t::error(message, loc());
         }
-        void err(std::string message, size_t n) {
+        bool err(std::string message, size_t n) {
             throw message_t::error(message, loc(n));
         }
 
@@ -78,6 +79,10 @@ namespace ppc::comp::tree::ast {
             return i == ctx.tokens.size();
         }
 
+        token_t &curr(const std::string &reason) {
+            throw_ended(reason);
+            return ctx.tokens[i];
+        }
         token_t &curr() {
             throw_ended();
             return ctx.tokens[i];
@@ -113,7 +118,7 @@ namespace ppc::comp::tree::ast {
         }
 
         void force_push_parse(const std::string &name, std::string message, data::array_t &out) {
-            advance(message);
+            throw_ended(message);
             bool success;
 
             try {
@@ -127,7 +132,7 @@ namespace ppc::comp::tree::ast {
             if (!success) err(message);
         }
         void force_parse(const std::string &name, std::string message, data::map_t &out) {
-            advance(message);
+            throw_ended(message);
             bool success;
 
             try {

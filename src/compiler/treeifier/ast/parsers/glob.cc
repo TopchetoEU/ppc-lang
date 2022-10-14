@@ -9,6 +9,7 @@ class nmsp_def_parser_t : public parser_t {
         if (h.ended()) return false;
 
         if (!h.curr().is_identifier("namespace")) return false;
+        h.advance("Expected a namespace");
         h.force_parse("$_nmsp", "Expected a namespace.", res);
         if (!h.curr().is_operator(operator_t::SEMICOLON)) {
             ctx.messages.push(message_t::error("Expected a semicolon.", h.loc(1)));
@@ -25,6 +26,7 @@ class import_parser_t : public parser_t {
         if (h.ended()) return false;
 
         if (!h.curr().is_identifier("import")) return false;
+        h.advance("Expected a namespace");
         h.force_parse("$_nmsp", "Expected a namespace.", res);
         if (!h.curr().is_operator(operator_t::SEMICOLON)) {
             ctx.messages.push(message_t::error("Expected a semicolon.", h.loc(1)));
@@ -49,7 +51,7 @@ class glob_parser_t : public parser_t {
         }
 
         auto &imports = (out["imports"] = array_t()).array();
-        /* auto &contents = */ (out["content"] = array_t()).array();
+        auto &contents = (out["content"] = array_t()).array();
 
         while (true) {
             map_t map;
@@ -60,9 +62,16 @@ class glob_parser_t : public parser_t {
             if (!ctx.imports.emplace(nmsp).second) h.err("The namespace '" + nmsp.to_string() + "' is already imported.");
         }
 
+        while (true) {
+            if (h.ended()) break;
+            if (!h.push_parse("$_def", contents)) {
+                ctx.messages.push(message_t::error("Invalid token.", h.loc()));
+                h.i++;
+            }
+        }
+
         if (!h.ended()) h.err("Invalid token.");
 
-        if (ctx.messages.is_failed()) return false;
         return h.submit();
     }
 
@@ -70,5 +79,8 @@ public:
     glob_parser_t(): parser_t("$_glob") { }
 };
 
-parser_factory_t ppc::comp::tree::ast::glob_parser = []() { return (parser_t*)new glob_parser_t(); };
-group_parser_factory_t ppc::comp::tree::ast::def_parser = []() { return new group_parser_t("$_def"); };
+parser_adder_t ppc::comp::tree::ast::glob_adder = [](ast_ctx_t &ctx) {
+    ctx.add_parser(new group_parser_t("$_def"));
+    ctx.add_parser(new group_parser_t("$_expr_val"));
+    ctx.add_parser(new glob_parser_t());
+};

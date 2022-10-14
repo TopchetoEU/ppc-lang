@@ -38,7 +38,13 @@ namespace ppc::messages {
         inline auto begin() { return messages.begin(); }
         inline auto end() { return messages.end(); }
 
+        inline auto begin() const { return messages.begin(); }
+        inline auto end() const { return messages.end(); }
+
         void push(const message_t &msg) { messages.push_back(msg); }
+        void push(const msg_stack_t &other) {
+            for (const auto &msg : other) push(msg);
+        }
         const message_t &peek() { return messages.back(); }
         void clear() { messages.clear(); }
 

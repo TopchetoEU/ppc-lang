@@ -16,15 +16,16 @@ using namespace ppc::messages;
 namespace ppc::comp::tree::ast {
     class parser_t;
     class group_parser_t;
+    struct ast_ctx_t;
 
-    using parser_factory_t = parser_t *(*)();
-    using group_parser_factory_t = group_parser_t *(*)();
+    using parser_adder_t = void (*)(ast_ctx_t &ctx);
 
-    extern parser_factory_t glob_parser;
-    extern parser_factory_t identifier_parser;
-    extern parser_factory_t nmsp_parser;
-    extern parser_factory_t type_parser;
-    extern group_parser_factory_t def_parser;
+    extern const parser_adder_t glob_adder;
+    extern const parser_adder_t identifier_adder;
+    extern const parser_adder_t nmsp_adder;
+    extern const parser_adder_t type_adder;
+    extern const parser_adder_t exp_adder;
+    extern const parser_adder_t field_adder;
 
     struct ast_ctx_t {
     private:
@@ -40,23 +41,23 @@ namespace ppc::comp::tree::ast {
         private:
             ast_ctx_t *parent;
         public:
-            const group_parser_t &operator[](const std::string &name) const;
+            group_parser_t &operator[](const std::string &name) const;
             group_proxy_t(ast_ctx_t *parent): parent(parent) { }
         };
 
         std::unordered_map<std::string, const parser_t*> parsers;
-        std::set<const parser_t*> groups;
-
-        void add_parser(const parser_t *parser);
-        void add_parser(const group_parser_t *parser);
+        std::set<group_parser_t*> groups;
     public:
         msg_stack_t &messages;
         std::vector<token_t> &tokens;
         std::set<loc_namespace_name_t> imports;
         loc_namespace_name_t nmsp;
 
-        void add_parser(parser_factory_t factory) { add_parser(factory()); }
-        void add_parser(group_parser_factory_t factory) { add_parser(factory()); }
+        void add_parser(const parser_t *parser);
+        void add_parser(const parser_t *parser, const std::string &group);
+        void add_group(const std::string &name);
+
+        void add_parser(parser_adder_t factory) { factory(*this); }
 
         ast_ctx_t &operator=(const ast_ctx_t &other) = delete;
 
@@ -64,11 +65,13 @@ namespace ppc::comp::tree::ast {
         const group_proxy_t group;
 
         ast_ctx_t &init() {
-            add_parser(glob_parser);
-            add_parser(identifier_parser);
-            add_parser(nmsp_parser);
-            add_parser(def_parser);
-            add_parser(type_parser);
+            add_parser(identifier_adder);
+            add_parser(nmsp_adder);
+            add_parser(glob_adder);
+            add_parser(type_adder);
+            add_parser(exp_adder);
+            add_parser(field_adder);
+
             return *this;
         }
 
@@ -102,11 +105,11 @@ namespace ppc::comp::tree::ast {
 
     class group_parser_t : public parser_t {
     private:
-        std::vector<std::pair<lang::namespace_name_t, parser_t*>> named_parsers;
-        std::vector<parser_t*> parsers;
+        std::vector<std::pair<lang::namespace_name_t, const parser_t*>> named_parsers;
+        std::vector<const parser_t*> parsers;
     public:
-        group_parser_t &add(parser_t &parser);
-        group_parser_t &add(parser_t &parser, const lang::namespace_name_t &name);
+        group_parser_t &add(const parser_t &parser);
+        group_parser_t &add(const parser_t &parser, const lang::namespace_name_t &name);
 
         bool parse(ast_ctx_t &ctx, size_t &i, data::map_t &out) const;
 

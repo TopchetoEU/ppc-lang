@@ -18,4 +18,4 @@ class identifier_parser_t : public parser_t {
     public: identifier_parser_t(): parser_t("$_identifier") { }
 };
 
-parser_factory_t ppc::comp::tree::ast::identifier_parser = []() { return (parser_t*)new identifier_parser_t(); };
+parser_adder_t ppc::comp::tree::ast::identifier_adder = [](ast_ctx_t &ctx) { ctx.add_parser(new identifier_parser_t()); };

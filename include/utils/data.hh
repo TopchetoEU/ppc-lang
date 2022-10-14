@@ -39,16 +39,22 @@ namespace ppc::data {
         bool is_string() const;
         bool is_bool() const;
 
-        bool array(array_t &out) const;
-        bool map(map_t &out) const;
-        bool number(number_t &out) const;
-        bool string(string_t &out) const;
-        bool boolean(bool_t &out) const;
+        array_t &array(const array_t &arr);
+        map_t &map(const map_t &map);
+        number_t &number(number_t num);
+        string_t &string(const string_t &str);
+        bool_t &boolean(bool_t bl);
 
-        array_t &array() const;
-        map_t &map() const;
+        array_t &array();
+        map_t &map();
+        number_t &number();
+        string_t &string();
+        bool_t &boolean();
+
+        const array_t &array() const;
+        const map_t &map() const;
         number_t number() const;
-        string_t &string() const;
+        const string_t &string() const;
         bool_t boolean() const;
 
         value_t &operator=(const value_t &other);
@@ -65,8 +71,6 @@ namespace ppc::data {
         value_t(bool_t val);
         value_t(const value_t &other);
 
-        static value_t mk_arr();
-        static value_t mk_map();
     };
 
 

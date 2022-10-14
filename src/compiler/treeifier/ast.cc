@@ -8,10 +8,10 @@ namespace ppc::comp::tree::ast {
         if (it == parent->parsers.end()) throw "The parser '" + name + "' doesn't exist.";
         return *it->second;
     }
-    const group_parser_t &ast_ctx_t::group_proxy_t::operator[](const std::string &name) const {
-        auto p = &parent->parser[name];
+    group_parser_t &ast_ctx_t::group_proxy_t::operator[](const std::string &name) const {
+        auto p = (group_parser_t*)&parent->parser[name];
         if (parent->groups.find(p) == parent->groups.end()) throw "A parser '" + name + "' exists, but isn't a group.";
-        return *(const group_parser_t*)p;
+        return *p;
     }
 
     ast_ctx_t::~ast_ctx_t() {
@@ -24,7 +24,12 @@ namespace ppc::comp::tree::ast {
         if (parsers.find(parser->name()) != parsers.end()) throw "The parser '" + parser->name() + "' already exists.";
         parsers[parser->name()] = parser;
     }
-    void ast_ctx_t::add_parser(const group_parser_t *parser) {
+    void ast_ctx_t::add_parser(const parser_t *parser, const std::string &group) {
+        add_parser(parser);
+        this->group[group].add(*parser);
+    }
+    void ast_ctx_t::add_group(const std::string &name) {
+        auto parser = new group_parser_t(name);
         if (parsers.find(parser->name()) != parsers.end()) throw "The parser '" + parser->name() + "' already exists.";
         parsers[parser->name()] = parser;
         groups.emplace(parser);

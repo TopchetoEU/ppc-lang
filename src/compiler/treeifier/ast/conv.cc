@@ -51,7 +51,7 @@ namespace ppc::comp::tree::ast::conv {
     data::map_t nmsp_to_map(const loc_namespace_name_t &nmsp) {
         data::map_t res;
 
-        auto arr = (res["content"] = data::array_t()).array();
+        auto arr = res["content"].array({});
 
         for (const auto &segment : nmsp) {
             arr.push({

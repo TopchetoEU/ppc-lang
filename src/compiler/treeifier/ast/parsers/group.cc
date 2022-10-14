@@ -2,10 +2,13 @@
 #include "compiler/treeifier/tokenizer.hh"
 #include "compiler/treeifier/ast/helper.hh"
 #include <algorithm>
+#include <unordered_map>
+#include <sstream>
 
 using namespace ppc::comp::tree;
 using namespace ppc::comp::tree::ast;
 using namespace std::string_literals;
+using namespace std;
 
 static bool read_nmsp(ast_ctx_t &ctx, size_t &i, const lang::namespace_name_t &name) {
     tree_helper_t h(ctx, i);
@@ -33,29 +36,31 @@ static bool read_nmsp(ast_ctx_t &ctx, size_t &i, const lang::namespace_name_t &n
 bool group_parser_t::parse(ast_ctx_t &ctx, size_t &i, data::map_t &out) const {
     tree_helper_t h(ctx, i);
 
+    if (h.ended()) return false;
+
     for (auto &pair : named_parsers) {
         if (!read_nmsp(ctx, i, pair.first)) continue;
         auto &parser = *pair.second;
-        return parser(ctx, i, out);
+        if (parser(ctx, i, out)) return true;
+        else throw message_t::error("Unexpected construct specifier.", h.res_loc());
     }
+
+    unordered_map<string, message_t> errors;
+
     for (auto parser : parsers) {
-        try {
-            return (*parser)(ctx, i, out);
-        }
-        catch (const message_t &err) {
-            ctx.messages.push(err);
-            return false;
-        }
+        if ((*parser)(ctx, i, out)) return true;
     }
+
+    stringstream m;
 
     return false;
 }
 
-group_parser_t &group_parser_t::add(parser_t &parser) {
+group_parser_t &group_parser_t::add(const parser_t &parser) {
     parsers.push_back(&parser);
     return *this;
 }
-group_parser_t &group_parser_t::add(parser_t &parser, const lang::namespace_name_t &name) {
+group_parser_t &group_parser_t::add(const parser_t &parser, const lang::namespace_name_t &name) {
     if (name.empty()) throw "Name can't be empty."s;
     if (std::find(parsers.begin(), parsers.end(), &parser) != parsers.end()) {
         throw "Parser '" + name.to_string() + "' already in group.";
