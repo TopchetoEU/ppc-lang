@@ -95,40 +95,40 @@ namespace ppc::comp::tree {
     public:
         ppc::location_t location;
 
-        bool is_identifier() { return kind == IDENTIFIER; }
-        bool is_operator() { return kind == OPERATOR; }
-        bool is_int_lit() { return kind == INT; }
-        bool is_float_lit() { return kind == FLOAT; }
-        bool is_char_lit() { return kind == CHAR; }
-        bool is_string_lit() { return kind == STRING; }
+        bool is_identifier() const { return kind == IDENTIFIER; }
+        bool is_operator() const { return kind == OPERATOR; }
+        bool is_int_lit() const { return kind == INT; }
+        bool is_float_lit() const { return kind == FLOAT; }
+        bool is_char_lit() const { return kind == CHAR; }
+        bool is_string_lit() const { return kind == STRING; }
 
-        const auto &identifier() {
+        const auto &identifier() const {
             if (!is_identifier()) throw std::string { "Token is not an identifier." };
             else return *data.identifier;
         }
-        auto _operator() {
+        auto _operator() const {
             if (!is_operator()) throw std::string { "Token is not an operator." };
             else return data._operator;
         }
-        auto int_lit() {
+        auto int_lit() const {
             if (!is_int_lit()) throw std::string { "Token is not an int literal." };
             else return data.int_literal;
         }
-        auto float_lit() {
+        auto float_lit() const {
             if (!is_float_lit()) throw std::string { "Token is not a float literal." };
             else return data.float_literal;
         }
-        auto char_lit() {
+        auto char_lit() const {
             if (!is_char_lit()) throw std::string { "Token is not a char literal." };
             else return data.char_literal;
         }
-        const auto &string_lit() {
+        const auto &string_lit() const {
             if (!is_string_lit()) throw std::string { "Token is not a string literal." };
             else return *data.string_literal;
         }
 
-        bool is_operator(operator_t op) { return is_operator() && _operator() == op; }
-        bool is_identifier(std::string &&val) { return is_identifier() && identifier() == val; }
+        bool is_operator(operator_t op) const { return is_operator() && _operator() == op; }
+        bool is_identifier(const std::string &val) const { return is_identifier() && identifier() == val; }
 
         token_t() { kind = NONE; }
         token_t(const std::string &identifier, location_t loc = location_t::NONE): location(loc) {
