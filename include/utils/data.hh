@@ -78,14 +78,14 @@ namespace ppc::data {
     private:
         std::unordered_map<std::string, value_t> values;
     public:
-        value_t &operator [](std::string name){
+        value_t &operator[](std::string name){
             auto res = values.find(name);
             if (res == values.end()) {
                 res = values.emplace(name, value_t()).first;
             }
             return res->second;
         }
-        const value_t &operator [](std::string name) const {
+        const value_t &operator[](std::string name) const {
             auto res = values.find(name);
             if (res == values.end()) throw "The map doesn't contain a key '" + name + "'.";
             return res->second;
@@ -108,25 +108,5 @@ namespace ppc::data {
         }
     };
 
-    class array_t {
-    private:
-        std::vector<value_t> values;
-    public:
-        value_t &operator [](std::size_t i) { return values[i]; }
-        const value_t &operator [](std::size_t i) const { return values[i]; }
-
-        auto begin() const { return values.begin(); }
-        auto end() const { return values.end(); }
-
-        void push(const value_t &val) { values.push_back(val); }
-        void insert(const value_t &val, std::size_t i = 0) { values.insert(begin() + i, val); }
-        void pop() { values.pop_back(); }
-        void remove(std::size_t i = 0) { values.erase(begin() + i); }
-
-        std::size_t size() const { return values.size(); }
-
-        array_t() { }
-        array_t(const std::vector<value_t> &val): values(val) { }
-        array_t(std::initializer_list<value_t> val): values(val) { }
-    };
+    class array_t : public std::vector<value_t> { };
 }
