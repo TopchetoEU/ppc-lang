@@ -6,6 +6,8 @@
 
 namespace ppc::comp::tree {
     enum operator_t {
+        NONE,
+
         LESS_THAN,
         GREATER_THAN,
         LESS_THAN_EQUALS,

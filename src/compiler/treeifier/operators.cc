@@ -7,6 +7,7 @@ using namespace std::string_literals;
 
 
 std::vector<std::string> operators = {
+    "(none)",
     "<", ">", "<=", ">=", "==", "!=", "&&", "||",
     "<<", ">>", "^", "&", "|", "!", "~",
     "++", "--",
