@@ -27,7 +27,7 @@ class type_parser_t : public parser_t {
         out["location"] = conv::loc_to_map(h.res_loc());
         out["name"] = nmsp_content[nmsp_content.size() - 1];
         out["ptr_n"] = (float)ptr_n;
-        nmsp_content.pop();
+        nmsp_content.pop_back();
 
         if (nmsp_content.size() == 0) {
             auto loc = h.res_loc();
@@ -47,4 +47,4 @@ class type_parser_t : public parser_t {
     public: type_parser_t(): parser_t("$_type") { }
 };
 
-parser_adder_t ppc::comp::tree::ast::type_adder = [](ast_ctx_t &ctx) { ctx.add_parser(new type_parser_t()); };
+const parser_adder_t ppc::comp::tree::ast::type_adder = [](ast_ctx_t &ctx) { ctx.add_parser(new type_parser_t()); };

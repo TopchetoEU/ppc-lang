@@ -34,7 +34,7 @@ static inline bool is_any(char c, std::string chars) {
     return res;
 }
 static inline bool is_operator(char c) {
-    return is_any(c, "=!<>+-*/%&|^?:,.(){}[];");
+    return is_any(c, "=!<>+-*/%&|^?:,.(){}[];~");
 }
 
 static res_t lexlet_default(char c, std::vector<char> &tok);

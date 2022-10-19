@@ -107,7 +107,7 @@ namespace ppc::comp::tree::ast {
         bool push_parse(const std::string &name, data::array_t &out) {
             data::map_t res;
             if (parse(name, res)) {
-                out.push(res);
+                out.push_back(res);
                 return true;
             }
             else return false;

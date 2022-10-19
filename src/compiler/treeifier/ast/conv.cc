@@ -54,7 +54,7 @@ namespace ppc::comp::tree::ast::conv {
         auto arr = res["content"].array({});
 
         for (const auto &segment : nmsp) {
-            arr.push({
+            arr.push_back({
                 { "location", loc_to_map(segment.location) },
                 { "content", segment },
                 { "$_name", "$_nmsp" },

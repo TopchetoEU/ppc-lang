@@ -45,6 +45,9 @@ auto nmsp_def_parser = nmsp_def_parser_t();
 class glob_parser_t : public parser_t {
     bool parse(ast_ctx_t &ctx, size_t &res_i, data::map_t &out) const {
         tree_helper_t h(ctx, res_i);
+
+        return h.parse("$_exp", out);
+
         if (h.ended()) return true;
         if (nmsp_def_parser(ctx, h.i, (out["namespace"] = map_t()).map())) {
             ctx.nmsp = conv::map_to_nmsp(out["namespace"].map());
@@ -56,7 +59,7 @@ class glob_parser_t : public parser_t {
         while (true) {
             map_t map;
             if (!import_parser(ctx, h.i, map)) break;
-            imports.push(map);
+            imports.push_back(map);
             auto nmsp = conv::map_to_nmsp(map);
 
             if (!ctx.imports.emplace(nmsp).second) h.err("The namespace '" + nmsp.to_string() + "' is already imported.");
@@ -79,8 +82,8 @@ public:
     glob_parser_t(): parser_t("$_glob") { }
 };
 
-parser_adder_t ppc::comp::tree::ast::glob_adder = [](ast_ctx_t &ctx) {
-    ctx.add_parser(new group_parser_t("$_def"));
-    ctx.add_parser(new group_parser_t("$_expr_val"));
+const parser_adder_t ppc::comp::tree::ast::glob_adder = [](ast_ctx_t &ctx) {
+    ctx.add_group("$_def");
+    ctx.add_group("$_exp_val");
     ctx.add_parser(new glob_parser_t());
 };

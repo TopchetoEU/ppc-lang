@@ -85,7 +85,7 @@ namespace ppc::data {
             }
             return res->second;
         }
-        const value_t &operator[](std::string name) const {
+        const value_t &operator [](std::string name) const {
             auto res = values.find(name);
             if (res == values.end()) throw "The map doesn't contain a key '" + name + "'.";
             return res->second;

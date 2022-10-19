@@ -23,4 +23,4 @@ class nmsp_parser_t : public parser_t {
     public: nmsp_parser_t(): parser_t("$_nmsp") { }
 };
 
-parser_adder_t ppc::comp::tree::ast::nmsp_adder = [](ast_ctx_t &ctx) { ctx.add_parser(new nmsp_parser_t()); };
+const parser_adder_t ppc::comp::tree::ast::nmsp_adder = [](ast_ctx_t &ctx) { ctx.add_parser(new nmsp_parser_t()); };

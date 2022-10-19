@@ -26,6 +26,7 @@ namespace ppc::comp::tree::ast {
     extern const parser_adder_t type_adder;
     extern const parser_adder_t exp_adder;
     extern const parser_adder_t field_adder;
+    extern const parser_adder_t var_adder;
 
     struct ast_ctx_t {
     private:
@@ -70,6 +71,7 @@ namespace ppc::comp::tree::ast {
             add_parser(glob_adder);
             add_parser(type_adder);
             add_parser(exp_adder);
+            add_parser(var_adder);
             add_parser(field_adder);
 
             return *this;

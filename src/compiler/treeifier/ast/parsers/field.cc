@@ -41,4 +41,4 @@ class field_parser_t : public parser_t {
     public: field_parser_t(): parser_t("$_field") { }
 };
 
-parser_adder_t ppc::comp::tree::ast::field_adder = [](ast_ctx_t &ctx) { ctx.add_parser(new field_parser_t(), "$_def"); };
+const parser_adder_t ppc::comp::tree::ast::field_adder = [](ast_ctx_t &ctx) { ctx.add_parser(new field_parser_t(), "$_def"); };

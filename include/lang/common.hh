@@ -12,6 +12,22 @@ namespace ppc::lang {
         located_t(const T &val): T(val), location(location_t::NONE) { }
         located_t() { }
     };
+    template <class T>
+    struct slocated_t {
+        T value;
+        location_t location;
+
+        bool operator ==(const slocated_t<T> &other) {
+            return value == other.value && location == other.location;
+        }
+        bool operator !=(const slocated_t<T> &other) {
+            return !(*this == other);
+        }
+
+        slocated_t(location_t loc, const T &val): value(val), location(loc) { }
+        slocated_t(const T &val): value(val), location(location_t::NONE) { }
+        slocated_t() { }
+    };
 
     struct namespace_name_t : public std::vector<std::string> {
         using base = std::vector<std::string>;
