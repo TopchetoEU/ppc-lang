@@ -18,10 +18,10 @@ namespace ppc::comp::tree::ast::conv {
         };
 
         res["filename"] = loc.filename;
-        if (loc.start != -1u) res["start"] = (float)loc.start;
-        if (loc.start != -1u) res["line"] = (float)loc.line;
-        if (loc.code_start != -1u) res["code_start"] = (float)loc.code_start;
-        if (loc.length != -1u) res["length"] = (float)loc.length;
+        if (loc.start + 1) res["start"] = (float)loc.start;
+        if (loc.start + 1) res["line"] = (float)loc.line;
+        if (loc.code_start + 1) res["code_start"] = (float)loc.code_start;
+        if (loc.length + 1) res["length"] = (float)loc.length;
 
         return res;
     }
