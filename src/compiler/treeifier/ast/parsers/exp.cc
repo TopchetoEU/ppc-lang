@@ -189,6 +189,18 @@ class exp_parser_t : public parser_t {
 
                         if (!h.try_advance()) break;
                     }
+                    else if (h.curr().is_operator(operator_t::COLON)) {
+                        h.advance("Expected a type.");
+                        pop_until({ precedence_t::PREFIX, .assoc = true }, h, op_stack, res);
+                        map_t cast = {
+                            { "$_name", "$_cast" },
+                            { "exp", res.back() },
+                        };
+
+                        res.pop_back();
+                        h.force_parse("$_type", "Expected a type.", cast["type"].map({}));
+                        res.push_back(cast);
+                    }
                     else if (bin_ops.find(op) != bin_ops.end()) {
                         auto data = bin_ops[op];
                         pop_until(data, h, op_stack, res);
