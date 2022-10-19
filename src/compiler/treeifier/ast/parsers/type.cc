@@ -16,6 +16,7 @@ class type_parser_t : public parser_t {
         while (true) {
             if (h.ended()) break;
             if (!h.curr().is_operator(operator_t::DOUBLE_COLON)) break;
+            h.advance("Expected an identifier.");
             h.force_push_parse("$_identifier", "Expected an identifier.", nmsp_content);
         }
 
