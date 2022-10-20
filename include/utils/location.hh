@@ -12,7 +12,6 @@ namespace ppc {
         std::size_t code_start;
         std::string filename;
 
-        location_t &operator=(const location_t &other);
         bool operator==(const location_t &other) const;
         bool operator !=(const location_t &other) const {
             return !(*this == other);
