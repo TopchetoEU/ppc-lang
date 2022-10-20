@@ -32,8 +32,14 @@ namespace ppc::lang {
     struct namespace_name_t : public std::vector<std::string> {
         using base = std::vector<std::string>;
 
-        bool operator ==(const namespace_name_t &other)  const;
-        bool operator !=(const namespace_name_t &other)  const;
+        int compare(const namespace_name_t &other) const;
+
+        bool operator==(const namespace_name_t &other) const { return compare(other) == 0; }
+        bool operator!=(const namespace_name_t &other) const { return compare(other) != 0; }
+        bool operator<(const namespace_name_t &other) const { return compare(other) < 0; }
+        bool operator<=(const namespace_name_t &other) const { return compare(other) <= 0; }
+        bool operator>(const namespace_name_t &other) const  { return compare(other) > 0; }
+        bool operator>=(const namespace_name_t &other) const { return compare(other) >= 0; }
 
         operator std::string() const { return to_string(); }
         std::string to_string() const;
@@ -45,10 +51,16 @@ namespace ppc::lang {
     struct loc_namespace_name_t : public std::vector<located_t<std::string>> {
         using base = std::vector<located_t<std::string>>;
 
-        bool operator ==(const loc_namespace_name_t &other) const;
-        bool operator !=(const loc_namespace_name_t &other) const;
+        int compare(const loc_namespace_name_t &other) const;
 
-        namespace_name_t strip_location();
+        bool operator==(const loc_namespace_name_t &other) const { return compare(other) == 0; }
+        bool operator!=(const loc_namespace_name_t &other) const { return compare(other) != 0; }
+        bool operator<(const loc_namespace_name_t &other) const { return compare(other) < 0; }
+        bool operator<=(const loc_namespace_name_t &other) const { return compare(other) <= 0; }
+        bool operator>(const loc_namespace_name_t &other) const  { return compare(other) > 0; }
+        bool operator>=(const loc_namespace_name_t &other) const { return compare(other) >= 0; }
+
+        namespace_name_t strip_location() const;
 
         operator std::string() const { return to_string(); }
         std::string to_string() const;

@@ -10,26 +10,34 @@ using namespace ppc::comp::tree::ast;
 using namespace std::string_literals;
 using namespace std;
 
-static bool read_nmsp(ast_ctx_t &ctx, size_t &i, const lang::namespace_name_t &name) {
+static bool read_nmsp(ast_ctx_t &ctx, size_t &i, lang::loc_namespace_name_t &name) {
     tree_helper_t h(ctx, i);
-
-    size_t equal_i = 0;
-
-    while (true) {
-        if (h.ended()) break;
-        if (equal_i >= name.size()) return false;
-        auto &curr = h.curr();
-        if (!curr.is_identifier()) return false;
-
-        if (name[equal_i] != curr.identifier()) return false;
-
-        if (h.try_advance() && h.curr().is_operator(operator_t::DOUBLE_COLON)) {
-            equal_i++;
+    map_t res;
+    if (!h.parse("$_nmsp", res)) return false;
+    name = conv::map_to_nmsp(res);
+    return true;
+}
+template <class T>
+static bool resolve_nmsp(ast_ctx_t &ctx, const lang::namespace_name_t &name, T begin, T end, lang::namespace_name_t &actual_name) {
+    for (auto it = begin; it != end; it++) {
+        const namespace_name_t &curr = it->first;
+        if (curr == name) {
+            actual_name = name;
+            return true;
         }
-        else break;
     }
-
-    return equal_i != name.size();
+    for (const auto &import : ctx.imports) {
+        auto new_name = name;
+        new_name.insert(new_name.begin(), import.begin(), import.end());
+        for (auto it = begin; it != end; it++) {
+            const namespace_name_t &curr = it->first;
+            if (curr == new_name) {
+                actual_name = name;
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 
@@ -38,11 +46,14 @@ bool group_parser_t::parse(ast_ctx_t &ctx, size_t &i, data::map_t &out) const {
 
     if (h.ended()) return false;
 
-    for (auto &pair : named_parsers) {
-        if (!read_nmsp(ctx, i, pair.first)) continue;
-        auto &parser = *pair.second;
-        if (parser(ctx, i, out)) return true;
-        else throw message_t::error("Unexpected construct specifier.", h.res_loc());
+    loc_namespace_name_t name;
+    if (read_nmsp(ctx, h.i, name)) {
+        namespace_name_t actual;
+        if (resolve_nmsp(ctx, name.strip_location(), named_parsers.begin(), named_parsers.end(), actual)) {
+            auto &parser = *this->named_parsers.find(actual)->second;
+            if (parser(ctx, i, out)) return true;
+            else throw message_t::error("Unexpected construct specifier.", h.res_loc());
+        }
     }
 
     unordered_map<string, message_t> errors;
@@ -66,7 +77,7 @@ group_parser_t &group_parser_t::add(const parser_t &parser, const lang::namespac
         throw "Parser '" + name.to_string() + "' already in group.";
     }
 
-    named_parsers.push_back({ name, &parser });
+    named_parsers[name] = &parser;
 
     return *this;
 }

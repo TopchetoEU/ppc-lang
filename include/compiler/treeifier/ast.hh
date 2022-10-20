@@ -2,6 +2,7 @@
 
 #include <string>
 #include <set>
+#include <map>
 #include <unordered_map>
 #include <memory>
 #include "compiler/treeifier/tokenizer.hh"
@@ -56,6 +57,7 @@ namespace ppc::comp::tree::ast {
 
         void add_parser(const parser_t *parser);
         void add_parser(const parser_t *parser, const std::string &group);
+        void add_parser(const parser_t *parser, const std::string &group, const namespace_name_t &name);
         void add_group(const std::string &name);
 
         void add_parser(parser_adder_t factory) { factory(*this); }
@@ -107,7 +109,7 @@ namespace ppc::comp::tree::ast {
 
     class group_parser_t : public parser_t {
     private:
-        std::vector<std::pair<lang::namespace_name_t, const parser_t*>> named_parsers;
+        std::map<lang::namespace_name_t, const parser_t*> named_parsers;
         std::vector<const parser_t*> parsers;
     public:
         group_parser_t &add(const parser_t &parser);

@@ -28,6 +28,10 @@ namespace ppc::comp::tree::ast {
         add_parser(parser);
         this->group[group].add(*parser);
     }
+    void ast_ctx_t::add_parser(const parser_t *parser, const std::string &group, const namespace_name_t &name) {
+        add_parser(parser);
+        this->group[group].add(*parser, name);
+    }
     void ast_ctx_t::add_group(const std::string &name) {
         auto parser = new group_parser_t(name);
         if (parsers.find(parser->name()) != parsers.end()) throw "The parser '" + parser->name() + "' already exists.";

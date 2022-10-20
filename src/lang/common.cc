@@ -23,46 +23,31 @@ namespace ppc::lang {
 
         return res.str();
     }
-    
-    bool loc_namespace_name_t::operator==(const loc_namespace_name_t &other) const {
-        if (other.size() != size()) return false;
 
-        for (size_t i = 0; i < size(); i++) {
-            if (other[i] != (*this)[i]) return false;
+    int namespace_name_t::compare(const namespace_name_t &b) const {
+        const auto &a = *this;
+        for (size_t i = 0; i < a.size() && i < b.size(); i++) {
+            auto cmp = a[i].compare(b[i]);
+            if (cmp != 0) return cmp;
         }
 
-        return true;
+        if (a.size() > b.size()) return 1;
+        else if (a.size() == b.size()) return 0;
+        else return -1;
     }
-    bool loc_namespace_name_t::operator!=(const loc_namespace_name_t &other) const {
-        if (other.size() != size()) return true;
-
-        for (size_t i = 0; i < size(); i++) {
-            if (other[i] == (*this)[i]) return false;
+    int loc_namespace_name_t::compare(const loc_namespace_name_t &b) const {
+        const auto &a = *this;
+        for (size_t i = 0; i < a.size() && i < b.size(); i++) {
+            auto cmp = a[i].compare(b[i]);
+            if (cmp != 0) return cmp;
         }
 
-        return true;
+        if (a.size() > b.size()) return 1;
+        else if (a.size() == b.size()) return 0;
+        else return -1;
     }
 
-    bool namespace_name_t::operator==(const namespace_name_t &other) const {
-        if (other.size() != size()) return false;
-
-        for (size_t i = 0; i < size(); i++) {
-            if (other[i] != (*this)[i]) return false;
-        }
-
-        return true;
-    }
-    bool namespace_name_t::operator!=(const namespace_name_t &other) const {
-        if (other.size() != size()) return true;
-
-        for (size_t i = 0; i < size(); i++) {
-            if (other[i] == (*this)[i]) return false;
-        }
-
-        return true;
-    }
-
-    namespace_name_t loc_namespace_name_t::strip_location() {
+    namespace_name_t loc_namespace_name_t::strip_location() const {
         namespace_name_t res;
 
         for (const auto &el : *this) {
@@ -71,6 +56,5 @@ namespace ppc::lang {
 
         return res;
     }
-
 }
 
