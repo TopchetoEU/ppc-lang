@@ -169,6 +169,7 @@ int main(int argc, const char *argv[]) {
     catch (const messages::message_t &msg) {
         msg_stack.push(msg);
     }
+    #ifndef PROFILE_debug
     catch (const std::string &msg) {
         msg_stack.push(message_t::error(msg));
     }
@@ -176,6 +177,7 @@ int main(int argc, const char *argv[]) {
         std::cout << std::endl;
         msg_stack.push(message_t::error("A fatal error occurred."));
     }
+    #endif
 
     msg_stack.print(std::cout, messages::message_t::DEBUG, true);
 
