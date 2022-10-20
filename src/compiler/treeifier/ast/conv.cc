@@ -1,3 +1,4 @@
+#include <sstream>
 #include "compiler/treeifier/ast.hh"
 
 namespace ppc::comp::tree::ast::conv {
@@ -9,43 +10,31 @@ namespace ppc::comp::tree::ast::conv {
         };
     }
     located_t<std::string> map_to_identifier(const data::map_t &map) {
-        return { conv::map_to_loc(map["location"].map()), map["content"].string() };
+        return { conv::map_to_loc(map["location"].string()), map["content"].string() };
     }
 
-    data::map_t loc_to_map(const location_t &loc) {
-        data::map_t res = {
-            { "$_name", "$_loc" },
-        };
-
-        res["filename"] = loc.filename;
-        if (loc.start + 1) res["start"] = (float)loc.start;
-        if (loc.start + 1) res["line"] = (float)loc.line;
-        if (loc.code_start + 1) res["code_start"] = (float)loc.code_start;
-        if (loc.length + 1) res["length"] = (float)loc.length;
-
-        return res;
+    data::string_t loc_to_map(const location_t &loc) {
+        std::stringstream res;
+        res << loc.filename << ':' << loc.line + 1 << ':' << loc.start + 1 << ':' << loc.code_start + 1 << ':' << loc.length + 1;
+        return res.str();
     }
-    location_t map_to_loc(const data::map_t &map) {
-        location_t res(map["filename"].string());
+    location_t map_to_loc(const data::string_t &map) {
+        std::stringstream res;
+        res.str(map);
 
-        if (map.has("start")) {
-            if (map["start"].is_number()) res.start = (size_t)map["start"].number();
-            else throw "Expected key 'start' to be a number.";
-        }
-        if (map.has("length")) {
-            if (map["length"].is_number()) res.length = (size_t)map["length"].number();
-            else throw "Expected key 'length' to be a number.";
-        }
-        if (map.has("code_start")) {
-            if (map["code_start"].is_number()) res.code_start = (size_t)map["code_start"].number();
-            else throw "Expected key 'code_start' to be a number.";
-        }
-        if (map.has("line")) {
-            if (map["line"].is_number()) res.line = (size_t)map["line"].number();
-            else throw "Expected key 'line' to be a number.";
-        }
+        std::string filename;
+        std::string line;
+        std::string start;
+        std::string code_start;
+        std::string length;
 
-        return res;
+        std::getline(res, filename, ':');
+        std::getline(res, line, ':');
+        std::getline(res, start, ':');
+        std::getline(res, code_start, ':');
+        std::getline(res, length, ':');
+
+        return { filename, std::stoull(line) - 1, std::stoull(start) - 1, std::stoull(code_start) - 1, std::stoull(length) - 1 };
     }
 
     data::map_t nmsp_to_map(const loc_namespace_name_t &nmsp) {

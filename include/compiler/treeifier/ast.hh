@@ -122,8 +122,8 @@ namespace ppc::comp::tree::ast {
         data::map_t identifier_to_map(const located_t<std::string> &loc);
         located_t<std::string> map_to_identifier(const data::map_t &map);
 
-        data::map_t loc_to_map(const location_t &loc);
-        location_t map_to_loc(const data::map_t &map);
+        data::string_t loc_to_map(const location_t &loc);
+        location_t map_to_loc(const data::string_t &map);
 
         data::map_t nmsp_to_map(const loc_namespace_name_t &nmsp);
         loc_namespace_name_t map_to_nmsp(const data::map_t &map);
