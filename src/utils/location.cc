@@ -56,15 +56,6 @@ location_t location_t::intersect(location_t other) const {
     return a;
 }
 
-location_t &location_t::operator=(const location_t &other) {
-    if (this->filename != other.filename) throw "Can't assign to location with different filename."s;
-    this->line = other.line;
-    this->start = other.start;
-    this->length = other.length;
-    this->code_start = other.code_start;
-    return *this;
-}
-
 bool location_t::operator==(const location_t &other) const {
     if (this->filename != other.filename) return false;
     if (this->line != other.line) return false;
