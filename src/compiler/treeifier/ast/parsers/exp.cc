@@ -164,24 +164,25 @@ class exp_parser_t : public parser_t {
                 h.advance("Expected a value on the right side of the operator.");
                 continue;
             }
+            if (!last_val && h.push_parse("$_exp_val", res)) last_val = true;
             if (h.curr().is_operator()) {
                 auto op = h.curr()._operator();
                 if (last_val) {
                     if (op == operator_t::PAREN_OPEN) {
+                        h.advance("Expected an argument.");
                         call_args_n.push_back(0);
                         op_stack.push_back({ h.loc(), { precedence_t::CALL_START } });
-                        h.advance("Expected an argument.");
                         last_val = false;
                     }
                     else if (op == operator_t::COMMA) {
                         if (call_args_n.size() == 0) break;
+                        h.advance("Expected an argument.");
 
                         pop_until({ precedence_t::CALL_START, .assoc = true }, h, op_stack, res);
-                        h.advance("Expected an argument.");
                         call_args_n.back()++;
                         last_val = false;
                     }
-                    else if (h.curr().is_operator(operator_t::PAREN_CLOSE)) {
+                    else if (op == operator_t::PAREN_CLOSE) {
                         bool is_call = false, is_paren = false;
 
                         for (auto i = op_stack.rbegin(); i != op_stack.rend(); i++) {
@@ -201,7 +202,7 @@ class exp_parser_t : public parser_t {
 
                         if (!h.try_advance()) break;
                     }
-                    else if (h.curr().is_operator(operator_t::COLON)) {
+                    else if (op == operator_t::COLON) {
                         h.advance("Expected a type.");
                         pop_until({ precedence_t::PREFIX, .assoc = true }, h, op_stack, res);
                         map_t cast = {
@@ -212,6 +213,24 @@ class exp_parser_t : public parser_t {
                         res.pop_back();
                         h.force_parse("$_type", "Expected a type.", cast["type"].map({}));
                         res.push_back(cast);
+                    }
+                    else if (op == operator_t::DOT || op == operator_t::PTR_MEMBER) {
+                        h.advance("Expected an identifier.");
+                        pop_until({ precedence_t::POSTFIX, .assoc = true }, h, op_stack, res);
+
+                        map_t member_access = {
+                            { "$_name", "$_member" },
+                            { "exp", res.back() },
+                            { "is_ptr", op == operator_t::PTR_MEMBER },
+                        };
+                        h.force_parse("$_identifier", "Expected an identifier.", member_access["name"].map({}));
+                        member_access["location"] = conv::loc_to_map(
+                            conv::map_to_loc(member_access["name"].map()["location"].string()).intersect(
+                                conv::map_to_loc(res.back().map()["location"].string())
+                            )
+                        );
+                        res.pop_back();
+                        res.push_back(member_access);
                     }
                     else if (bin_ops.find(op) != bin_ops.end()) {
                         auto data = bin_ops[op];
@@ -244,7 +263,6 @@ class exp_parser_t : public parser_t {
                 }
                 continue;
             }
-            if (!last_val && h.push_parse("$_exp_val", res)) last_val = true;
             else break;
         }
 
