@@ -66,16 +66,21 @@ class exp_parser_t : public parser_t {
 
         auto map = op_to_map(op_stack.back());
         auto op_n = op_stack.back().op_n;
+        auto loc = op_stack.back().location;
         op_stack.pop_back();
 
         if (res.size() < op_n) return false;
 
         auto &ops = map["ops"].array();
 
+
         for (size_t i = 0; i < op_n; i++) {
             ops.push_back(res.back());
+            loc = loc.intersect(conv::map_to_loc(res.back().map()["location"].string()));
             res.pop_back();
         }
+
+        map["location"] = conv::loc_to_map(loc);
 
         std::reverse(ops.begin(), ops.end());
         res.push_back(map);
@@ -100,12 +105,20 @@ class exp_parser_t : public parser_t {
         op_stack.pop_back();
         return true;
     }
-    bool pop_call(size_t n, std::vector<located_t<op_data_t>> &op_stack, array_t &res) const {
+    bool pop_call(size_t n, location_t loc, std::vector<located_t<op_data_t>> &op_stack, array_t &res) const {
         map_t call = {
             { "$_name", "$_call" },
         };
 
         array_t &args = call["args"].array({});
+
+        while (true) {
+            if (op_stack.back().precedence == precedence_t::CALL_START) break;
+            if (!pop(op_stack, res)) return false;
+        }
+        loc = loc.intersect(op_stack.back().location);
+        op_stack.pop_back();
+        call["location"] = conv::loc_to_map(loc);
 
         for (size_t i = 0; i <= n; i++) {
             args.push_back(res.back());
@@ -118,7 +131,6 @@ class exp_parser_t : public parser_t {
         res.pop_back();
         res.push_back(call);
 
-        op_stack.pop_back();
         return true;
     }
     bool pop_until(const op_data_t &data, tree_helper_t &h, std::vector<located_t<op_data_t>> &op_stack, array_t &res) const {
@@ -145,7 +157,7 @@ class exp_parser_t : public parser_t {
 
 
         while (true) {
-            if (h.ended()) break; 
+            if (h.ended()) break;
 
             if (!last_val && h.curr().is_identifier("sizeof")) {
                 op_stack.push_back({ h.loc(), sizeof_data });
@@ -162,7 +174,7 @@ class exp_parser_t : public parser_t {
                         last_val = false;
                     }
                     else if (op == operator_t::COMMA) {
-                        if (call_args_n.size() == 0) h.err("Unexpected comma here.");
+                        if (call_args_n.size() == 0) break;
 
                         pop_until({ precedence_t::CALL_START, .assoc = true }, h, op_stack, res);
                         h.advance("Expected an argument.");
@@ -183,7 +195,7 @@ class exp_parser_t : public parser_t {
                             }
                         }
 
-                        if (is_call) pop_call(call_args_n.back(), op_stack, res);
+                        if (is_call) pop_call(call_args_n.back(), h.loc(), op_stack, res);
                         else if (is_paren) pop_paren(op_stack, res);
                         else break;
 
@@ -240,6 +252,7 @@ class exp_parser_t : public parser_t {
 
         while (!op_stack.empty()) {
             if (op_stack.back().precedence == precedence_t::PAREN) throw message_t::error("Unclosed paren.", op_stack.back().location);
+            if (op_stack.back().precedence == precedence_t::CALL_START) throw message_t::error("Unclosed call.", op_stack.back().location);
             if (!pop(op_stack, res)) return h.err("Expected an expression on the right side of this operator.");
         }
 

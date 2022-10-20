@@ -36,8 +36,8 @@ class type_parser_t : public parser_t {
             nmsp["location"] = conv::loc_to_map(loc);
         }
         else {
-            auto loc_1 = conv::map_to_loc(nmsp_content[0].map()["location"].map());
-            auto loc_2 = conv::map_to_loc(nmsp_content[nmsp_content.size() - 1].map()["location"].map());
+            auto loc_1 = conv::map_to_loc(nmsp_content[0].map()["location"].string());
+            auto loc_2 = conv::map_to_loc(nmsp_content[nmsp_content.size() - 1].map()["location"].string());
             auto loc = loc_1.intersect(loc_2);
             nmsp["location"] = conv::loc_to_map(loc);
         }
