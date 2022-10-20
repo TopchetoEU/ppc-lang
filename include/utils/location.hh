@@ -10,7 +10,7 @@ namespace ppc {
         std::size_t start;
         std::size_t length;
         std::size_t code_start;
-        const std::string &filename;
+        std::string filename;
 
         location_t &operator=(const location_t &other);
         bool operator==(const location_t &other) const;
