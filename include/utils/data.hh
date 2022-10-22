@@ -73,6 +73,7 @@ namespace ppc::data {
 
     };
 
+    static const value_t null{};
 
     class map_t {
     private:

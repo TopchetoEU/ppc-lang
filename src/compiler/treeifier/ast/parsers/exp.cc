@@ -282,4 +282,20 @@ class exp_parser_t : public parser_t {
     public: exp_parser_t(): parser_t("$_exp") { }
 };
 
-const parser_adder_t ppc::comp::tree::ast::exp_adder = [](ast_ctx_t &ctx) { ctx.add_parser(new exp_parser_t()); };
+class exp_stat_parser_t : public parser_t {
+    bool parse(ast_ctx_t &ctx, size_t &i, map_t &res) const {
+        tree_helper_t h(ctx, i);
+        if (!h.parse("$_exp", res)) return false;
+        if (h.curr().is_operator(operator_t::SEMICOLON)) return h.submit(true);
+
+        ctx.messages.push(message_t::error("Expected a semicolon.", h.loc(1)));
+        return h.submit(false);
+    }
+
+    public: exp_stat_parser_t() : parser_t("$_exp_stat") { }
+};
+
+const parser_adder_t ppc::comp::tree::ast::exp_adder = [](ast_ctx_t &ctx) {
+    ctx.add_parser(new exp_parser_t());
+    ctx.add_parser(new exp_stat_parser_t(), "$_stat");
+};

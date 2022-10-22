@@ -27,6 +27,7 @@ namespace ppc::comp::tree::ast {
     extern const parser_adder_t type_adder;
     extern const parser_adder_t exp_adder;
     extern const parser_adder_t field_adder;
+    extern const parser_adder_t func_adder;
     extern const parser_adder_t var_adder;
 
     struct ast_ctx_t {
@@ -43,6 +44,7 @@ namespace ppc::comp::tree::ast {
         private:
             ast_ctx_t *parent;
         public:
+            group_parser_t &operator[](const std::string &name);
             group_parser_t &operator[](const std::string &name) const;
             group_proxy_t(ast_ctx_t *parent): parent(parent) { }
         };
@@ -58,7 +60,6 @@ namespace ppc::comp::tree::ast {
         void add_parser(const parser_t *parser);
         void add_parser(const parser_t *parser, const std::string &group);
         void add_parser(const parser_t *parser, const std::string &group, const namespace_name_t &name);
-        void add_group(const std::string &name);
 
         void add_parser(parser_adder_t factory) { factory(*this); }
 
@@ -75,6 +76,7 @@ namespace ppc::comp::tree::ast {
             add_parser(exp_adder);
             add_parser(var_adder);
             add_parser(field_adder);
+            add_parser(func_adder);
 
             return *this;
         }

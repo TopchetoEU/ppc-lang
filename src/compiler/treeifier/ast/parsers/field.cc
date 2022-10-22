@@ -18,8 +18,6 @@ class field_parser_t : public parser_t {
             type = true;
         }
         if (h.curr().is_operator(operator_t::ASSIGN)) {
-            h.i++;
-            h.err("Default values are not yet supported.", 1);
             h.advance();
             h.force_parse("$_exp", "Expected an expression.", out["value"].map({}));
             type = true;

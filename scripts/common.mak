@@ -43,16 +43,16 @@ build: $(binary)
 .SECONDEXPANSION:
 $(binary): $$(call frdeps,$(mainmodule)) $$(call binaries,$(mainmodule))
 	$(call mkdir,$(dir $@))
-	echo Compiling executable '$(notdir $(binary))'...
 	$(CXX) $(flags) $(call binaries,$(mainmodule)) -o $@ $(ldflags) $(call ldeps,$(mainmodule)) -L$(bin) "-I$(inc)"
+	echo Compiling executable '$(notdir $(binary))'...
 
 .SECONDEXPANSION:
 $(bin)/lib$(lib)%$(so): $$(call frdeps,$$*) $$(call binaries,$$*)
 	$(call mkdir,$(bin))
-	echo Compiling library '$(notdir $@)'...
 	$(CXX) -shared -fPIC $(flags) $(call binaries,$*) -o $@ $(ldflags) $(call ldeps,$*) -L$(bin) "-I$(inc)"
+	echo Compiling library '$(notdir $@)'...
 
 $(bin)/tmp/%.o: $(src)/%.cc $(headers)
-	echo - Compiling '$*.cc'...
 	$(call mkdir,$(dir $@))
 	$(CXX) -fPIC -c $(flags) $< -o $@
+	echo - Compiling '$*.cc'...

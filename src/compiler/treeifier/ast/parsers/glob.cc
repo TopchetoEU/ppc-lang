@@ -18,7 +18,7 @@ class nmsp_def_parser_t : public parser_t {
         return h.submit(true);
     }
 
-    public: nmsp_def_parser_t(): parser_t("$_nmsp_def") { }
+    public: nmsp_def_parser_t(): parser_t("$_nmsp") { }
 };
 class import_parser_t : public parser_t {
     bool parse(ast_ctx_t &ctx, size_t &res_i, data::map_t &res) const {
@@ -46,15 +46,16 @@ class glob_parser_t : public parser_t {
     bool parse(ast_ctx_t &ctx, size_t &res_i, data::map_t &out) const {
         tree_helper_t h(ctx, res_i);
 
-        return h.parse("$_exp", out);
-
         if (h.ended()) return true;
-        if (nmsp_def_parser(ctx, h.i, (out["namespace"] = map_t()).map())) {
+        if (nmsp_def_parser(ctx, h.i, out["namespace"].map({}))) {
             ctx.nmsp = conv::map_to_nmsp(out["namespace"].map());
         }
+        else {
+            out["namespace"] = data::null;
+        }
 
-        auto &imports = (out["imports"] = array_t()).array();
-        auto &contents = (out["content"] = array_t()).array();
+        auto &imports = out["imports"].array({});
+        auto &contents = out["content"].array({});
 
         while (true) {
             map_t map;
@@ -83,7 +84,5 @@ public:
 };
 
 const parser_adder_t ppc::comp::tree::ast::glob_adder = [](ast_ctx_t &ctx) {
-    ctx.add_group("$_def");
-    ctx.add_group("$_exp_val");
     ctx.add_parser(new glob_parser_t());
 };
