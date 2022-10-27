@@ -157,7 +157,7 @@ int main(int argc, const char *argv[]) {
             try {
                 std::ifstream f { file, std::ios_base::in };
                 auto tokens = token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
-                auto ast = ast_ctx_t::parse(msg_stack, tokens);
+                auto ast = ast_ctx_t::parse(ast::parse_glob, msg_stack, tokens);
 
                 std::cout << data::json::stringify(ast) << std::endl;
             }

@@ -104,25 +104,28 @@ namespace ppc::comp::tree::ast {
             throw_ended(reason);
         }
 
-        bool push_parse(const std::string &name, data::array_t &out) {
+        template <class T>
+        bool push_parse(const T &parser, data::array_t &out) {
             data::map_t res;
-            if (parse(name, res)) {
+            if (parse(parser, res)) {
                 out.push_back(res);
                 return true;
             }
             else return false;
         }
 
-        bool parse(const std::string &name, data::map_t &out) {
-            return ctx.parse(name, i, out);
+        template <class T>
+        bool parse(const T &parser, data::map_t &out) {
+            return ctx.parse(parser, i, out);
         }
 
-        void force_push_parse(const std::string &name, std::string message, data::array_t &out) {
+        template <class T>
+        void force_push_parse(const T &parser, std::string message, data::array_t &out) {
             throw_ended(message);
             bool success;
 
             try {
-                success = push_parse(name, out);
+                success = push_parse(parser, out);
             }
             catch (const message_t &msg) {
                 ctx.messages.push(msg);
@@ -131,12 +134,13 @@ namespace ppc::comp::tree::ast {
             
             if (!success) err(message);
         }
-        void force_parse(const std::string &name, std::string message, data::map_t &out) {
+        template <class T>
+        void force_parse(const T &parser, std::string message, data::map_t &out) {
             throw_ended(message);
             bool success;
 
             try {
-                success = parse(name, out);
+                success = parse(parser, out);
             }
             catch (const message_t &msg) {
                 ctx.messages.push(msg);

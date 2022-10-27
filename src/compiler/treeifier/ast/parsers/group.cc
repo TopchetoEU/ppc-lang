@@ -13,7 +13,7 @@ using namespace std;
 static bool read_nmsp(ast_ctx_t &ctx, size_t &i, lang::loc_namespace_name_t &name) {
     tree_helper_t h(ctx, i);
     map_t res;
-    if (!h.parse("$_nmsp", res)) return false;
+    if (!h.parse(parse_nmsp, res)) return false;
     name = conv::map_to_nmsp(res);
     return true;
 }
@@ -40,8 +40,48 @@ static bool resolve_nmsp(ast_ctx_t &ctx, const lang::namespace_name_t &name, T b
     return false;
 }
 
+group_t &group_t::insert(const std::string &name, parser_t parser, const std::string &relative_to, bool after) {
+    if (parsers.find(name) != parsers.end()) {
+        throw "The parser '" + name + "' is already in the group.";
+    }
 
-bool group_parser_t::parse(ast_ctx_t &ctx, size_t &i, data::map_t &out) const {
+    auto it = parsers.find(relative_to);
+    if (it == parsers.end()) {
+        throw "The parser '" + relative_to + "' isn't in the group.";
+    }
+
+    if (after) it++;
+
+    parsers.insert(it, { name, parser });
+
+    return *this;
+}
+group_t &group_t::replace(const std::string &name, parser_t parser) {
+    auto it = parsers.find(name);
+
+    if (parsers.find(name) == parsers.end()) {
+        throw "The parser '" + name + "' isn't in the group.";
+    }
+
+    it->second = parser;
+
+    return *this;
+}
+group_t &group_t::add_last(const std::string &name, parser_t parser) {
+    if (parsers.find(name) != parsers.end()) {
+        throw "The parser '" + name + "' is already in the group.";
+    }
+
+    parsers.emplace(name, parser);
+
+    return *this;
+}
+group_t &group_t::add_named(const std::string &name, parser_t parser, const lang::namespace_name_t &identifier) {
+    add_last(name, parser);
+    return *this;
+}
+
+bool group_t::operator()(ast_ctx_t &ctx, size_t &i, data::map_t &out) const {
     tree_helper_t h(ctx, i);
 
     if (h.ended()) return false;
@@ -50,8 +90,9 @@ bool group_parser_t::parse(ast_ctx_t &ctx, size_t &i, data::map_t &out) const {
     if (read_nmsp(ctx, h.i, name)) {
         namespace_name_t actual;
         if (resolve_nmsp(ctx, name.strip_location(), named_parsers.begin(), named_parsers.end(), actual)) {
-            auto &parser = *this->named_parsers.find(actual)->second;
-            if (parser(ctx, i, out)) return true;
+            auto parser = parsers.find(this->named_parsers.find(actual)->second);
+            out["$_name"] = parser->first;
+            if (parser->second(ctx, i, out)) return true;
             else throw message_t::error("Unexpected construct specifier.", h.res_loc());
         }
     }
@@ -59,25 +100,11 @@ bool group_parser_t::parse(ast_ctx_t &ctx, size_t &i, data::map_t &out) const {
     unordered_map<string, message_t> errors;
 
     for (auto parser : parsers) {
-        if ((*parser)(ctx, i, out)) return true;
+        out["$_name"] = parser.first;
+        if ((*parser.second)(ctx, i, out)) return true;
     }
 
     stringstream m;
 
     return false;
-}
-
-group_parser_t &group_parser_t::add(const parser_t &parser) {
-    parsers.push_back(&parser);
-    return *this;
-}
-group_parser_t &group_parser_t::add(const parser_t &parser, const lang::namespace_name_t &name) {
-    if (name.empty()) throw "Name can't be empty."s;
-    if (std::find(parsers.begin(), parsers.end(), &parser) != parsers.end()) {
-        throw "Parser '" + name.to_string() + "' already in group.";
-    }
-
-    named_parsers[name] = &parser;
-
-    return *this;
 }

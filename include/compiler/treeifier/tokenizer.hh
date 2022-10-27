@@ -79,28 +79,19 @@ namespace ppc::comp::tree {
             NONE,
             IDENTIFIER,
             OPERATOR,
-            INT,
-            FLOAT,
-            CHAR,
-            STRING,
+            LITERAL,
         } kind;
         union data_t {
             std::string *identifier;
             operator_t _operator;
-            std::uint64_t int_literal;
-            double float_literal;
-            char char_literal;
-            std::vector<char> *string_literal;
+            std::vector<uint8_t> *literal;
         } data;
     public:
         ppc::location_t location;
 
         bool is_identifier() const { return kind == IDENTIFIER; }
         bool is_operator() const { return kind == OPERATOR; }
-        bool is_int_lit() const { return kind == INT; }
-        bool is_float_lit() const { return kind == FLOAT; }
-        bool is_char_lit() const { return kind == CHAR; }
-        bool is_string_lit() const { return kind == STRING; }
+        bool is_literal() const { return kind == LITERAL; }
 
         const auto &identifier() const {
             if (!is_identifier()) throw std::string { "Token is not an identifier." };
@@ -110,21 +101,9 @@ namespace ppc::comp::tree {
             if (!is_operator()) throw std::string { "Token is not an operator." };
             else return data._operator;
         }
-        auto int_lit() const {
-            if (!is_int_lit()) throw std::string { "Token is not an int literal." };
-            else return data.int_literal;
-        }
-        auto float_lit() const {
-            if (!is_float_lit()) throw std::string { "Token is not a float literal." };
-            else return data.float_literal;
-        }
-        auto char_lit() const {
-            if (!is_char_lit()) throw std::string { "Token is not a char literal." };
-            else return data.char_literal;
-        }
-        const auto &string_lit() const {
-            if (!is_string_lit()) throw std::string { "Token is not a string literal." };
-            else return *data.string_literal;
+        const auto &literal() const {
+            if (!is_literal()) throw std::string { "Token is not a literal." };
+            else return *data.literal;
         }
 
         bool is_operator(operator_t op) const { return is_operator() && _operator() == op; }
@@ -139,21 +118,9 @@ namespace ppc::comp::tree {
             kind = OPERATOR;
             data._operator = op;
         }
-        token_t(std::uint64_t val, location_t loc = location_t::NONE): location(loc) {
-            kind = INT;
-            data.int_literal = val;
-        }
-        token_t(double val, location_t loc = location_t::NONE): location(loc) {
-            kind = FLOAT;
-            data.float_literal = val;
-        }
-        token_t(char c, location_t loc = location_t::NONE): location(loc) {
-            kind = CHAR;
-            data.char_literal = c;
-        }
-        token_t(const std::vector<char> &val, location_t loc = location_t::NONE): location(loc) {
-            kind = STRING;
-            data.string_literal = new std::vector<char> { val };
+        token_t(const std::vector<uint8_t> &val, location_t loc = location_t::NONE): location(loc) {
+            kind = LITERAL;
+            data.literal = new std::vector<uint8_t> { val };
         }
         token_t(const token_t &tok): location(tok.location) {
             kind = tok.kind;
@@ -161,17 +128,14 @@ namespace ppc::comp::tree {
                 case NONE: break;
                 case IDENTIFIER: data.identifier = new std::string { *tok.data.identifier }; break;
                 case OPERATOR: data._operator = tok.data._operator; break;
-                case INT: data.int_literal = tok.data.int_literal; break;
-                case FLOAT: data.float_literal = tok.data.float_literal; break;
-                case CHAR: data.char_literal = tok.data.char_literal; break;
-                case STRING: data.string_literal = new std::vector<char> { *tok.data.string_literal }; break;
+                case LITERAL: data.literal = new std::vector<uint8_t> { *tok.data.literal }; break;
             }
         }
         
         ~token_t() {
             switch (kind) {
                 case IDENTIFIER: delete data.identifier; break;
-                case STRING: delete data.string_literal; break;
+                case LITERAL: delete data.literal; break;
                 default: break;
             }
         }

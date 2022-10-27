@@ -1,4 +1,5 @@
 #include <string>
+#include <algorithm>
 #include "compiler/treeifier/tokenizer.hh"
 #include "compiler/treeifier/lexer.hh"
 
@@ -7,12 +8,12 @@ using namespace messages;
 using namespace comp::tree;
 using namespace std::string_literals;
 
-static std::vector<char> parse_string(msg_stack_t &msg_stack, bool is_char, const lex::token_t &token) {
+static std::vector<uint8_t> parse_string(msg_stack_t &msg_stack, bool is_char, const lex::token_t &token) {
     char literal_char = is_char ? '\'' : '"';
 
     bool escaping = false;
 
-    std::vector<char> res;
+    std::vector<uint8_t> res;
     location_t curr_char_loc = token.location;
     curr_char_loc.length = 1;
     curr_char_loc.start++;
@@ -52,96 +53,99 @@ static std::vector<char> parse_string(msg_stack_t &msg_stack, bool is_char, cons
     if (is_char) throw message_t(message_t::ERROR, "Unterminated char literal.", token.location);
     else throw message_t(message_t::ERROR, "Unterminated string literal.", token.location);
 }
-static token_t parse_int(msg_stack_t &msg_stack, const lex::token_t &token) {
-    enum radix_t {
-        BINARY,
-        OCTAL,
-        DECIMAL,
-        HEXADECIMAL,
-    } radix;
 
-    std::size_t i = 0;
+static std::vector<uint8_t> parse_bin(msg_stack_t &msg_stack, size_t i, const std::string &data) {
+    std::vector<uint8_t> res;
 
+    int last_byte = 0;
+    int lastbyte_n = 0;
+
+    for (size_t j = data.length() - 1; j >= i; j--) {
+        if (lastbyte_n == 8) {
+            lastbyte_n = 0;
+            res.push_back(last_byte);
+            last_byte = 0;
+        }
+
+        last_byte <<= 1;
+        last_byte |= data[j] - '0';
+        lastbyte_n++;
+    }
+
+    res.push_back(last_byte);
+    std::reverse(res.begin(), res.end());
+
+    return res;
+}
+static std::vector<uint8_t> parse_hex(msg_stack_t &msg_stack, size_t i, const std::string &data) {
+    std::vector<uint8_t> res;
+
+    int last_byte = 0;
+    int lastbyte_n = 0;
+
+    for (size_t j = data.length() - 1; j >= i; j--) {
+        if (lastbyte_n == 8) {
+            lastbyte_n = 0;
+            res.push_back(last_byte);
+            last_byte = 0;
+        }
+
+        int digit = data[j] - '0';
+        if (data[j] >= 'a' && data[j] <= 'f') digit = data[j] - 'a' + 10;
+        if (data[j] >= 'A' && data[j] <= 'F') digit = data[j] - 'F' + 10;
+
+        last_byte <<= 4;
+        last_byte |= digit;
+        lastbyte_n += 4;
+    }
+
+    res.push_back(last_byte);
+    std::reverse(res.begin(), res.end());
+
+    return res;
+}
+static std::vector<uint8_t> parse_oct(msg_stack_t &msg_stack, size_t i, const std::string &data) {
+    std::vector<uint8_t> res;
+
+    int last_byte = 0;
+    int lastbyte_n = 0;
+
+    for (size_t j = data.length() - 1; j >= i; j--) {
+        if (lastbyte_n >= 8) {
+            lastbyte_n = 0;
+            res.push_back(last_byte);
+            last_byte >>= 8;
+        }
+
+        int digit = data[j] - '0';
+
+        last_byte <<= 3;
+        last_byte |= digit;
+        lastbyte_n += 3;
+    }
+
+    res.push_back(last_byte);
+    std::reverse(res.begin(), res.end());
+
+    return res;
+}
+
+static std::vector<uint8_t> parse_int(msg_stack_t &msg_stack, const lex::token_t &token) {
     switch (token.type) {
         case lex::token_t::BIN_LITERAL:
-            i += 2;
-            radix = BINARY;
-            break;
+            return parse_bin(msg_stack, 2, token.data);
         case lex::token_t::OCT_LITERAL:
-            i++;
-            radix = OCTAL;
-            break;
+            return parse_oct(msg_stack, 1, token.data);
         case lex::token_t::DEC_LITERAL:
-            radix = DECIMAL;
-            break;
+            throw "no dec literals lol bozo."s;
         case lex::token_t::HEX_LITERAL:
-            i += 2;
-            radix = HEXADECIMAL;
-            break;
+            return parse_hex(msg_stack, 2, token.data);
         default:
             throw "WTF r u doing bro?"s;
     }
-
-    uint64_t res = 0;
-
-    for (; i <= token.data.length() - 1; i++) {
-        char c = token.data[i];
-        int8_t digit;
-        switch (radix) {
-            case BINARY:
-                digit = c - '0';
-                res <<= 1;
-                res |= digit;
-                break;
-            case OCTAL:
-                digit = c - '0';
-                if (digit < 0 || digit > 7) {
-                    throw message_t(message_t::ERROR, "Octal literals may contain numbers between 0 and 7.", token.location);
-                }
-                res <<= 3;
-                res |= digit;
-                break;
-            case 2:
-                digit = c - '0';
-                res *= 10;
-                res += digit;
-                break;
-            case 3:
-                if (c >= 'a' && c <= 'f') digit = c - 'a' + 10;
-                else if (c >= 'A' && c <= 'F') digit = c - 'A' + 10;
-                else if (c >= '0' && c <= '9') digit = c - '0';
-                else throw message_t(message_t::ERROR, "Invalid character '"s + c + "' in hex literal.", token.location);
-                res <<= 4;
-                res |= digit;
-                break;
-        }
-    }
-
-    return token_t(res, token.location);
 }
-static token_t parse_float(msg_stack_t &msg_stack, const lex::token_t &token) {
-    double whole = 0, fract = 0;
-
-    char c;
-    std::size_t i;
-
-    for (i = 0; i < token.data.length() && isdigit(c = token.data[i]); i++) {
-        if (c == '.') break;
-        int digit = c - '0';
-        whole *= 10;
-        whole += digit;
-    }
-
-    if (c == '.') {
-        i++;
-        for (; i < token.data.length() && isdigit(c = token.data[i]); i++) {
-            int digit = c - '0';
-            fract += digit;
-            fract /= 10;
-        }
-    }
-
-    return token_t(whole + fract, token.location);
+static std::vector<uint8_t> parse_float(msg_stack_t &msg_stack, const lex::token_t &token) {
+    throw "no floats lol bozo"s;
 }
 
 token_t token_t::parse(messages::msg_stack_t &msg_stack, lex::token_t in) {
@@ -160,16 +164,13 @@ token_t token_t::parse(messages::msg_stack_t &msg_stack, lex::token_t in) {
         case lex::token_t::OCT_LITERAL:
         case lex::token_t::DEC_LITERAL:
         case lex::token_t::HEX_LITERAL:
-            return parse_int(msg_stack, in);
+            return { parse_int(msg_stack, in), in.location };
         case lex::token_t::FLOAT_LITERAL:
-            return parse_float(msg_stack, in);
+            return { parse_float(msg_stack, in), in.location };
         case lex::token_t::STRING_LITERAL:
-            return { parse_string(msg_stack, false, in) };
-        case lex::token_t::CHAR_LITERAL: {
-            auto str = parse_string(msg_stack, true, in);
-            if (str.size() != 1) throw message_t(message_t::ERROR, "Char literal must consist of just one character.", in.location);
-            return str.front();
-        }
+            return { parse_string(msg_stack, false, in), in.location };
+        case lex::token_t::CHAR_LITERAL:
+            return { parse_string(msg_stack, true, in), in.location };
         default:
             throw message_t(message_t::ERROR, "Token type not recognised.", in.location);
     }
