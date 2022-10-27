@@ -60,7 +60,7 @@ static std::vector<uint8_t> parse_bin(msg_stack_t &msg_stack, size_t i, const st
     int last_byte = 0;
     int lastbyte_n = 0;
 
-    for (size_t j = data.length() - 1; j >= i; j--) {
+    for (size_t j = 0; j < data.length(); j++) {
         if (lastbyte_n == 8) {
             lastbyte_n = 0;
             res.push_back(last_byte);
@@ -83,7 +83,7 @@ static std::vector<uint8_t> parse_hex(msg_stack_t &msg_stack, size_t i, const st
     int last_byte = 0;
     int lastbyte_n = 0;
 
-    for (size_t j = data.length() - 1; j >= i; j--) {
+    for (size_t j = 0; j < data.length(); j++) {
         if (lastbyte_n == 8) {
             lastbyte_n = 0;
             res.push_back(last_byte);
@@ -110,7 +110,7 @@ static std::vector<uint8_t> parse_oct(msg_stack_t &msg_stack, size_t i, const st
     int last_byte = 0;
     int lastbyte_n = 0;
 
-    for (size_t j = data.length() - 1; j >= i; j--) {
+    for (size_t j = 0; j < data.length(); j++) {
         if (lastbyte_n >= 8) {
             lastbyte_n = 0;
             res.push_back(last_byte);
