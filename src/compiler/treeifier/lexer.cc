@@ -136,7 +136,7 @@ static res_t lexlet_string(char c, std::vector<char> &tok) {
     else return lexer_none();
 };
 static res_t lexlet_char(char c, std::vector<char> &tok) {
-    if (c == '\'' && tok.back() != '\\') return lexer_end(token_t::CHAR_LITERAL, false).add();
+    if ((c == '\'') && (tok.back() != '\\')) return lexer_end(token_t::CHAR_LITERAL, false).add();
     else return lexer_none();
 };
 
