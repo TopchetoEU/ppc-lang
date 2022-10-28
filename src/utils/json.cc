@@ -10,6 +10,7 @@ namespace ppc::data::json {
             out << '[';
 
             for (const auto &el : val.array()) {
+                if (el.is_null()) continue;
                 if (!first) out << ',';
                 first = false;
                 out << stringify(el);
@@ -21,6 +22,7 @@ namespace ppc::data::json {
             out << '{';
 
             for (const auto &el : val.map()) {
+                if (el.second.is_null()) continue;
                 if (!first) out << ',';
                 first = false;
                 out << '"' << el.first << '"' << ':' << stringify(el.second);
