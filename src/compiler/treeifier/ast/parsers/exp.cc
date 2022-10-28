@@ -199,7 +199,10 @@ bool ast::parse_exp(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
             h.advance("Expected a value on the right side of the operator.");
             continue;
         }
-        if (!last_val && h.push_parse(ctx.group("$_exp_val"), res)) last_val = true;
+        if (!last_val && h.push_parse(ctx.group("$_exp_val"), res)) {
+            last_val = true;
+            continue;
+        }
         if (h.curr().is_operator()) {
             auto op = h.curr()._operator();
             if (last_val) {
@@ -315,7 +318,7 @@ bool ast::parse_exp(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
 bool ast::parse_stat_exp(ast_ctx_t &ctx, size_t &i, map_t &res) {
     tree_helper_t h(ctx, i);
     if (!h.parse(parse_exp, res)) return false;
-    if (h.curr().is_operator(operator_t::SEMICOLON)) return h.submit(true);
+    if (!h.ended() && h.curr().is_operator(operator_t::SEMICOLON)) return h.submit(true);
 
     ctx.messages.push(message_t::error("Expected a semicolon.", h.loc(1)));
     return h.submit(false);

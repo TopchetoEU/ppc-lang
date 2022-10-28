@@ -22,7 +22,7 @@ bool ast::parse_field(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
         type = true;
     }
 
-    if (h.curr().is_operator(operator_t::SEMICOLON)) {
+    if (!h.ended() && h.curr().is_operator(operator_t::SEMICOLON)) {
         if (type || defval) return h.submit();
         else return h.err("A type or a default value must be specified ");
     }
