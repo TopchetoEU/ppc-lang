@@ -6,7 +6,7 @@ using namespace ppc;
 bool check_shorthand(std::string &option, const options::flag_t &flag) {
     if (option.size() < 2 || option[0] != '-') return false;
 
-    if (option.size() == 2 && std::string { flag.shorthands }.find(option[1]) != -1u) {
+    if (option.size() == 2 && std::string { flag.shorthands }.find(option[1]) != std::string::npos) {
         option = "";
         return true;
     }

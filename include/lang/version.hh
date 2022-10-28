@@ -33,8 +33,8 @@ namespace ppc {
         bool operator ==(version_t other) const;
         inline bool operator !=(version_t other) const { return !(*this == other); }
 
-        version_t(uint16_t major, uint16_t minor, uint32_t revision) : major { major }, minor { minor }, revision { revision } { }
-        version_t(uint16_t major, uint16_t minor) : version_t { major, minor, -1u } { }
-        version_t(uint16_t major) : version_t { major, -1u, -1u } { }
+        version_t(uint16_t major, uint16_t minor, uint32_t revision) : major(major), minor(minor), revision(revision) { }
+        version_t(uint16_t major, uint16_t minor) : version_t(major, minor, -1) { }
+        version_t(uint16_t major) : version_t(major, -1, -1) { }
     };
 }

@@ -1,6 +1,6 @@
-export MAKEFLAGS += --silent -r
-export flags=-std=c++17 -Wall -Wno-main -Wno-trigraphs -Wno-missing-braces -Wno-stringop-overflow
-export ldflags=-L$(bin)/$(profile)
+export MAKEFLAGS += --silent -r -j
+export flags=-std=c++17 -Wall -Wno-main -Wno-trigraphs -Wno-missing-braces -Wno-stringop-overflow -DPROFILE_$(profile) -fdiagnostics-color=always
+export ldflags=-L$(bin)/$(profile) -Wl,-rpath=bin/$(profile)
 export lib=ppc$(version-major)-
 export profile=release
 
@@ -28,9 +28,9 @@ ifeq ($(profile),release)
 flags += -O3
 else ifeq ($(profile),debug)
 flags += -g
-ldflags+= -Wl,-rpath=bin/debug
 endif
-oldbin := bin
+
+oldbin := $(bin)
 export bin := $(bin)/$(profile)
 
 ifeq ($(os),Windows)
@@ -51,9 +51,11 @@ build: version
 	make -f scripts/common.mak
 	if exist "$(subst /,\,$(bin)\$(output).exe)" del "$(subst /,\,$(bin)\$(output).exe)"
 	mklink /H "$(subst /,\,$(bin)\$(output).exe)" "$(subst /,\,$(binary))" > NUL
-
+	echo Done!
 clear:
 	if exist $(subst /,\,$(oldbin)) rmdir /s /q $(subst /,\,$(oldbin))
+cleartmp:
+	if exist $(subst /,\,$(bin)/tmp) rmdir /s /q $(subst /,\,$(bin)/tmp)
 
 .ONESHELL:
 install: build
@@ -82,6 +84,9 @@ build: version
 
 clear:
 	rm -r $(oldbin)
+clear:
+	rm -r $(bin)/tmp
+
 
 install: build
 	echo Installing ++C compiler to your system...

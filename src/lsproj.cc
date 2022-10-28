@@ -15,11 +15,11 @@ std::string read_str(std::istream &f, const std::string &skip_chars, const std::
     while (true) {
         c = f.get();
         auto a = end_chars.find(c);
-        if (c == -1 || a != -1ull) {
+        if (c == -1 || a != std::string::npos) {
             end_char = c;
             return "";
         }
-        if ((a = skip_chars.find(c)) == -1ull) {
+        if ((a = skip_chars.find(c)) == std::string::npos) {
             f.unget();
             break;
         }
@@ -27,7 +27,7 @@ std::string read_str(std::istream &f, const std::string &skip_chars, const std::
 
     while (true) {
         c = f.get();
-        if (c == -1 || end_chars.find(c) != -1ull) {
+        if (c == -1 || end_chars.find(c) != std::string::npos) {
             end_char = c;
             break;
         }
@@ -35,7 +35,7 @@ std::string read_str(std::istream &f, const std::string &skip_chars, const std::
         res.push_back(c);
     }
     while (true) {
-        if (skip_chars.find(res.back()) != -1ull) res.pop_back();
+        if (skip_chars.find(res.back()) != std::string::npos) res.pop_back();
         else break;
     }
 
@@ -63,14 +63,14 @@ project_t read_project(std::istream &f) {
         };
     }
 
-    if (name.find(',') != -1ull || name.find(' ') != -1ull) {
+    if (name.find(',') != std::string::npos || name.find(' ') != std::string::npos) {
         throw (std::string)"The name of a project may not contain spaces or commas.";
     }
 
     while (true) {
         std::string dep = read_str(f, " \v\t\r\n", ",\n", end_ch);
 
-        if (dep.find(' ') != -1ull) {
+        if (dep.find(' ') != std::string::npos) {
             throw (std::string)"The name of a dependency may not contain spaces.";
         }
 
@@ -101,7 +101,7 @@ int main(int argc, const char* argv[]) {
             throw (std::string)"Incorrect usage. Syntax: [src-dir] [project-name] [output|deps].";
         }
 
-        std::string proj_path = (std::string)argv[0] + "/" + argv[1] + "/proj.txt";
+        std::string proj_path = (std::string)argv[0] + "/" + argv[1] + ".proj";
         proj_name = argv[1];
 
         std::ifstream f { proj_path, std::ios_base::in };

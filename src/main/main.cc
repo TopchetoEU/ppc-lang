@@ -22,14 +22,17 @@
 #include <cstdio>
 #include "utils/threading.hh"
 #include "utils/strings.hh"
+#include "utils/json.hh"
 #include "compiler/treeifier/lexer.hh"
 #include "compiler/treeifier/tokenizer.hh"
+#include "compiler/treeifier/ast.hh"
 #include "./opions.hh"
 
 using std::cout;
 using std::size_t;
 using namespace ppc;
 using namespace ppc::comp::tree;
+using namespace ppc::comp::tree::ast;
 
 void add_flags(options::parser_t &parser) {
     parser.add_flag({
@@ -120,7 +123,7 @@ void add_flags(options::parser_t &parser) {
         .description = "Prints a 'what?' type of message (you'll see)",
         .match_type = options::MATCH_PREFIX,
         .execute = [](options::parser_t &parser, const std::string &option, ppc::messages::msg_stack_t &global_stack) {
-            global_stack.push({ (messages::message_t::level_t)69, NO_LOCATION, "IDK LOL." });
+            global_stack.push(messages::message_t((messages::message_t::level_t)69, "IDK LOL."));
         }
     });
 }
@@ -139,37 +142,48 @@ int main(int argc, const char *argv[]) {
     std::vector<std::string> files;
     messages::msg_stack_t msg_stack;
 
-    options::parser_t parser;
-    data::map_t conf;
-    add_flags(parser);
+    try {
+        options::parser_t parser;
+        data::map_t conf;
+        add_flags(parser);
 
-    for (const auto &arg : args) {
-        if (!parser.parse(arg, msg_stack, conf)) {
-            files.push_back(arg);
-        }
-    }
-
-    for (const auto &file : files) {
-        std::ifstream f { file, std::ios_base::in };
-        try {
-            auto res = tok::token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
-
-            for (auto tok : res) {
-                if (tok.is_identifier()) std::cout << "Identifier: \t" << tok.identifier();
-                if (tok.is_operator()) std::cout << "Operator: \t" << tok::operator_stringify(tok._operator());
-                if (tok.is_float_lit()) std::cout << "Float: \t" << tok.float_lit();
-                if (tok.is_int_lit()) std::cout << "Int: \t" << tok.int_lit();
-                if (tok.is_char_lit()) std::cout << "Char: \t" << tok.char_lit();
-                if (tok.is_string_lit()) std::cout << "String: \t" << std::string { tok.string_lit().begin(), tok.string_lit().end() };
-                std::cout << std::endl;
+        for (const auto &arg : args) {
+            if (!parser.parse(arg, msg_stack, conf)) {
+                files.push_back(arg);
             }
         }
-        catch (const messages::message_t &msg) {
-            msg_stack.push(msg);
+
+        for (const auto &file : files) {
+            try {
+                std::ifstream f { file, std::ios_base::in };
+                auto tokens = token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
+                auto ast = ast_ctx_t::parse(ast::parse_glob, msg_stack, tokens);
+
+                std::cout << data::json::stringify(ast) << std::endl;
+            }
+            catch (const messages::message_t &msg) {
+                msg_stack.push(msg);
+            }
         }
     }
+    catch (const messages::message_t &msg) {
+        msg_stack.push(msg);
+    }
+    #ifndef PROFILE_debug
+    catch (const std::string &msg) {
+        msg_stack.push(message_t::error(msg));
+    }
+    catch (...) {
+        std::cout << std::endl;
+        msg_stack.push(message_t::error("A fatal error occurred."));
+    }
+    #endif
 
     msg_stack.print(std::cout, messages::message_t::DEBUG, true);
+
+    #ifdef PROFILE_debug
+    system("pause");
+    #endif
 
     return 0;
 }
