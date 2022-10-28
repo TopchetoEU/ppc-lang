@@ -159,7 +159,7 @@ bool ast::parse_exp_var(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
 bool ast::parse_exp_int_lit(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
     tree_helper_t h(ctx, res_i);
 
-    if (h.curr().is_literal()) {
+    if (h.curr().is_int_literal()) {
         auto &arr = out["content"].array({});
         for (auto b : h.curr().literal()) arr.push_back((float)b);
         out["location"] = conv::loc_to_map(h.loc());
@@ -168,7 +168,18 @@ bool ast::parse_exp_int_lit(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
 
     return false;
 }
+bool ast::parse_exp_str_lit(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
+    tree_helper_t h(ctx, res_i);
 
+    if (h.curr().is_str_literal()) {
+        auto &arr = out["content"].array({});
+        for (auto b : h.curr().literal()) arr.push_back((float)b);
+        out["location"] = conv::loc_to_map(h.loc());
+        return h.submit(true);
+    }
+
+    return false;
+}
 
 bool ast::parse_exp(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
     tree_helper_t h(ctx, res_i);

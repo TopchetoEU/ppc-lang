@@ -13,9 +13,9 @@ group_t &ast_ctx_t::group(const std::string &name) {
 ast_ctx_t::ast_ctx_t(msg_stack_t &messages, std::vector<token_t> &tokens): messages(messages), tokens(tokens) {
     group("$_exp_val")
         .add_last("$_var", parse_exp_var)
-        .add_last("$_int", parse_exp_int_lit);
+        .add_last("$_int", parse_exp_int_lit)
+        .add_last("$_string", parse_exp_str_lit);
         // .add_last("$_float", parse_exp_float_lit)
-        // .add_last("$_string", parse_exp_str_lit);
     group("$_stat")
         .add_last("$_exp", parse_stat_exp);
     group("$_def")
