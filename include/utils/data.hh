@@ -38,6 +38,9 @@ namespace ppc::data {
         bool is_number() const;
         bool is_string() const;
         bool is_bool() const;
+        bool is_true() {
+            return is_bool() && boolean();
+        }
 
         array_t &array(const array_t &arr);
         map_t &map(const map_t &map);
