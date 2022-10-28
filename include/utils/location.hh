@@ -20,6 +20,9 @@ namespace ppc {
         operator std::string() const { return to_string(); }
         std::string to_string() const;
         location_t intersect(location_t other) const;
+        static location_t intersect(const location_t &a, const location_t &b) {
+            return a.intersect(b);
+        }
 
         location_t();
         location_t(const location_t &other): location_t(other.filename, other.line, other.start, other.code_start, other.length) { }

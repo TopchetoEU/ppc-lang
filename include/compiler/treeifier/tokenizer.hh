@@ -67,10 +67,6 @@ namespace ppc::comp::tree {
         BRACE_CLOSE,
         PAREN_OPEN,
         PAREN_CLOSE,
-
-        VAL,
-        REF,
-        SIZEOF,
     };
 
     struct token_t {

@@ -41,14 +41,49 @@ std::map<operator_t, op_data_t> pre_ops {
     { operator_t::AND, { precedence_t::PREFIX, 1, "reference" } },
 };
 std::map<operator_t, op_data_t> bin_ops {
-    { operator_t::ADD, { precedence_t::ADD, 2, "add" } },
-    { operator_t::SUBTRACT, { precedence_t::ADD, 2, "subtract" } },
-    { operator_t::MULTIPLY, { precedence_t::MULT, 2, "multiply" } },
-    { operator_t::DIVIDE, { precedence_t::MULT, 2, "divide" } },
-    { operator_t::MODULO, { precedence_t::MULT, 2, "modulo" } },
     { operator_t::INCREASE, { precedence_t::POSTFIX, 1, "inc_post" } },
     { operator_t::DECREASE, { precedence_t::POSTFIX, 1, "dec_post" } },
     { (operator_t)-1, sizeof_data },
+
+    { operator_t::ADD, { precedence_t::ADD, 2, "add" } },
+    { operator_t::SUBTRACT, { precedence_t::ADD, 2, "subtract" } },
+
+    { operator_t::MULTIPLY, { precedence_t::MULT, 2, "multiply" } },
+    { operator_t::DIVIDE, { precedence_t::MULT, 2, "divide" } },
+    { operator_t::MODULO, { precedence_t::MULT, 2, "modulo" } },
+
+    { operator_t::SHIFT_LEFT, { precedence_t::SHIFT, 2, "shl" } },
+    { operator_t::SHIFT_RIGHT, { precedence_t::SHIFT, 2, "shr" } },
+
+    { operator_t::LESS_THAN, { precedence_t::COMP, 2, "less" } },
+    { operator_t::LESS_THAN_EQUALS, { precedence_t::COMP, 2, "less_eq" } },
+    { operator_t::GREATER_THAN, { precedence_t::COMP, 2, "great" } },
+    { operator_t::GREATER_THAN_EQUALS, { precedence_t::COMP, 2, "great_eq" } },
+
+    { operator_t::EQUALS, { precedence_t::EQU, 2, "eq" } },
+    { operator_t::NOT_EQUALS, { precedence_t::EQU, 2, "neq" } },
+
+    { operator_t::AND, { precedence_t::BIN_AND, 2, "great_eq" } },
+    { operator_t::OR, { precedence_t::BIN_OR, 2, "great_eq" } },
+    { operator_t::XOR, { precedence_t::BIN_XOR, 2, "great_eq" } },
+
+    { operator_t::DOUBLE_AND, { precedence_t::BOOL_AND, 2, "great_eq" } },
+    { operator_t::DOUBLE_OR, { precedence_t::BOOL_OR, 2, "great_eq" } },
+
+    { operator_t::ASSIGN, { precedence_t::ASSIGN, 2, "assign", true } },
+    { operator_t::ASSIGN_ADD, { precedence_t::ASSIGN, 2, "assign_add", true } },
+    { operator_t::ASSIGN_SUBTRACT, { precedence_t::ASSIGN, 2, "assign_subtract", true } },
+    { operator_t::ASSIGN_MULTIPLY, { precedence_t::ASSIGN, 2, "assign_multiply", true } },
+    { operator_t::ASSIGN_DIVIDE, { precedence_t::ASSIGN, 2, "assign_divide", true } },
+    { operator_t::ASSIGN_MODULO, { precedence_t::ASSIGN, 2, "assign_modulo", true } },
+    { operator_t::ASSIGN_SHIFT_LEFT, { precedence_t::ASSIGN, 2, "assign_shl", true } },
+    { operator_t::ASSIGN_SHIFT_RIGHT, { precedence_t::ASSIGN, 2, "assign_shr", true } },
+    { operator_t::ASSIGN_XOR, { precedence_t::ASSIGN, 2, "assign_xor", true } },
+    { operator_t::ASSIGN_AND, { precedence_t::ASSIGN, 2, "assign_and", true } },
+    { operator_t::ASSIGN_OR, { precedence_t::ASSIGN, 2, "assign_or", true } },
+    { operator_t::ASSIGN_DOUBLE_AND, { precedence_t::ASSIGN, 2, "assign_dand", true } },
+    { operator_t::ASSIGN_DOUBLE_OR, { precedence_t::ASSIGN, 2, "assign_dor", true } },
+    { operator_t::ASSIGN_NULL_COALESCING, { precedence_t::ASSIGN, 2, "assign_null_coal", true } },
 };
 
 map_t op_to_map(located_t<op_data_t> op) {
@@ -250,6 +285,10 @@ bool ast::parse_exp(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
 
                     res.pop_back();
                     h.force_parse(parse_type, "Expected a type.", cast["type"].map({}));
+                    cast["location"] = conv::loc_to_map(location_t::intersect(
+                        conv::map_to_loc(cast["exp"].map()["location"].string()),
+                        conv::map_to_loc(cast["type"].map()["location"].string())
+                    ));
                     res.push_back(cast);
                 }
                 else if (op == operator_t::DOT || op == operator_t::PTR_MEMBER) {
