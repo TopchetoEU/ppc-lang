@@ -17,7 +17,9 @@ bool ast::parse_type(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
 
     auto &nmsp_arr = nmsp["content"].array();
 
+    h.i--;
     out["location"] = conv::loc_to_map(h.res_loc());
+    h.i++;
     out["name"] = nmsp_arr.back();
     out["ptr_n"] = (float)ptr_n;
     nmsp_arr.pop_back();
