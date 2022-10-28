@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <sstream>
+#include <string>
 
 using namespace ppc::comp::tree;
 using namespace ppc::comp::tree::ast;
@@ -15,7 +16,7 @@ static bool read_nmsp(ast_ctx_t &ctx, size_t &i, lang::loc_namespace_name_t &nam
     map_t res;
     if (!h.parse(parse_nmsp, res)) return false;
     name = conv::map_to_nmsp(res);
-    return true;
+    return h.submit(false);
 }
 template <class T>
 static bool resolve_nmsp(ast_ctx_t &ctx, const lang::namespace_name_t &name, T begin, T end, lang::namespace_name_t &actual_name) {
@@ -45,14 +46,14 @@ group_t &group_t::insert(const std::string &name, parser_t parser, const std::st
         throw "The parser '" + name + "' is already in the group.";
     }
 
-    auto it = parsers.find(relative_to);
-    if (it == parsers.end()) {
-        throw "The parser '" + relative_to + "' isn't in the group.";
+    auto it = unnamed_parsers.find(relative_to);
+    if (it == unnamed_parsers.end()) {
+        throw "The parser '" + relative_to + "' isn't in the group or isn't unnamed.";
     }
 
     if (after) it++;
 
-    parsers.insert(it, { name, parser });
+    unnamed_parsers.insert(it, name);
 
     return *this;
 }
@@ -73,11 +74,18 @@ group_t &group_t::add_last(const std::string &name, parser_t parser) {
     }
 
     parsers.emplace(name, parser);
+    unnamed_parsers.emplace(name);
 
     return *this;
 }
 group_t &group_t::add_named(const std::string &name, parser_t parser, const lang::namespace_name_t &identifier) {
-    add_last(name, parser);
+    if (parsers.find(name) != parsers.end()) {
+        throw "The parser '" + name + "' is already in the group.";
+    }
+
+    parsers.emplace(name, parser);
+    named_parsers.emplace(identifier, name);
+
     return *this;
 }
 
@@ -92,16 +100,14 @@ bool group_t::operator()(ast_ctx_t &ctx, size_t &i, data::map_t &out) const {
         if (resolve_nmsp(ctx, name.strip_location(), named_parsers.begin(), named_parsers.end(), actual)) {
             auto parser = parsers.find(this->named_parsers.find(actual)->second);
             out["$_name"] = parser->first;
-            if (parser->second(ctx, i, out)) return true;
+            if (h.parse(parser->second, out)) return h.submit(false);
             else throw message_t::error("Unexpected construct specifier.", h.res_loc());
         }
     }
 
-    unordered_map<string, message_t> errors;
-
-    for (auto parser : parsers) {
-        out["$_name"] = parser.first;
-        if ((*parser.second)(ctx, i, out)) return true;
+    for (auto name : unnamed_parsers) {
+        out["$_name"] = name;
+        if (parsers.at(name)(ctx, i, out)) return true;
     }
 
     stringstream m;
