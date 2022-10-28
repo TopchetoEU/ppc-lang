@@ -79,7 +79,8 @@ namespace ppc::comp::tree {
             NONE,
             IDENTIFIER,
             OPERATOR,
-            LITERAL,
+            INT_LITERAL,
+            STR_LITERAL,
         } kind;
         union data_t {
             std::string *identifier;
@@ -91,7 +92,9 @@ namespace ppc::comp::tree {
 
         bool is_identifier() const { return kind == IDENTIFIER; }
         bool is_operator() const { return kind == OPERATOR; }
-        bool is_literal() const { return kind == LITERAL; }
+        bool is_int_literal() const { return kind == INT_LITERAL; }
+        bool is_str_literal() const { return kind == STR_LITERAL; }
+        bool is_literal() const { return is_int_literal() || is_str_literal(); }
 
         const auto &identifier() const {
             if (!is_identifier()) throw std::string { "Token is not an identifier." };
@@ -118,8 +121,8 @@ namespace ppc::comp::tree {
             kind = OPERATOR;
             data._operator = op;
         }
-        token_t(const std::vector<uint8_t> &val, location_t loc = location_t::NONE): location(loc) {
-            kind = LITERAL;
+        token_t(const std::vector<uint8_t> &val, bool is_str, location_t loc = location_t::NONE): location(loc) {
+            kind = is_str ? STR_LITERAL : INT_LITERAL;
             data.literal = new std::vector<uint8_t> { val };
         }
         token_t(const token_t &tok): location(tok.location) {
@@ -128,14 +131,16 @@ namespace ppc::comp::tree {
                 case NONE: break;
                 case IDENTIFIER: data.identifier = new std::string { *tok.data.identifier }; break;
                 case OPERATOR: data._operator = tok.data._operator; break;
-                case LITERAL: data.literal = new std::vector<uint8_t> { *tok.data.literal }; break;
+                case STR_LITERAL:
+                case INT_LITERAL: data.literal = new std::vector<uint8_t> { *tok.data.literal }; break;
             }
         }
         
         ~token_t() {
             switch (kind) {
                 case IDENTIFIER: delete data.identifier; break;
-                case LITERAL: delete data.literal; break;
+                case STR_LITERAL:
+                case INT_LITERAL: delete data.literal; break;
                 default: break;
             }
         }

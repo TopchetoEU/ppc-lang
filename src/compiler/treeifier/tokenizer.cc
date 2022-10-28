@@ -60,7 +60,7 @@ static std::vector<uint8_t> parse_bin(msg_stack_t &msg_stack, size_t i, const st
     int last_byte = 0;
     int lastbyte_n = 0;
 
-    for (size_t j = 0; j < data.length(); j++) {
+    for (size_t j = i; j < data.length(); j++) {
         if (lastbyte_n == 8) {
             lastbyte_n = 0;
             res.push_back(last_byte);
@@ -83,7 +83,7 @@ static std::vector<uint8_t> parse_hex(msg_stack_t &msg_stack, size_t i, const st
     int last_byte = 0;
     int lastbyte_n = 0;
 
-    for (size_t j = 0; j < data.length(); j++) {
+    for (size_t j = i; j < data.length(); j++) {
         if (lastbyte_n == 8) {
             lastbyte_n = 0;
             res.push_back(last_byte);
@@ -110,7 +110,7 @@ static std::vector<uint8_t> parse_oct(msg_stack_t &msg_stack, size_t i, const st
     int last_byte = 0;
     int lastbyte_n = 0;
 
-    for (size_t j = 0; j < data.length(); j++) {
+    for (size_t j = i; j < data.length(); j++) {
         if (lastbyte_n >= 8) {
             lastbyte_n = 0;
             res.push_back(last_byte);
@@ -129,6 +129,45 @@ static std::vector<uint8_t> parse_oct(msg_stack_t &msg_stack, size_t i, const st
 
     return res;
 }
+static void mult_10(std::vector<uint8_t> &val) {
+    std::vector<uint8_t> res;
+
+    int carry = 0;
+
+    for (size_t i = 0; i < val.size(); i++) {
+        carry = val[i] * 10 + carry;
+        res.push_back(carry);
+        carry >>= 8;
+    }
+
+    if (carry != 0) res.push_back(carry);
+    val = res;
+}
+static void add_byte(std::vector<uint8_t> &a, uint8_t b) {
+    int carry = b;
+
+    for (size_t i = 0; i < a.size(); i++) {
+        carry = a[i] + carry;
+        a[i] = carry;
+        carry >>= 8;
+        if (carry == 0) break;
+    }
+
+    if (carry != 0) a.push_back(carry);
+}
+static std::vector<uint8_t> parse_dec(msg_stack_t &msg_stack, size_t i, const std::string &data) {
+    std::vector<uint8_t> res;
+
+    for (size_t j = i; j < data.length(); j++) {
+        int digit = data[j] - '0';
+
+        mult_10(res);
+        if (res.empty()) res.push_back(digit);
+        else add_byte(res, digit);
+    }
+
+    return res;
+}
 
 static std::vector<uint8_t> parse_int(msg_stack_t &msg_stack, const lex::token_t &token) {
     switch (token.type) {
@@ -137,7 +176,7 @@ static std::vector<uint8_t> parse_int(msg_stack_t &msg_stack, const lex::token_t
         case lex::token_t::OCT_LITERAL:
             return parse_oct(msg_stack, 1, token.data);
         case lex::token_t::DEC_LITERAL:
-            throw "no dec literals lol bozo."s;
+            return parse_dec(msg_stack, 0, token.data);
         case lex::token_t::HEX_LITERAL:
             return parse_hex(msg_stack, 2, token.data);
         default:
@@ -161,16 +200,19 @@ token_t token_t::parse(messages::msg_stack_t &msg_stack, lex::token_t in) {
                 throw message_t(message_t::ERROR, "Operator not recognised."s, in.location);
             }
         case lex::token_t::BIN_LITERAL:
+            return { parse_bin(msg_stack, 1, in.data), false, in.location };
         case lex::token_t::OCT_LITERAL:
+            return { parse_oct(msg_stack, 1, in.data), false, in.location };
         case lex::token_t::DEC_LITERAL:
+            return { parse_dec(msg_stack, 0, in.data), false, in.location };
         case lex::token_t::HEX_LITERAL:
-            return { parse_int(msg_stack, in), in.location };
+            return { parse_hex(msg_stack, 2, in.data), false, in.location };
         case lex::token_t::FLOAT_LITERAL:
-            return { parse_float(msg_stack, in), in.location };
+            return { parse_float(msg_stack, in), false, in.location };
         case lex::token_t::STRING_LITERAL:
-            return { parse_string(msg_stack, false, in), in.location };
+            return { parse_string(msg_stack, false, in), true, in.location };
         case lex::token_t::CHAR_LITERAL:
-            return { parse_string(msg_stack, true, in), in.location };
+            return { parse_string(msg_stack, true, in), false, in.location };
         default:
             throw message_t(message_t::ERROR, "Token type not recognised.", in.location);
     }
