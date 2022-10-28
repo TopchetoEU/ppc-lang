@@ -32,7 +32,26 @@ static std::vector<uint8_t> parse_string(msg_stack_t &msg_stack, bool is_char, c
             else if (c == 'r') new_c = '\r';
             else if (c == 't') new_c = '\t';
             else if (c == 'v') new_c = '\v';
-            // TODO: Add support for oct, hex and utf8 literals
+            else if (c >= '0' && c <= '7') {
+                new_c = 0;
+                size_t n = 0;
+                while (c >= '0' && c <= '7') {
+                    new_c <<= 3;
+                    new_c |= c - '0';
+                    c = token.data[++i];
+                    n++;
+                }
+                if (n > 3) {
+                    location_t loc = curr_char_loc;
+                    loc.code_start--;
+                    loc.start--;
+                    loc.length = n + 1;
+                    msg_stack.warn("Octal escape sequence overflows 255 8-bit limit (3 digits).", loc);
+                }
+                curr_char_loc.start += n - 1;
+                i--;
+            }
+            // TODO: Add support for hex and utf8 literals
             else if (c == literal_char || c == '\\') new_c = c;
             else {
                 throw message_t(message_t::ERROR, "Unescapable character.", curr_char_loc);
@@ -168,21 +187,6 @@ static std::vector<uint8_t> parse_dec(msg_stack_t &msg_stack, size_t i, const st
 
     return res;
 }
-
-static std::vector<uint8_t> parse_int(msg_stack_t &msg_stack, const lex::token_t &token) {
-    switch (token.type) {
-        case lex::token_t::BIN_LITERAL:
-            return parse_bin(msg_stack, 2, token.data);
-        case lex::token_t::OCT_LITERAL:
-            return parse_oct(msg_stack, 1, token.data);
-        case lex::token_t::DEC_LITERAL:
-            return parse_dec(msg_stack, 0, token.data);
-        case lex::token_t::HEX_LITERAL:
-            return parse_hex(msg_stack, 2, token.data);
-        default:
-            throw "WTF r u doing bro?"s;
-    }
-}
 static std::vector<uint8_t> parse_float(msg_stack_t &msg_stack, const lex::token_t &token) {
     throw "no floats lol bozo"s;
 }
@@ -211,8 +215,11 @@ token_t token_t::parse(messages::msg_stack_t &msg_stack, lex::token_t in) {
             return { parse_float(msg_stack, in), false, in.location };
         case lex::token_t::STRING_LITERAL:
             return { parse_string(msg_stack, false, in), true, in.location };
-        case lex::token_t::CHAR_LITERAL:
-            return { parse_string(msg_stack, true, in), false, in.location };
+        case lex::token_t::CHAR_LITERAL: {
+            auto res = parse_string(msg_stack, true, in);
+            std::reverse(res.begin(), res.end());
+            return { res, false, in.location };
+        }
         default:
             throw message_t(message_t::ERROR, "Token type not recognised.", in.location);
     }

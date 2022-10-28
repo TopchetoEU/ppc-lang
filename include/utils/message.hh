@@ -42,6 +42,11 @@ namespace ppc::messages {
         inline auto end() const { return messages.end(); }
 
         void push(const message_t &msg) { messages.push_back(msg); }
+        void err(const std::string &msg, location_t loc = location_t::NONE) { push({ message_t::ERROR, msg, loc }); }
+        void warn(const std::string &msg, location_t loc = location_t::NONE) { push({ message_t::WARNING, msg, loc }); }
+        void suggest(const std::string &msg, location_t loc = location_t::NONE) { push({ message_t::SUGGESTION, msg, loc }); }
+        void info(const std::string &msg, location_t loc = location_t::NONE) { push({ message_t::INFO, msg, loc }); }
+        void debug(const std::string &msg, location_t loc = location_t::NONE) { push({ message_t::DEBUG, msg, loc }); }
         void push(const msg_stack_t &other) {
             for (const auto &msg : other) push(msg);
         }
