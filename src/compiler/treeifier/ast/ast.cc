@@ -17,6 +17,12 @@ ast_ctx_t::ast_ctx_t(msg_stack_t &messages, std::vector<token_t> &tokens): messa
         .add_last("$_string", parse_exp_str_lit);
         // .add_last("$_float", parse_exp_float_lit)
     group("$_stat")
+        .add_named("$_while", parse_while, { "while" })
+        .add_named("$_if", parse_if, { "if" })
+        .add_named("$_return", parse_return, { "return" })
+        .add_named("$_break", parse_break, { "break" })
+        .add_named("$_continue", parse_continue, { "continue" })
+        .add_last("$_comp", parse_stat_comp)
         .add_last("$_exp", parse_stat_exp);
     group("$_def")
         .add_last("$_func", parse_func)

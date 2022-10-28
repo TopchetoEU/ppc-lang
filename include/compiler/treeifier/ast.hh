@@ -78,5 +78,6 @@ namespace ppc::comp::tree::ast {
 
     parser_func_t parse_glob, parse_nmsp, parse_identifier, parse_type, parse_exp, parse_stat_exp;
     parser_func_t parse_func, parse_field, parse_export;
+    parser_func_t parse_if, parse_while, parse_return, parse_break, parse_continue, parse_stat_comp;
     parser_func_t parse_exp_var, parse_exp_str_lit, parse_exp_int_lit, parse_exp_float_lit;
 }
