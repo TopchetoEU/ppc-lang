@@ -30,7 +30,8 @@ else ifeq ($(profile),debug)
 flags += -g
 ldflags+= -Wl,-rpath=bin/debug
 endif
-oldbin := bin
+
+oldbin := $(bin)
 export bin := $(bin)/$(profile)
 
 ifeq ($(os),Windows)
@@ -54,6 +55,8 @@ build: version
 	echo Done!
 clear:
 	if exist $(subst /,\,$(oldbin)) rmdir /s /q $(subst /,\,$(oldbin))
+cleartmp:
+	if exist $(subst /,\,$(bin)/tmp) rmdir /s /q $(subst /,\,$(bin)/tmp)
 
 .ONESHELL:
 install: build
@@ -82,6 +85,9 @@ build: version
 
 clear:
 	rm -r $(oldbin)
+clear:
+	rm -r $(bin)/tmp
+
 
 install: build
 	echo Installing ++C compiler to your system...
