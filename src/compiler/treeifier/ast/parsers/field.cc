@@ -7,7 +7,7 @@ bool ast::parse_field(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
 
     if (!h.parse(parse_identifier, out["name"].map({}))) return false;
 
-    bool type, defval;
+    bool type = false, defval = false;
 
     h.throw_ended("Expected a colon or an equals sign.");
 
