@@ -29,5 +29,5 @@ operator_t tree::operator_find(const std::string &raw) {
         if (op == raw) return (operator_t)i;
         i++;
     }
-    throw "Invalid operator '"s + raw + "' given.";
+    throw "Invalid operator '" + raw + "' given.";
 }
