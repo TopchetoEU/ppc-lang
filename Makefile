@@ -1,6 +1,6 @@
 export MAKEFLAGS += --silent -r -j
 export flags=-std=c++17 -Wall -Wno-main -Wno-trigraphs -Wno-missing-braces -Wno-stringop-overflow -DPROFILE_$(profile) -fdiagnostics-color=always
-export ldflags=-L$(bin)/$(profile)
+export ldflags=-L$(bin)/$(profile) -Wl,-rpath=bin/$(profile)
 export lib=ppc$(version-major)-
 export profile=release
 
@@ -28,7 +28,6 @@ ifeq ($(profile),release)
 flags += -O3
 else ifeq ($(profile),debug)
 flags += -g
-ldflags+= -Wl,-rpath=bin/debug
 endif
 
 oldbin := $(bin)
