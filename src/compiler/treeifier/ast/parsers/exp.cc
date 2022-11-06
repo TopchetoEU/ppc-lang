@@ -154,7 +154,7 @@ bool pop_call(size_t n, location_t loc, std::vector<located_t<op_data_t>> &op_st
     op_stack.pop_back();
     call["location"] = conv::loc_to_map(loc);
 
-    for (size_t i = 0; i <= n; i++) {
+    for (size_t i = 0; i < n; i++) {
         args.push_back(res.back());
         res.pop_back();
     }
@@ -181,15 +181,7 @@ bool pop_until(const op_data_t &data, tree_helper_t &h, std::vector<located_t<op
 }
 
 bool ast::parse_exp_var(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
-    tree_helper_t h(ctx, res_i);
-
-    if (h.curr().is_identifier()) {
-        out["content"] = h.curr().identifier();
-        out["location"] = conv::loc_to_map(h.loc());
-        return h.submit(true);
-    }
-
-    return false;
+    return ctx.parse(parse_nmsp, res_i, out);
 }
 bool ast::parse_exp_int_lit(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
     tree_helper_t h(ctx, res_i);
@@ -240,7 +232,27 @@ bool ast::parse_exp(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
         }
         if (h.curr().is_operator()) {
             auto op = h.curr()._operator();
-            if (last_val) {
+            if (op == operator_t::PAREN_CLOSE && (last_val || (!op_stack.empty() && op_stack.back().precedence == precedence_t::CALL_START))) {
+                bool is_call = false, is_paren = false;
+
+                for (auto i = op_stack.rbegin(); i != op_stack.rend(); i++) {
+                    if (i->precedence == precedence_t::PAREN) {
+                        is_paren = true;
+                        break;
+                    }
+                    else if (i->precedence == precedence_t::CALL_START) {
+                        is_call = true;
+                        break;
+                    }
+                }
+
+                if (is_call) pop_call(call_args_n.back(), h.loc(), op_stack, res);
+                else if (is_paren) pop_paren(op_stack, res);
+                else break;
+
+                if (!h.try_advance()) break;
+            }
+            else if (last_val) {
                 if (op == operator_t::PAREN_OPEN) {
                     h.advance("Expected an argument.");
                     call_args_n.push_back(0);
@@ -254,26 +266,6 @@ bool ast::parse_exp(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
                     pop_until({ .precedence = precedence_t::CALL_START, .assoc = true }, h, op_stack, res);
                     call_args_n.back()++;
                     last_val = false;
-                }
-                else if (op == operator_t::PAREN_CLOSE) {
-                    bool is_call = false, is_paren = false;
-
-                    for (auto i = op_stack.rbegin(); i != op_stack.rend(); i++) {
-                        if (i->precedence == precedence_t::PAREN) {
-                            is_paren = true;
-                            break;
-                        }
-                        else if (i->precedence == precedence_t::CALL_START) {
-                            is_call = true;
-                            break;
-                        }
-                    }
-
-                    if (is_call) pop_call(call_args_n.back(), h.loc(), op_stack, res);
-                    else if (is_paren) pop_paren(op_stack, res);
-                    else break;
-
-                    if (!h.try_advance()) break;
                 }
                 else if (op == operator_t::COLON) {
                     h.advance("Expected a type.");

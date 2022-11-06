@@ -12,6 +12,7 @@ bool ast::parse_nmsp(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
     while (true) {
         if (h.ended()) break;
         if (!h.curr().is_operator(operator_t::DOUBLE_COLON)) break;
+        h.advance("Expected an identifier.");
         h.force_push_parse(parse_identifier, "Expected an identifier.", arr);
     }
 

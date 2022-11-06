@@ -3,7 +3,7 @@
 bool ast::parse_if(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
     tree_helper_t h(ctx, res_i);
 
-    h.throw_ended();
+    h.throw_ended("Expected open parens after if keyword.");
     if (!h.curr("Expected open parens after if keyword.").is_operator(operator_t::PAREN_OPEN)) {
         throw message_t::error("Expected open parens after if keyword.", h.loc(1));
     }
@@ -29,7 +29,7 @@ bool ast::parse_if(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
 bool ast::parse_while(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
     tree_helper_t h(ctx, res_i);
 
-    h.throw_ended();
+    h.throw_ended("Expected open parens after while keyword.");
     if (!h.curr("Expected open parens after while keyword.").is_operator(operator_t::PAREN_OPEN)) {
         throw message_t::error("Expected open parens after while keyword.", h.loc(1));
     }
@@ -50,7 +50,7 @@ bool ast::parse_while(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
 bool ast::parse_return(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
     tree_helper_t h(ctx, res_i);
 
-    h.advance("Expected an expression.");
+    h.throw_ended("Expected an expression.");
     h.force_parse(parse_exp, "Expected an expression.", out["condition"].map({}));
 
     if (!h.curr("Expected a semicolon.").is_operator(operator_t::SEMICOLON)) {
