@@ -84,7 +84,7 @@ build: version
 
 clear:
 	rm -r $(oldbin)
-clear:
+cleartmp:
 	rm -r $(bin)/tmp
 
 
