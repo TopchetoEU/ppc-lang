@@ -150,6 +150,7 @@ namespace ppc::data {
         value_t(map_t(map)) { }
 
     value_t &value_t::operator=(const value_t &other) {
+        this->~value_t();
         type = other.type;
         switch (other.type) {
             case type_t::Map:
