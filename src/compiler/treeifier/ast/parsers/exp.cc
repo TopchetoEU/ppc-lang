@@ -232,32 +232,40 @@ bool ast::parse_exp(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
         }
         if (h.curr().is_operator()) {
             auto op = h.curr()._operator();
-            if (op == operator_t::PAREN_CLOSE && (last_val || (!op_stack.empty() && op_stack.back().precedence == precedence_t::CALL_START))) {
-                bool is_call = false, is_paren = false;
-
-                for (auto i = op_stack.rbegin(); i != op_stack.rend(); i++) {
-                    if (i->precedence == precedence_t::PAREN) {
-                        is_paren = true;
-                        break;
-                    }
-                    else if (i->precedence == precedence_t::CALL_START) {
-                        is_call = true;
-                        break;
-                    }
-                }
-
-                if (is_call) pop_call(call_args_n.back(), h.loc(), op_stack, res);
-                else if (is_paren) pop_paren(op_stack, res);
-                else break;
-
-                if (!h.try_advance()) break;
-            }
-            else if (last_val) {
+            if (last_val) {
                 if (op == operator_t::PAREN_OPEN) {
-                    h.advance("Expected an argument.");
-                    call_args_n.push_back(0);
+                    h.advance("Expected an argument or closing parens.");
                     op_stack.push_back({ h.loc(), { precedence_t::CALL_START } });
+                    if (h.curr().is_operator(operator_t::PAREN_CLOSE)) {
+                        pop_call(0, h.loc(), op_stack, res);
+                    }
+                    else {
+                        call_args_n.push_back(1);
+                    }
                     last_val = false;
+                }
+                else if (op == operator_t::PAREN_CLOSE) {
+                    bool is_call = false, is_paren = false;
+
+                    for (auto i = op_stack.rbegin(); i != op_stack.rend(); i++) {
+                        if (i->precedence == precedence_t::PAREN) {
+                            is_paren = true;
+                            break;
+                        }
+                        else if (i->precedence == precedence_t::CALL_START) {
+                            is_call = true;
+                            break;
+                        }
+                    }
+
+                    if (is_call) {
+                        pop_call(call_args_n.back(), h.loc(), op_stack, res);
+                        call_args_n.pop_back();
+                    }
+                    else if (is_paren) pop_paren(op_stack, res);
+                    else break;
+
+                    if (!h.try_advance()) break;
                 }
                 else if (op == operator_t::COMMA) {
                     if (call_args_n.size() == 0) break;

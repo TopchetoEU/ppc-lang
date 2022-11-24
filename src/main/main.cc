@@ -156,6 +156,7 @@ int main(int argc, const char *argv[]) {
         for (const auto &file : files) {
             try {
                 std::ifstream f { file, std::ios_base::in };
+                if (!f.is_open()) throw message_t::error("The file doesn't exist.", { file });
                 auto tokens = token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
                 auto ast = ast_ctx_t::parse(ast::parse_glob, msg_stack, tokens);
 
@@ -180,10 +181,6 @@ int main(int argc, const char *argv[]) {
     #endif
 
     msg_stack.print(std::cout, messages::message_t::DEBUG, true);
-
-    #ifdef PROFILE_debug
-    system("pause");
-    #endif
 
     return 0;
 }
