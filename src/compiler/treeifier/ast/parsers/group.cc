@@ -1,3 +1,4 @@
+#include "lang/module.hh"
 #include "compiler/treeifier/ast.hh"
 #include "compiler/treeifier/tokenizer.hh"
 #include "compiler/treeifier/ast/helper.hh"
@@ -18,28 +19,7 @@ static bool read_nmsp(ast_ctx_t &ctx, size_t &i, lang::loc_namespace_name_t &nam
     name = conv::map_to_nmsp(res);
     return h.submit(false);
 }
-template <class T>
-static bool resolve_nmsp(ast_ctx_t &ctx, const lang::namespace_name_t &name, T begin, T end, lang::namespace_name_t &actual_name) {
-    for (auto it = begin; it != end; it++) {
-        const namespace_name_t &curr = it->first;
-        if (curr == name) {
-            actual_name = name;
-            return true;
-        }
-    }
-    for (const auto &import : ctx.imports) {
-        auto new_name = name;
-        new_name.insert(new_name.begin(), import.begin(), import.end());
-        for (auto it = begin; it != end; it++) {
-            const namespace_name_t &curr = it->first;
-            if (curr == new_name) {
-                actual_name = name;
-                return true;
-            }
-        }
-    }
-    return false;
-}
+
 
 group_t &group_t::insert(const std::string &name, parser_t parser, const std::string &relative_to, bool after) {
     if (parsers.find(name) != parsers.end()) {
@@ -94,10 +74,18 @@ bool group_t::operator()(ast_ctx_t &ctx, size_t &i, data::map_t &out) const {
 
     if (h.ended()) return false;
 
+    std::set<namespace_name_t> names;
+
+    for (auto &import : ctx.imports) names.insert(import.strip_location());
+
     loc_namespace_name_t name;
     if (read_nmsp(ctx, h.i, name)) {
         namespace_name_t actual;
-        if (resolve_nmsp(ctx, name.strip_location(), named_parsers.begin(), named_parsers.end(), actual)) {
+
+        if (resolve_name_map(
+            named_parsers, names,
+            name.strip_location(), actual
+        )) {
             auto parser = parsers.find(this->named_parsers.find(actual)->second);
             out["$_name"] = parser->first;
             if (h.parse(parser->second, out)) return h.submit(false);
