@@ -99,6 +99,10 @@ namespace ppc::data {
             return values.find(key) != values.end();
         }
 
+        void clear() {
+            values.clear();
+        }
+
         std::size_t size() const { return values.size(); }
 
         auto begin() const { return values.begin(); }

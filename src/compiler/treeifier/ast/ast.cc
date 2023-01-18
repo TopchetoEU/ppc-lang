@@ -12,20 +12,23 @@ group_t &ast_ctx_t::group(const std::string &name) {
 
 ast_ctx_t::ast_ctx_t(msg_stack_t &messages, std::vector<token_t> &tokens): messages(messages), tokens(tokens) {
     group("$_exp_val")
-        .add_last("$_var", parse_exp_var)
-        .add_last("$_int", parse_exp_int_lit)
-        .add_last("$_string", parse_exp_str_lit);
+        .add("$_var", parse_exp_var)
+        .add("$_int", parse_exp_int_lit)
+        .add("$_string", parse_exp_str_lit);
         // .add_last("$_float", parse_exp_float_lit)
     group("$_stat")
-        .add_named("$_while", parse_while, { "while" })
-        .add_named("$_if", parse_if, { "if" })
-        .add_named("$_return", parse_return, { "return" })
-        .add_named("$_break", parse_break, { "break" })
-        .add_named("$_continue", parse_continue, { "continue" })
-        .add_last("$_comp", parse_stat_comp)
-        .add_last("$_exp", parse_stat_exp);
+        .add("$_while", { "while" }, parse_while)
+        .add("$_if", { "if" }, parse_if)
+        .add("$_return", { "return" }, parse_return)
+        .add("$_break", { "break" }, parse_break)
+        .add("$_continue", { "continue" }, parse_continue)
+        .add("$_comp", parse_stat_comp)
+        .add("$_exp", parse_stat_exp);
     group("$_def")
-        .add_last("$_func", parse_func)
-        .add_named("$_export", parse_export, { "export" })
-        .add_last("$_field", parse_field);
+        .add("$_func", parse_func)
+        .add("$_struct", { "struct" }, parse_struct)
+        .add("$_field", parse_field);
+    group("$_struct_def")
+        .add("$_func", parse_func)
+        .add("$_field", parse_field);
 }

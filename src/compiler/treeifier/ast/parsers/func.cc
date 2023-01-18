@@ -5,6 +5,8 @@ static bool parse_arg(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
 
     if (h.ended()) return false;
 
+    h.parse(parse_export, out);
+
     if (!h.parse(parse_identifier, out["name"].map({}))) return false;
 
     bool type = false, defval = false;
@@ -33,6 +35,8 @@ bool ast::parse_func(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
     tree_helper_t h(ctx, res_i);
 
     if (h.ended()) return false;
+
+    h.parse(parse_export, out);
 
     if (!h.parse(parse_identifier, out["name"].map({}))) return false;
     if (h.ended()) return false;

@@ -21,22 +21,6 @@ static bool read_nmsp(ast_ctx_t &ctx, size_t &i, lang::loc_namespace_name_t &nam
 }
 
 
-group_t &group_t::insert(const std::string &name, parser_t parser, const std::string &relative_to, bool after) {
-    if (parsers.find(name) != parsers.end()) {
-        throw "The parser '" + name + "' is already in the group.";
-    }
-
-    auto it = unnamed_parsers.find(relative_to);
-    if (it == unnamed_parsers.end()) {
-        throw "The parser '" + relative_to + "' isn't in the group or isn't unnamed.";
-    }
-
-    if (after) it++;
-
-    unnamed_parsers.insert(it, name);
-
-    return *this;
-}
 group_t &group_t::replace(const std::string &name, parser_t parser) {
     auto it = parsers.find(name);
 
@@ -48,7 +32,7 @@ group_t &group_t::replace(const std::string &name, parser_t parser) {
 
     return *this;
 }
-group_t &group_t::add_last(const std::string &name, parser_t parser) {
+group_t &group_t::add(const std::string &name, parser_t parser) {
     if (parsers.find(name) != parsers.end()) {
         throw "The parser '" + name + "' is already in the group.";
     }
@@ -58,7 +42,7 @@ group_t &group_t::add_last(const std::string &name, parser_t parser) {
 
     return *this;
 }
-group_t &group_t::add_named(const std::string &name, parser_t parser, const lang::namespace_name_t &identifier) {
+group_t &group_t::add(const std::string &name, const lang::namespace_name_t &identifier, parser_t parser) {
     if (parsers.find(name) != parsers.end()) {
         throw "The parser '" + name + "' is already in the group.";
     }
@@ -87,6 +71,7 @@ bool group_t::operator()(ast_ctx_t &ctx, size_t &i, data::map_t &out) const {
             name.strip_location(), actual
         )) {
             auto parser = parsers.find(this->named_parsers.find(actual)->second);
+            out.clear();
             out["$_name"] = parser->first;
             if (h.parse(parser->second, out)) return h.submit(false);
             else throw message_t::error("Unexpected construct specifier.", h.res_loc());
@@ -95,6 +80,7 @@ bool group_t::operator()(ast_ctx_t &ctx, size_t &i, data::map_t &out) const {
 
     for (auto name : unnamed_parsers) {
         out["$_name"] = name;
+        out.clear();
         if (parsers.at(name)(ctx, i, out)) return true;
     }
 
