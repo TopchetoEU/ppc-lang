@@ -5,6 +5,8 @@ bool ast::parse_field(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
 
     if (h.ended()) return false;
 
+    h.parse(parse_export, out);
+
     if (!h.parse(parse_identifier, out["name"].map({}))) return false;
 
     bool type = false, defval = false;

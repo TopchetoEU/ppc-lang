@@ -26,10 +26,9 @@ namespace ppc::comp::tree::ast {
         std::set<std::string> unnamed_parsers;
         std::map<std::string, parser_t> parsers;
     public:
-        group_t &insert(const std::string &name, parser_t parser, const std::string &relative_to, bool after);
-        group_t &add_last(const std::string &name, parser_t parser);
         group_t &replace(const std::string &name, parser_t parser);
-        group_t &add_named(const std::string &name, parser_t parser, const lang::namespace_name_t &identifier);
+        group_t &add(const std::string &name, parser_t parser);
+        group_t &add(const std::string &name, const lang::namespace_name_t &identifier, parser_t parser);
 
         bool operator()(ast_ctx_t &ctx, size_t &i, data::map_t &out) const;
     };
@@ -77,7 +76,7 @@ namespace ppc::comp::tree::ast {
     }
 
     parser_func_t parse_glob, parse_nmsp, parse_identifier, parse_type, parse_exp, parse_stat_exp;
-    parser_func_t parse_func, parse_field, parse_export;
+    parser_func_t parse_func, parse_field, parse_export, parse_struct;
     parser_func_t parse_if, parse_while, parse_return, parse_break, parse_continue, parse_stat_comp;
     parser_func_t parse_exp_var, parse_exp_str_lit, parse_exp_int_lit, parse_exp_float_lit;
 }
