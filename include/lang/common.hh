@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 namespace ppc::lang {
     struct namespace_name_t : public std::vector<std::string> {
