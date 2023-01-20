@@ -1,6 +1,6 @@
-#include <sstream>
 #include "compiler/treeifier/lexer.hh"
 #include "utils/message.hh"
+#include <sstream>
 
 using namespace ppc;
 using namespace ppc::messages;
@@ -73,7 +73,7 @@ static res_t lexlet_oct(char c, std::vector<char> &tok) {
     if (isoct(c)) return lexer_none();
     else if (isdigit(c)) throw message_t::error("An octal literal may only contain octal digits.");
     else return lexer_end(token_t::OCT_LITERAL);
-};  
+};
 static res_t lexlet_float(char c, std::vector<char> &tok) {
     if (isdigit(c)) return lexer_none();
     else return lexer_end(token_t::FLOAT_LITERAL);
@@ -193,7 +193,7 @@ std::vector<token_t> token_t::parse_many(ppc::messages::msg_stack_t &msg_stack, 
                 }
             }
         }
-        catch (const messages::message_t &msg) { 
+        catch (const messages::message_t &msg) {
             throw message_t(msg.level, msg.content, location_t(filename, line, start, i - curr_token.size(), curr_token.size()));
         }
     }
@@ -214,7 +214,8 @@ std::vector<token_t> token_t::parse_file(ppc::messages::msg_stack_t &msg_stack, 
     std::vector<char> contents;
     int c;
 
-    while ((c = f.get()) != EOF) contents.push_back(c);
+    while ((c = f.get()) != EOF)
+        contents.push_back(c);
 
     return parse_many(msg_stack, filename, std::string { contents.begin(), contents.end() });
 }

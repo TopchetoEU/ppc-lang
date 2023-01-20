@@ -1,6 +1,5 @@
-
-#include <sstream>
 #include "lang/common.hh"
+#include <sstream>
 
 namespace ppc::lang {
     std::string loc_namespace_name_t::to_string() const {
@@ -57,4 +56,3 @@ namespace ppc::lang {
         return res;
     }
 }
-

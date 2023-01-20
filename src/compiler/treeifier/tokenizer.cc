@@ -1,7 +1,7 @@
-#include <string>
-#include <algorithm>
-#include "compiler/treeifier/tokenizer.hh"
 #include "compiler/treeifier/lexer.hh"
+#include "compiler/treeifier/tokenizer.hh"
+#include <algorithm>
+#include <string>
 
 using namespace ppc;
 using namespace messages;

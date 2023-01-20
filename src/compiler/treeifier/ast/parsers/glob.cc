@@ -1,6 +1,5 @@
 #include "compiler/treeifier/ast.hh"
 #include "compiler/treeifier/ast/helper.hh"
-// #include "./type.cc"
 
 using namespace ppc::comp::tree::ast;
 

@@ -1,6 +1,9 @@
-#include <vector>
 #include <fstream>
 #include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std::string_literals;
 
 struct project_t {
     std::string output;
@@ -8,7 +11,7 @@ struct project_t {
 };
 
 std::string read_str(std::istream &f, const std::string &skip_chars, const std::string &end_chars, int &end_char) {
-    std::vector<char> res { };
+    std::vector<char> res {};
     int c;
 
     while (true) {
@@ -49,10 +52,10 @@ project_t read_project(std::istream &f) {
     int end_ch;
     std::string name = read_str(f, " \v\t\r\n", "\n", end_ch);
     std::size_t cap = 16, n = 0;
-    std::vector<std::string> deps { };
+    std::vector<std::string> deps {};
 
     if (name.length() == 0) {
-        throw (std::string)"The name of a project may not be empty.";
+        throw "The name of a project may not be empty."s;
     }
 
     if (end_ch == -1) {
@@ -63,14 +66,14 @@ project_t read_project(std::istream &f) {
     }
 
     if (name.find(',') != std::string::npos || name.find(' ') != std::string::npos) {
-        throw (std::string)"The name of a project may not contain spaces or commas.";
+        throw "The name of a project may not contain spaces or commas."s;
     }
 
     while (true) {
         std::string dep = read_str(f, " \v\t\r\n", ",\n", end_ch);
 
         if (dep.find(' ') != std::string::npos) {
-            throw (std::string)"The name of a dependency may not contain spaces.";
+            throw "The name of a dependency may not contain spaces."s;
         }
 
         if (dep.length()) {
@@ -90,38 +93,38 @@ void print_err(const std::string &error, const std::string &context) {
     std::cerr << context << ": " << error;
 }
 
-int main(int argc, const char* argv[]) {
+int main(int argc, const char *argv[]) {
     std::string proj_name = "";
     try {
         argc--;
         argv++;
 
         if (argc != 3) {
-            throw (std::string)"Incorrect usage. Syntax: [src-dir] [project-name] [output|deps].";
+            throw "Incorrect usage. Syntax: [src-dir] [project-name] [output|deps]."s;
         }
 
-        std::string proj_path = (std::string)argv[0] + "/" + argv[1] + ".proj";
+        std::string proj_path = (std::string) argv[0] + "/" + argv[1] + ".proj";
         proj_name = argv[1];
 
         std::ifstream f { proj_path, std::ios_base::in };
 
         if (!f.is_open()) {
-            throw (std::string)"The project '" + argv[1] +"' doesn't exist.";
+            throw "The project '"s + argv[1] + "' doesn't exist."s;
         }
 
         project_t project = read_project(f);
         f.close();
 
-        if ((std::string)argv[2] == "output") {
+        if ((std::string) argv[2] == "output") {
             std::cout << project.output;
         }
-        else if ((std::string)argv[2] == "deps") {
+        else if ((std::string) argv[2] == "deps") {
             for (std::string dep : project.deps) {
                 std::cout << dep << " ";
             }
         }
         else {
-            throw (std::string)"Invalid command given. Available commands: output, deps.";
+            throw "Invalid command given. Available commands: output, deps."s;
         }
 
         std::cout << std::endl;

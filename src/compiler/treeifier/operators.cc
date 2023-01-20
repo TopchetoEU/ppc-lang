@@ -1,5 +1,5 @@
-#include <string>
 #include "compiler/treeifier/tokenizer.hh"
+#include <string>
 
 using namespace ppc::comp::tree;
 using namespace ppc::comp;

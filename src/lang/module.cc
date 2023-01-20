@@ -32,9 +32,15 @@ definition_t::definition_t(const definition_t &val) {
 
 definition_t::~definition_t() {
     switch (this->kind) {
-        case FUNCTION: delete this->val.func; break;
-        case FIELD: delete this->val.field; break;
-        case STRUCT: delete this->val.str; break;
+        case FUNCTION:
+            delete this->val.func;
+            break;
+        case FIELD:
+            delete this->val.field;
+            break;
+        case STRUCT:
+            delete this->val.str;
+            break;
     }
 }
 
@@ -53,12 +59,11 @@ field_t &definition_t::get_field() {
 }
 
 
-
 statement_t statement_t::call(const namespace_name_t &func) {
-    return { CALL, { .call = new auto(func) }};
+    return { CALL, { .call = new auto(func) } };
 }
 statement_t statement_t::stack(int64_t stack) {
-    return { STACK, { .stack = stack }};
+    return { STACK, { .stack = stack } };
 }
 statement_t statement_t::ret() {
     return { RETURN };

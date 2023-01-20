@@ -1,6 +1,6 @@
+#include "utils/message.hh"
 #include <iostream>
 #include <sstream>
-#include "utils/message.hh"
 
 using namespace ppc;
 
@@ -10,15 +10,27 @@ namespace ppc::messages {
         std::string level_readable;
 
         switch (level) {
-            case message_t::DEBUG: level_readable = "debug"; break;
-            case message_t::SUGGESTION: level_readable = "suggestion"; break;
-            case message_t::INFO: level_readable = "info"; break;
-            case message_t::WARNING: level_readable = "warning"; break;
-            case message_t::ERROR: level_readable = "error"; break;
-            default: level_readable = "what?"; break;
+            case message_t::DEBUG:
+                level_readable = "debug";
+                break;
+            case message_t::SUGGESTION:
+                level_readable = "suggestion";
+                break;
+            case message_t::INFO:
+                level_readable = "info";
+                break;
+            case message_t::WARNING:
+                level_readable = "warning";
+                break;
+            case message_t::ERROR:
+                level_readable = "error";
+                break;
+            default:
+                level_readable = "what?";
+                break;
         }
 
-        std::stringstream res { };
+        std::stringstream res {};
 
         if (loc_readable.length()) res << loc_readable << ": ";
         res << level_readable << ": " << content;
@@ -42,7 +54,7 @@ namespace ppc::messages {
             if (msg.level < threshold) continue;
 
             std::string loc_readable = msg.location.to_string();
-            
+
             switch (msg.level) {
                 case message_t::DEBUG:
                     output << (color_output ? "\e[38;5;8mdebug: " : "debug: ");
@@ -51,7 +63,7 @@ namespace ppc::messages {
                     output << (color_output ? "\e[38;5;45msuggestion: " : "suggestion: ");
                     break;
                 case message_t::INFO:
-                    output << (color_output ? "\e[38;5;33minfo: ": "info: ");
+                    output << (color_output ? "\e[38;5;33minfo: " : "info: ");
                     break;
                 case message_t::WARNING:
                     output << (color_output ? "\e[38;5;214mwarning: " : "warning: ");

@@ -1,14 +1,15 @@
 #pragma once
 
-#include <string>
-#include <set>
 #include <map>
-#include <unordered_set>
-#include <unordered_map>
 #include <memory>
+#include <set>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+
 #include "compiler/treeifier/tokenizer.hh"
-#include "utils/data.hh"
 #include "lang/common.hh"
+#include "utils/data.hh"
 
 using namespace std::string_literals;
 using namespace ppc;
@@ -17,15 +18,15 @@ using namespace ppc::messages;
 
 namespace ppc::comp::tree::ast {
     struct ast_ctx_t;
-    using parser_func_t = bool (ast_ctx_t &ctx, size_t &res_i, data::map_t &out);
-    using parser_t = parser_func_t*;
+    using parser_func_t = bool(ast_ctx_t &ctx, size_t &res_i, data::map_t &out);
+    using parser_t = parser_func_t *;
 
     class group_t {
-    private:
+       private:
         std::map<lang::namespace_name_t, std::string> named_parsers;
         std::set<std::string> unnamed_parsers;
         std::map<std::string, parser_t> parsers;
-    public:
+       public:
         group_t &replace(const std::string &name, parser_t parser);
         group_t &add(const std::string &name, parser_t parser);
         group_t &add(const std::string &name, const lang::namespace_name_t &identifier, parser_t parser);
@@ -34,9 +35,9 @@ namespace ppc::comp::tree::ast {
     };
 
     struct ast_ctx_t {
-    private:
+       private:
         std::unordered_map<std::string, group_t> groups;
-    public:
+       public:
         msg_stack_t &messages;
         std::vector<token_t> &tokens;
         std::set<loc_namespace_name_t> imports;
@@ -73,6 +74,28 @@ namespace ppc::comp::tree::ast {
 
         data::map_t nmsp_to_map(const loc_namespace_name_t &nmsp);
         loc_namespace_name_t map_to_nmsp(const data::map_t &map);
+    }  // namespace conv
+
+    class construct_t {
+       public:
+        virtual const std::string &name() const = 0;
+    };
+
+    class parser_t {
+       public:
+        virtual bool parse(ast_ctx_t &ctx, size_t &res_i, construct_t *&out) const = 0;
+        virtual bool simplify(ast_ctx_t &ctx, size_t &res_i, const construct_t *global, const construct_t *container, const construct_t *current) const = 0;
+    };
+
+    namespace constr {
+        class glob_con_t: public construct_t {
+            const std::string &name() const { return "$_glob"s; }
+            bool parse(ast_ctx_t &ctx, size_t &res_i, construct_t *&out) const;
+        };
+    }
+
+    namespace parsers {
+
     }
 
     parser_func_t parse_glob, parse_nmsp, parse_identifier, parse_type, parse_exp, parse_stat_exp;

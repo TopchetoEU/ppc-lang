@@ -1,6 +1,6 @@
 #include "compiler/treeifier/ast/helper.hh"
-#include <map>
 #include <algorithm>
+#include <map>
 
 enum precedence_t {
     NONE,
@@ -170,10 +170,7 @@ bool pop_call(size_t n, location_t loc, std::vector<located_t<op_data_t>> &op_st
 bool pop_until(const op_data_t &data, tree_helper_t &h, std::vector<located_t<op_data_t>> &op_stack, array_t &res) {
     while (!op_stack.empty()) {
         auto &back_data = op_stack.back();
-        if (data.assoc ?
-            back_data.precedence >= data.precedence :
-            back_data.precedence > data.precedence
-        ) break;
+        if (data.assoc ? back_data.precedence >= data.precedence : back_data.precedence > data.precedence) break;
 
         if (!pop(op_stack, res)) return h.err("Expected an expression on the right side of this operator.");
     }
@@ -188,7 +185,9 @@ bool ast::parse_exp_int_lit(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
 
     if (h.curr().is_int_literal()) {
         auto &arr = out["content"].array({});
-        for (auto b : h.curr().literal()) arr.push_back((float)b);
+        for (auto b : h.curr().literal()) {
+            arr.push_back((float)b);
+        }
         out["location"] = conv::loc_to_map(h.loc());
         return h.submit(true);
     }
@@ -200,7 +199,9 @@ bool ast::parse_exp_str_lit(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
 
     if (h.curr().is_str_literal()) {
         auto &arr = out["content"].array({});
-        for (auto b : h.curr().literal()) arr.push_back((float)b);
+        for (auto b : h.curr().literal()) {
+            arr.push_back((float)b);
+        }
         out["location"] = conv::loc_to_map(h.loc());
         return h.submit(true);
     }
@@ -301,9 +302,8 @@ bool ast::parse_exp(ast_ctx_t &ctx, size_t &res_i, map_t &out) {
                     };
                     h.force_parse(parse_identifier, "Expected an identifier.", member_access["name"].map({}));
                     member_access["location"] = conv::loc_to_map(
-                        conv::map_to_loc(member_access["name"].map()["location"].string()).intersect(
-                            conv::map_to_loc(res.back().map()["location"].string())
-                        )
+                        conv::map_to_loc(member_access["name"].map()["location"].string())
+                            .intersect(conv::map_to_loc(res.back().map()["location"].string()))
                     );
                     res.pop_back();
                     res.push_back(member_access);
