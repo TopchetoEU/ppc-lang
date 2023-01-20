@@ -32,3 +32,4 @@
 !Makefile
 !README.md
 !.gitignore
+!.clang-format
