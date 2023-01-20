@@ -70,3 +70,7 @@ Any help is entirely voluntary, yet very much appreciated. If you see any bugs, 
 ### Mac OS X
 
 For now, there's no official support, but the build scripts should in theory work with any unix-like OS. You can try to use the linux instructions
+
+## Licensing
+
+The project uses the Creative Commons Attributuins Non-Commersial license. This license was picked since I wanted to allow anyone to use my project for non-commersial purposes for free. If you're interested in using this project for commersial purposes, contact me at 36534413+TopchetoEU@users.noreply.github.com
