@@ -1,5 +1,7 @@
 # ++C Intermediate Lang (PPCIL 1.0)
 
+**NOTE: this currently is unused**
+
 This is a read-only binary format, used in the ++C ecosystem to represent executable code. It has an assembly-like structure (opcode, followed by operands), so that a translation to a native instruction set can be more robust. Still, this IL's instruction set implements instructions, not found in some instruction sets. The idea behind that decision is to use native optimizations where possible (for example, using the square root instruction of the x86_64 instruction set, instead of a common algorithm for all instruction sets). One important thing to note is that PPCIL is not just an itermediate for ++C. A compiler could be written that converts any language to PPCIL, for example: Java, C#, C++, C, etc. 
 
 ## Format

@@ -1,61 +1,27 @@
 # Versions in ++C
 
-This version format will be used all troughout the ++C ecosystem, so it is important to be familiar with this
+This version format will be used all throughout the ++C ecosystem, so it is important to be familiar with this
+
+## What is a breaking change?
+
+A breaking change is a change in the code, that makes previous code, using the API, broken. There are two types of breaking changes: big ones and linking ones. A linking breaking change is a breaking change that only prevents the API to be linked to a project, requiring an older version, so a linking breaking change requires a recompilation. A big breaking change makes old code incompatible, so it requires any amount of tweaking to get the old code running again.
+
+## What is an incremental change in ++C?
+
+An incremental change is a change in the code base that doesn't affect compilation or linking of older code in no capacity. Such changes may expose new API, but never break old one.
 
 ## Segments
 
-A version in ++C is made up of three segments: major, minor and revision.
+A version in ++C is made up of three segments: major (release), minor (breaking) and revision (incremental).
 
-### Major
+### Major (release)
 
-The major segment is a 16-bit unsigned integer. It is used to represent breaking changes, which means that 2.0.0, 1.0.0 and 3.0.0 are incompatible. It is reccomended that a project starts from major version 0 (alpha), until a stable state is achieved. Then, release all breaking changes in big groups, and increase the major version.
+The major segment is a 16-bit unsigned integer. It is used to represent big breaking changes, usually complete overhauls of the public API. This version segment has to be equal to the target version, so that the target is compatible. This version segment rarely changes.
 
-#### What is a breaking change in ++C?
+### Minor (breaking)
 
-A breaking change is a behavioural change (a change in the body of a function that is 1. not a bug fix or 2. a fix of a bug that the users relied upon, or 3. a change that leads to different outputs with the same given inputs), change of the signature of a function, removing definitions.
+The minor segment is a 16-bit unsigned integer. It is used to represent linking breaking changes. All code, compiled with a previous minor version must be compatible with the current minor version, but liking to a different minor version will be broken.
 
-### Minor
+### Revision (incremental)
 
-the minor segment is a 16-bit unsigned integer. It is used to represent incremental changes, so bigger minor versions are compatible with bigger requirements (if a reqirement is 0.1.0, then 0.5.0 and 0.1.0 are compatible, but 0.0.0 is not). It is reccomended that after an increase of the major component this is reset (to 0), and increased after each major incremental addition to your project.
-
-#### What is an incremental change in ++C?
-
-An incremental change is the addition of a definition, without that breaking previous code, for example, adding an overload that will overtake a previous one:
-
-```c++
-bool func(short a) {
-    // ...
-}
-// Added function:
-void func(int a) {
-    // ...
-}
-```
-
-here, if someone called `func(10)`, previously, `bool func(short)` would get called, but now, the shorter cast route is `void func(int)`, which leads to a breaking change, because 1. there might be behavioural differences between the two functions and 2. the return types of the two functions differ, so the following code:
-
-```c++
-import std;
-
-void main() {
-    printf("%d", func(10));
-}
-```
-
-Will break, because `func(int)` doesn't return a value.
-
-Regardless, if the introduced overload doesn't break compatibility and doesn't introduce a behavioural change, the change is considered incremental.
-
-### Revision
-
-The revision segemnt of a version is a 32-bit unsigned integer. It represents either a build version or a bug fix index. Regardless, this segments represents a change that introduces no change to the public API or its behaviour (you could change the whole inner workings of a project in one revision, but as long as it introduces no breaking changes, that is fine).
-
-When checking for compatibility between versions, the revision segment is completely igonred, so if the requirement is 5.45.8, 5.45.15 and 5.45.0 are compatible.
-
-#### When to use revision changes?
-
-There are three ways to use this segments:
-
-1. Set it to 0 and don't use it
-2. Use it as a build index (increase it on each build)
-3. Use it as a bug fix index (increase it on each bug fixed)
+The revision segment is a 32-bit unsigned integer. It represents incremental changes. All code, compiled with a previous minor version must be compatible with the current minor version, and linking to a newer revision version must be possible.
