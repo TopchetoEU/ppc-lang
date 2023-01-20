@@ -37,4 +37,4 @@ TLDR: Keep all interactions civil and constructive, don't be a jerk.
 
 ## Code style
 
-It is mandatory that you follow [my codestyle](https://gist.github.com/TopchetoEU/0d7c411bc983ba6ef7b61d3753aa34bb) in your contributed code, so that this project has a cohesive style and structure.
+It is mandatory that you follow [my code style](https://gist.github.com/TopchetoEU/0d7c411bc983ba6ef7b61d3753aa34bb) in your contributed code, so that this project has a cohesive style and structure.
