@@ -28,6 +28,7 @@
 !scripts/uninstall.bat
 
 !LICENSE
+!CONTRIBUTING.md
 !Makefile
 !README.md
 !.gitignore
