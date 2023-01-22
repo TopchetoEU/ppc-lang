@@ -1,8 +1,8 @@
-#include "compiler/treeifier/tokenizer.hh"
+#include "treeifier/tokenizer.hh"
 #include <string>
 
-using namespace ppc::comp::tree;
-using namespace ppc::comp;
+using namespace ppc;
+using namespace ppc::tree;
 using namespace std::string_literals;
 
 

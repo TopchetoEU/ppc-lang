@@ -1,13 +1,13 @@
-#include "compiler/treeifier/ast.hh"
+#include "treeifier/constr.hh"
 
 using namespace ppc;
 using namespace ppc::lang;
 using namespace ppc::data;
-using namespace ppc::comp::tree;
-using namespace ppc::comp::tree::ast;
+using namespace ppc::tree;
+using namespace ppc::tree::constr;
 
-namespace ppc::comp::tree::ast {
-    struct tree_helper_t {
+namespace ppc::tree::constr {
+    struct parse_helper_t {
     private:
         ast_ctx_t &ctx;
         size_t &res_i;
@@ -105,37 +105,12 @@ namespace ppc::comp::tree::ast {
         }
 
         template <class T>
-        bool push_parse(const T &parser, data::array_t &out) {
-            data::map_t res;
-            if (parse(parser, res)) {
-                out.push_back(res);
-                return true;
-            }
-            else return false;
-        }
-
-        template <class T>
-        bool parse(const T &parser, data::map_t &out) {
+        bool parse(const parser_t<T> &parser, T &out) {
             return ctx.parse(parser, i, out);
         }
 
         template <class T>
-        void force_push_parse(const T &parser, std::string message, data::array_t &out) {
-            throw_ended(message);
-            bool success;
-
-            try {
-                success = push_parse(parser, out);
-            }
-            catch (const message_t &msg) {
-                ctx.messages.push(msg);
-                success = false;
-            }
-            
-            if (!success) err(message);
-        }
-        template <class T>
-        void force_parse(const T &parser, std::string message, data::map_t &out) {
+        void force_parse(const parser_t<T> &parser, std::string message, T &out) {
             throw_ended(message);
             bool success;
 
@@ -150,7 +125,7 @@ namespace ppc::comp::tree::ast {
             if (!success) err(message);
         }
 
-        tree_helper_t(ast_ctx_t &ctx, size_t &i): ctx(ctx), res_i(i) {
+        parse_helper_t(ast_ctx_t &ctx, size_t &i): ctx(ctx), res_i(i) {
             this->i = i;
         }
     };

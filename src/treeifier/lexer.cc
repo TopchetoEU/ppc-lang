@@ -1,10 +1,10 @@
-#include "compiler/treeifier/lexer.hh"
+#include "treeifier/lexer.hh"
 #include "utils/message.hh"
 #include <sstream>
 
 using namespace ppc;
 using namespace ppc::messages;
-using namespace ppc::comp::tree::lex;
+using namespace ppc::tree::lex;
 
 struct res_t;
 using lexlet_t = res_t (*)(char c, std::vector<char> &tok);

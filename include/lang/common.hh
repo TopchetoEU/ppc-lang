@@ -4,7 +4,7 @@
 #include <string>
 
 namespace ppc::lang {
-    struct namespace_name_t : public std::vector<std::string> {
+    struct namespace_name_t: public std::vector<std::string> {
         using base = std::vector<std::string>;
 
         int compare(const namespace_name_t &other) const;
@@ -42,7 +42,7 @@ struct std::hash<ppc::lang::namespace_name_t> {
 
 namespace ppc::lang {
     template <class T>
-    struct located_t : T {
+    struct located_t: T {
         location_t location;
 
         located_t(location_t loc, const T &val): T(val), location(loc) { }
@@ -66,7 +66,7 @@ namespace ppc::lang {
         slocated_t() { }
     };
 
-    struct loc_namespace_name_t : public std::vector<located_t<std::string>> {
+    struct loc_namespace_name_t: public std::vector<located_t<std::string>> {
         using base = std::vector<located_t<std::string>>;
 
         int compare(const loc_namespace_name_t &other) const;

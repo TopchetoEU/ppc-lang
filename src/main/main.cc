@@ -17,9 +17,10 @@
 #endif
 
 #include "./opions.hh"
-#include "compiler/treeifier/ast.hh"
-#include "compiler/treeifier/lexer.hh"
-#include "compiler/treeifier/tokenizer.hh"
+#include "treeifier/constr.hh"
+#include "treeifier/constr/glob.hh"
+#include "treeifier/lexer.hh"
+#include "treeifier/tokenizer.hh"
 #include "utils/json.hh"
 #include "utils/strings.hh"
 #include "utils/threading.hh"
@@ -31,83 +32,87 @@
 using std::cout;
 using std::size_t;
 using namespace ppc;
-using namespace ppc::comp::tree;
-using namespace ppc::comp::tree::ast;
+using namespace ppc::tree;
+using namespace ppc::tree::constr;
 
 void add_flags(options::parser_t &parser) {
-    parser.add_flag({ .name = "version",
-                      .shorthands = "v",
-                      .description = "Displays version and license agreement of this binary",
-                      .execute = [](options::parser_t &parser, const std::string &option, ppc::messages::msg_stack_t &global_stack) {
-                          cout << "++C compiler\n"
-                               << "    Version: v" << PPC_VERSION_MAJOR << '.' << PPC_VERSION_MINOR << '.' << PPC_VERSION_BUILD
+    parser.add_flag({
+        .name = "version",
+        .shorthands = "v",
+        .description = "Displays version and license agreement of this binary",
+        .execute = [](options::parser_t &parser, const std::string &option, ppc::messages::msg_stack_t &global_stack) {
+            cout << "++C compiler\n";
+            cout << "    Version: v" << PPC_VERSION_MAJOR << '.' << PPC_VERSION_MINOR << '.' << PPC_VERSION_BUILD;
 #if WINDOWS
-                               << " (Windows)"
+            cout << " (Windows)";
 #elif LINUX
-                 << " (Linux)"
+            cout << " (Linux)";
 #endif
-                               << "\n"
-                               << "    License: MIT Copyright (C) TopchetoEU\n";
-                          exit(0);
-                      } });
-    parser.add_flag({ .name = "help",
-                      .shorthands = "h",
-                      .description = "Displays a list of all flags and their meaning",
-                      .execute = [](options::parser_t &parser, const std::string &option, ppc::messages::msg_stack_t &global_stack) {
-                          cout << "Usage: ...flags ...files\n\n"
-                               << "Flags and file names can be interlaced\n"
-                               << "Flags will execute in the order they're written, then compilation begins\n\n"
-                               << "Flags:\n";
+            cout << "\n";
+            cout << "    License: MIT Copyright (C) TopchetoEU\n";
+            exit(0);
+        }
+    });
+    parser.add_flag({
+        .name = "help",
+        .shorthands = "h",
+        .description = "Displays a list of all flags and their meaning",
+        .execute = [](options::parser_t &parser, const std::string &option, ppc::messages::msg_stack_t &global_stack) {
+            cout << "Usage: ...flags ...files\n\n";
+            cout << "Flags and file names can be interlaced\n";
+            cout << "Flags will execute in the order they're written, then compilation begins\n\n";
+            cout << "Flags:\n";
 
-                          for (const auto &flag : parser) {
-                              std::stringstream buff;
-                              buff << "    --" << flag.name;
+            for (const auto &flag : parser) {
+                std::stringstream buff;
+                buff << "    --" << flag.name;
 
-                              if (flag.match_type) buff << "=...";
-                              if (flag.shorthands.size()) {
-                                  buff << " (";
-                                  bool first = true;
-                                  for (char shorthand : flag.shorthands) {
-                                      if (!first) buff << ",";
-                                      else first = false;
+                if (flag.match_type) buff << "=...";
+                if (flag.shorthands.size()) {
+                    buff << " (";
+                    bool first = true;
+                    for (char shorthand : flag.shorthands) {
+                        if (!first) buff << ",";
+                        else first = false;
 
-                                      buff << " -";
-                                      buff << std::string { shorthand };
-                                  }
-                                  buff << ")";
-                              }
+                        buff << " -";
+                        buff << std::string { shorthand };
+                    }
+                    buff << ")";
+                }
 
-                              buff << " ";
+                buff << " ";
 
-                              cout << buff.str();
-                              size_t n = buff.str().length();
+                cout << buff.str();
+                size_t n = buff.str().length();
 
-                              if (flag.description.size()) {
-                                  const size_t padding = 24;
-                                  const size_t msg_width = 80 - padding;
+                if (flag.description.size()) {
+                    const size_t padding = 24;
+                    const size_t msg_width = 80 - padding;
 
-                                  for (size_t i = 0; i < padding - n; i++)
-                                      cout << ' ';
+                    for (size_t i = 0; i < padding - n; i++)
+                        cout << ' ';
 
-                                  int len = flag.description.length();
+                    int len = flag.description.length();
 
-                                  for (size_t i = 0; i < len / msg_width; i++) {
-                                      for (size_t j = 0; j < msg_width; j++)
-                                          cout << flag.description[i * msg_width + j];
-                                      cout << std::endl;
-                                      for (size_t j = 0; j < padding; j++)
-                                          cout << ' ';
-                                  }
+                    for (size_t i = 0; i < len / msg_width; i++) {
+                        for (size_t j = 0; j < msg_width; j++)
+                            cout << flag.description[i * msg_width + j];
+                        cout << std::endl;
+                        for (size_t j = 0; j < padding; j++)
+                            cout << ' ';
+                    }
 
-                                  int remainder = len % msg_width;
+                    int remainder = len % msg_width;
 
-                                  for (int i = 0; i < remainder; i++)
-                                      cout << flag.description[len - remainder + i];
-                              }
+                    for (int i = 0; i < remainder; i++)
+                        cout << flag.description[len - remainder + i];
+                }
 
-                              printf("\n");
-                          }
-                      } });
+                printf("\n");
+            }
+        }
+    });
     parser.add_flag({
         .name = "silent",
         .shorthands = "qs",
@@ -118,12 +123,14 @@ void add_flags(options::parser_t &parser) {
         .description = "Sets a lower limit of messages that will print. Accepted values: 'all', 'debug', 'suggestion', 'info', 'warning', 'error', 'none'",
         .match_type = options::MATCH_PREFIX,
     });
-    parser.add_flag({ .name = "print-what",
-                      .description = "Prints a 'what?' type of message (you'll see)",
-                      .match_type = options::MATCH_PREFIX,
-                      .execute = [](options::parser_t &parser, const std::string &option, ppc::messages::msg_stack_t &global_stack) {
-                          global_stack.push(messages::message_t((messages::message_t::level_t)69, "IDK LOL."));
-                      } });
+    parser.add_flag({
+        .name = "print-what",
+        .description = "Prints a 'what?' type of message (you'll see)",
+        .match_type = options::MATCH_PREFIX,
+        .execute = [](options::parser_t &parser, const std::string &option, ppc::messages::msg_stack_t &global_stack) {
+            global_stack.push(messages::message_t((messages::message_t::level_t)69, "IDK LOL."));
+        }
+    });
 }
 
 int main(int argc, const char *argv[]) {
@@ -156,9 +163,8 @@ int main(int argc, const char *argv[]) {
                 std::ifstream f { file, std::ios_base::in };
                 if (!f.is_open()) throw message_t::error("The file doesn't exist.", { file });
                 auto tokens = token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
-                auto ast = ast_ctx_t::parse(ast::parse_glob, msg_stack, tokens);
-
-                std::cout << data::json::stringify(ast) << std::endl;
+                auto ast = ast_ctx_t::parse(constr::glob_parser_t(), msg_stack, tokens);
+                // std::cout << data::json::stringify(ast) << std::endl;
             }
             catch (const messages::message_t &msg) {
                 msg_stack.push(msg);
