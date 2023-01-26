@@ -4,15 +4,16 @@
 
 using namespace ppc::tree::constr;
 
-bool ppc::tree::constr::glob_parser_t::operator()(ast_ctx_t &ctx, size_t &res_i, glob_t &out) const {
-    parse_helper_t h(ctx, res_i);
+bool ppc::tree::constr::glob_parser_t::operator()(ast_ctx_t &ctx, glob_t &out) const {
+    size_t res_i = 0;
+    helper_t h(ctx, res_i);
     out = {};
 
     if (h.ended()) return h.submit(false);
 
     if (h.curr().is_identifier("namespace")) {
         h.advance("Expected a namespace");
-        h.force_parse(nmsp_parser_t(), "Expected a namespace.", out.nmsp);
+        h.force_parse(parse_nmsp, "Expected a namespace.", out.nmsp);
 
         if (!h.curr().is_operator(operator_t::SEMICOLON)) {
             ctx.messages.push(message_t::error("Expected a semicolon.", h.loc(1)));
@@ -22,7 +23,7 @@ bool ppc::tree::constr::glob_parser_t::operator()(ast_ctx_t &ctx, size_t &res_i,
     }
 
     while (h.curr().is_identifier("import")) {
-        loc_namespace_name_t res;
+        loc_nmsp_t res;
 
         h.advance("Expected a namespace");
         h.force_parse(nmsp_parser_t(), "Expected a namespace.", res);

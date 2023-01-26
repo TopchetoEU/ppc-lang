@@ -164,7 +164,9 @@ int main(int argc, const char *argv[]) {
                 if (!f.is_open()) throw message_t::error("The file doesn't exist.", { file });
                 auto tokens = token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
                 auto ast = ast_ctx_t::parse(constr::glob_parser_t(), msg_stack, tokens);
-                // std::cout << data::json::stringify(ast) << std::endl;
+                #ifdef PROFILE_debug
+                ast.print();
+                #endif
             }
             catch (const messages::message_t &msg) {
                 msg_stack.push(msg);

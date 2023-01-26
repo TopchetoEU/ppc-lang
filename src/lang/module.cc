@@ -59,7 +59,7 @@ field_t &definition_t::get_field() {
 }
 
 
-statement_t statement_t::call(const namespace_name_t &func) {
+statement_t statement_t::call(const nmsp_t &func) {
     return { CALL, { .call = new auto(func) } };
 }
 statement_t statement_t::stack(int64_t stack) {
@@ -67,27 +67,4 @@ statement_t statement_t::stack(int64_t stack) {
 }
 statement_t statement_t::ret() {
     return { RETURN };
-}
-
-bool ppc::lang::resolve_name(
-    const std::vector<namespace_name_t> &names, const std::set<namespace_name_t> &imports,
-    const namespace_name_t &name, namespace_name_t &res
-) {
-    for (auto &curr : names) {
-        if (curr == name) {
-            res = curr;
-            return true;
-        }
-    }
-    for (auto &import : imports) {
-        auto new_name = name;
-        new_name.insert(new_name.begin(), import.begin(), import.end());
-        for (auto &curr : names) {
-            if (curr == new_name) {
-                res = curr;
-                return true;
-            }
-        }
-    }
-    return false;
 }

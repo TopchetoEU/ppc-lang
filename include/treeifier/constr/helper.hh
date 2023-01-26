@@ -7,7 +7,7 @@ using namespace ppc::tree;
 using namespace ppc::tree::constr;
 
 namespace ppc::tree::constr {
-    struct parse_helper_t {
+    struct helper_t {
     private:
         ast_ctx_t &ctx;
         size_t &res_i;
@@ -104,28 +104,25 @@ namespace ppc::tree::constr {
             throw_ended(reason);
         }
 
-        template <class T>
-        bool parse(const parser_t<T> &parser, T &out) {
-            return ctx.parse(parser, i, out);
+        template <class ParserT, class ...ArgsT>
+        bool parse(const ParserT &parser, ArgsT &...args) {
+            return parser(ctx, i, args...);
         }
 
-        template <class T>
-        void force_parse(const parser_t<T> &parser, std::string message, T &out) {
+        template <class ParserT, class ...ArgsT>
+        void force_parse(const ParserT &parser, std::string message, ArgsT &...args) {
             throw_ended(message);
-            bool success;
 
             try {
-                success = parse(parser, out);
+                if (!parser(ctx, i, args...)) err(message);
             }
             catch (const message_t &msg) {
                 ctx.messages.push(msg);
-                success = false;
+                err(message);
             }
-            
-            if (!success) err(message);
         }
 
-        parse_helper_t(ast_ctx_t &ctx, size_t &i): ctx(ctx), res_i(i) {
+        helper_t(ast_ctx_t &ctx, size_t &i): ctx(ctx), res_i(i) {
             this->i = i;
         }
     };

@@ -2,7 +2,7 @@
 #include <sstream>
 
 namespace ppc::lang {
-    std::string loc_namespace_name_t::to_string() const {
+    std::string loc_nmsp_t::to_string() const {
         std::stringstream res;
 
         for (size_t i = 0; i < size(); i++) {
@@ -12,7 +12,7 @@ namespace ppc::lang {
 
         return res.str();
     }
-    std::string namespace_name_t::to_string() const {
+    std::string nmsp_t::to_string() const {
         std::stringstream res;
 
         for (size_t i = 0; i < size(); i++) {
@@ -23,7 +23,7 @@ namespace ppc::lang {
         return res.str();
     }
 
-    int namespace_name_t::compare(const namespace_name_t &b) const {
+    int nmsp_t::compare(const nmsp_t &b) const {
         const auto &a = *this;
         for (size_t i = 0; i < a.size() && i < b.size(); i++) {
             auto cmp = a[i].compare(b[i]);
@@ -34,7 +34,7 @@ namespace ppc::lang {
         else if (a.size() == b.size()) return 0;
         else return -1;
     }
-    int loc_namespace_name_t::compare(const loc_namespace_name_t &b) const {
+    int loc_nmsp_t::compare(const loc_nmsp_t &b) const {
         const auto &a = *this;
         for (size_t i = 0; i < a.size() && i < b.size(); i++) {
             auto cmp = a[i].compare(b[i]);
@@ -46,8 +46,8 @@ namespace ppc::lang {
         else return -1;
     }
 
-    namespace_name_t loc_namespace_name_t::strip_location() const {
-        namespace_name_t res;
+    nmsp_t loc_nmsp_t::strip_location() const {
+        nmsp_t res;
 
         for (const auto &el : *this) {
             res.push_back(el);

@@ -20,20 +20,27 @@ namespace ppc::tree::constr {
     struct ast_ctx_t;
 
     struct glob_t {
-        loc_namespace_name_t nmsp;
-        std::vector<loc_namespace_name_t> imports;
+        loc_nmsp_t nmsp;
+        std::vector<loc_nmsp_t> imports;
+
+        #ifdef PROFILE_debug
+        void print() const {
+            std::cout << "Namespace: " << nmsp.to_string() << "\n";
+            std::cout << "Imports:\n";
+            for (auto &imp : imports) {
+                std::cout << " - " << imp.to_string() << "\n";
+            }
+        }
+        #endif
+    };
+    struct exp_t: public named_t {
     };
 
-    template <class T, class GlobT = glob_t>
+    template <class ParserT, class GlobT = glob_t>
     class parser_t {
     public:
-        virtual bool operator()(ast_ctx_t &ctx, size_t &res_i, T &out) const = 0;
-        virtual bool simplify(ast_ctx_t &ctx, GlobT &glob, T &val) const = 0;
-#ifdef PROFILE_debug
-        virtual void print(const T &val) {
-            std::cout << "(unknown)";
-        }
-#endif
+        virtual bool operator()(ast_ctx_t &ctx, size_t &res_i, ParserT &out) const = 0;
+        virtual bool simplify(ast_ctx_t &ctx, GlobT &glob, ParserT &val) const = 0;
     };
 
 
@@ -41,50 +48,24 @@ namespace ppc::tree::constr {
     public:
         msg_stack_t &messages;
         std::vector<token_t> &tokens;
-        loc_namespace_name_t nmsp;
+        loc_nmsp_t nmsp;
 
         ast_ctx_t &operator=(const ast_ctx_t &other) = delete;
-
-        template <class T>
-        bool parse(const parser_t<T> &parser, size_t &i, T &out) {
-            return parser(*this, i, out);
-        }
-
-        template <class T>
-        static T parse(const parser_t<T> &glob, msg_stack_t &messages, std::vector<token_t> &tokens) {
-            ast_ctx_t ctx(messages, tokens);
-            T res;
-            size_t i = 0;
-
-            if (!ctx.parse(glob, i, res)) throw message_t::error("Failed to compile.");
-            return res;
-        }
-
-        ast_ctx_t(msg_stack_t &messages, std::vector<token_t> &tokens);
+        ast_ctx_t(msg_stack_t &messages, std::vector<token_t> &tokens):
+            messages(messages), tokens(tokens) { }
     };
 
-    template <class T>
-    class inspoint_t {
-    private:
-        std::map<lang::namespace_name_t, std::string> named_parsers;
-        std::set<std::string> unnamed_parsers;
-        std::map<std::string, T *> parsers;
+    bool parse_identifier(ast_ctx_t &ctx, size_t &res_i, located_t<std::string> &out);
+    bool parse_nmsp(ast_ctx_t &ctx, size_t &res_i, loc_nmsp_t &out);
+    bool parse_nmsp_id(ast_ctx_t &ctx, size_t &res_i, nmsp_t nmsp);
+
+    class exp_parser_t {
     public:
-        inspoint_t &replace(const std::string &name, const T &parser) {
-            auto it = parsers.find(name);
-
-            if (parsers.find(name) == parsers.end()) {
-                throw "The parser '" + name + "' isn't in the group.";
-            }
-
-            it->second = parser;
-
-            return *this;
-        }
-        inspoint_t &add(const std::string &name, const T &parser);
-        inspoint_t &add(const std::string &name, const lang::namespace_name_t &identifier, const T &parser);
-
-        bool operator()(ast_ctx_t &ctx, size_t &i, data::map_t &out) const;
+        bool operator()(ast_ctx_t &ctx, glob_t &out) const;
+    };
+    class glob_parser_t {
+    public:
+        bool operator()(ast_ctx_t &ctx, glob_t &out) const;
     };
 
     // parser_func_t parse_glob, parse_nmsp, parse_identifier, parse_type, parse_exp, parse_stat_exp;
