@@ -1,7 +1,8 @@
 export lsproj = $(bin)/lsproj$(exe)
+export lsinc = $(bin)/lsinc$(exe)
 export flags += "-I$(inc)" -D$(OS) -DPPC_VERSION_MAJOR=$(version-major) -DPPC_VERSION_MINOR=$(version-minor) -DPPC_VERSION_BUILD=$(version-build)
 
-$(shell make -f scripts/lsproj.mak lsproj=$(lsproj) src=$(src) $(lsproj))
+$(shell make -f scripts/ls.mak lsinc=$(lsinc) lsproj=$(lsproj) src=$(src) "flags=$(flags)" all)
 
 rwildcard=$(foreach d, $(wildcard $(1:=/*)),\
 	$(call rwildcard,$d,$2)\
@@ -52,7 +53,7 @@ $(bin)/lib$(lib)%$(so): $$(call frdeps,$$*) $$(call binaries,$$*)
 	$(CXX) -shared -fPIC $(flags) $(call binaries,$*) -o $@ $(ldflags) $(call ldeps,$*) -L$(bin) "-I$(inc)"
 	echo Compiling library '$(notdir $@)'...
 
-$(bin)/tmp/%.o: $(src)/%.cc $(headers)
+$(bin)/tmp/%.o: $(src)/%.cc $(shell $(lsinc) $(inc) $(src)/%.cc)
 	$(call mkdir,$(dir $@))
 	$(CXX) -fPIC -c $(flags) $< -o $@
 	echo - Compiling '$*.cc'...

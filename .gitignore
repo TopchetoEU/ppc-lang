@@ -19,11 +19,11 @@
 !src/*/**/*.h
 !src/*/**/*.hh
 !src/*.proj
-!src/lsproj.cc
+!src/ls*.cc
 
 !scripts
 !scripts/common.mak
-!scripts/lsproj.mak
+!scripts/ls.mak
 !scripts/install.bat
 !scripts/uninstall.bat
 
