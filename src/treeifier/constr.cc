@@ -40,7 +40,7 @@ bool ppc::tree::constr::parse_nmsp(ast_ctx_t &ctx, size_t &res_i, loc_nmsp_t &ou
 
 bool ppc::tree::constr::parse_nmsp_id(ast_ctx_t &ctx, size_t &res_i, glob_t glob, nmsp_t nmsp) {
     helper_t h(ctx, res_i);
-    nmsp_t src;
+    loc_nmsp_t src;
 
     if (!h.parse(parse_nmsp, src)) return false;
     if (resolve_name(glob.imports, src, nmsp)) return h.submit(false);

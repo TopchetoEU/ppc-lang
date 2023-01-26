@@ -51,7 +51,6 @@ std::string read_str(std::istream &f, const std::string &skip_chars, const std::
 project_t read_project(std::istream &f) {
     int end_ch;
     std::string name = read_str(f, " \v\t\r\n", "\n", end_ch);
-    std::size_t cap = 16, n = 0;
     std::vector<std::string> deps {};
 
     if (name.length() == 0) {

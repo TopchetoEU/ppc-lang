@@ -18,7 +18,6 @@
 
 #include "./opions.hh"
 #include "treeifier/constr.hh"
-#include "treeifier/constr/glob.hh"
 #include "treeifier/lexer.hh"
 #include "treeifier/tokenizer.hh"
 #include "utils/json.hh"
@@ -163,9 +162,11 @@ int main(int argc, const char *argv[]) {
                 std::ifstream f { file, std::ios_base::in };
                 if (!f.is_open()) throw message_t::error("The file doesn't exist.", { file });
                 auto tokens = token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
-                auto ast = ast_ctx_t::parse(constr::glob_parser_t(), msg_stack, tokens);
+                glob_t glob;
+                auto ctx = ast_ctx_t(msg_stack, tokens);
+                glob_parser_t()(ctx, glob);
                 #ifdef PROFILE_debug
-                ast.print();
+                glob.print();
                 #endif
             }
             catch (const messages::message_t &msg) {

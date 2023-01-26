@@ -33,8 +33,6 @@ namespace ppc::tree::constr {
         }
         #endif
     };
-    struct exp_t: public named_t {
-    };
 
     template <class ParserT, class GlobT = glob_t>
     class parser_t {
@@ -51,18 +49,13 @@ namespace ppc::tree::constr {
         loc_nmsp_t nmsp;
 
         ast_ctx_t &operator=(const ast_ctx_t &other) = delete;
-        ast_ctx_t(msg_stack_t &messages, std::vector<token_t> &tokens):
-            messages(messages), tokens(tokens) { }
+        ast_ctx_t(msg_stack_t &messages, std::vector<token_t> &tokens);
     };
 
     bool parse_identifier(ast_ctx_t &ctx, size_t &res_i, located_t<std::string> &out);
     bool parse_nmsp(ast_ctx_t &ctx, size_t &res_i, loc_nmsp_t &out);
-    bool parse_nmsp_id(ast_ctx_t &ctx, size_t &res_i, nmsp_t nmsp);
+    bool parse_nmsp_id(ast_ctx_t &ctx, size_t &res_i, glob_t glob, nmsp_t nmsp);
 
-    class exp_parser_t {
-    public:
-        bool operator()(ast_ctx_t &ctx, glob_t &out) const;
-    };
     class glob_parser_t {
     public:
         bool operator()(ast_ctx_t &ctx, glob_t &out) const;

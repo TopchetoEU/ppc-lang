@@ -1,6 +1,5 @@
-#include "treeifier/constr/glob.hh"
+#include "treeifier/constr.hh"
 #include "treeifier/constr/helper.hh"
-#include "treeifier/constr/nmsp.hh"
 
 using namespace ppc::tree::constr;
 
@@ -26,7 +25,7 @@ bool ppc::tree::constr::glob_parser_t::operator()(ast_ctx_t &ctx, glob_t &out) c
         loc_nmsp_t res;
 
         h.advance("Expected a namespace");
-        h.force_parse(nmsp_parser_t(), "Expected a namespace.", res);
+        h.force_parse(parse_nmsp, "Expected a namespace.", res);
 
         if (!h.curr().is_operator(operator_t::SEMICOLON)) {
             ctx.messages.push(message_t::error("Expected a semicolon.", h.loc(1)));
