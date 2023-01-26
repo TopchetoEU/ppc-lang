@@ -12,6 +12,7 @@ export output = ppc
 export mainmodule = main
 export version-major=0
 export version-minor=0
+export version-build=1
 ###################################
 
 ifeq ($(OS),Windows_NT)
@@ -43,7 +44,7 @@ export exe=.exe
 export CC=gcc
 export CXX=g++
 
-export version-build=$(if $(wildcard build.version),$(shell type build.version),0)
+# export version-build=$(if $(wildcard build.version),$(shell type build.version),0)
 export binary = $(bin)/$(output)$(version-major)-windows.exe
 
 build: version
@@ -60,11 +61,10 @@ cleartmp:
 .ONESHELL:
 install: build
 	powershell -Command "start-process cmd -verb runas -args '/K pushd %CD%&set bin=$(bin)&set output=$(output)&.\scripts\install.bat&exit'"	
-#	.\scripts\install.bat
 uninstall:
 	.\scripts\uninstall.bat
-version:
-	cmd /c "set /a $(version-build) + 1 > build.version"
+# version:
+# 	cmd /c "set /a $(version-build) + 1 > build.version"
 
 else
 
@@ -74,7 +74,7 @@ export mkdir=mkdir -p $$1
 export rmdir=rm -rf $$1
 export echo=echo "$$1"
 export so=.so
-export version-build=$(if $(wildcard build.version),$(shell cat build.version),0)
+# export version-build=$(if $(wildcard build.version),$(shell cat build.version),0)
 export binary = $(bin)/$(output)$(version-major)-linux
 
 build: version
@@ -98,8 +98,8 @@ uninstall:
 	echo Uninstalling ++C compiler from your system...
 	sudo rm $(patsubst $(bin)/%.so,/usr/lib/%*.so,$(bin)/*.so)
 	sudo rm /usr/bin/$(output)
-version:
-	echo $$(($(version-build) + 1)) > build.version
+# version:
+# 	echo $$(($(version-build) + 1)) > build.version
 
 leak: build
 	echo ====================== Leak scanning =======================
