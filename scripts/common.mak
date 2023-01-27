@@ -53,7 +53,8 @@ $(bin)/lib$(lib)%$(so): $$(call frdeps,$$*) $$(call binaries,$$*)
 	$(CXX) -shared -fPIC $(flags) $(call binaries,$*) -o $@ $(ldflags) $(call ldeps,$*) -L$(bin) "-I$(inc)"
 	echo Compiling library '$(notdir $@)'...
 
-$(bin)/tmp/%.o: $(src)/%.cc $(shell $(lsinc) $(inc) $(src)/%.cc)
+.SECONDEXPANSION:
+$(bin)/tmp/%.o: $(src)/%.cc $$(shell $(lsinc) $(inc) $(src)/%.cc)
 	$(call mkdir,$(dir $@))
 	$(CXX) -fPIC -c $(flags) $< -o $@
 	echo - Compiling '$*.cc'...
