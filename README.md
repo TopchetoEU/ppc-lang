@@ -47,7 +47,7 @@ Check out the [documentation](./doc/index.md) of this project, I've tried to mak
 
 ## How to contribute?
 
-Any help is entirely voluntary, yet very much appreciated. If you see any bugs, please don't hesitate to report them (as issue logs) and if you feel like you could add to this project's worth, please do make a pull request. Just make sure to 
+Any help is entirely voluntary, yet very much appreciated. If you see any bugs, please don't hesitate to report them (as issue logs) and if you feel like you could add to this project's worth, please do make a pull request. Just make sure to check the [contribuitng requirements](./CONTRIBUTING.md)
 
 ## How to compile?
 
