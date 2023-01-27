@@ -65,7 +65,7 @@ namespace ppc::lang {
         nmsp_t strip_location() const;
         std::string to_string() const;
 
-        operator nmsp_t() { return strip_location(); }
+        operator nmsp_t() const { return strip_location(); }
         operator std::string() const { return to_string(); }
 
         loc_nmsp_t() { }
@@ -76,8 +76,8 @@ namespace ppc::lang {
     bool resolve_name(const SetT &defs, const nmsp_t &src, const nmsp_t &target) {
         if (src == target) return true;
 
-        for (const auto &it : defs) {
-            nmsp_t val = (const nmsp_t&)(it);
+        for (auto it : defs) {
+            nmsp_t val = (nmsp_t)(it);
             val.insert(val.end(), src.begin(), src.end());
 
             if (val == target) return true;

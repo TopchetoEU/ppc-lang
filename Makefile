@@ -1,7 +1,7 @@
 export MAKEFLAGS += --silent -r -j
 export flags=-std=c++17 -Wall -Wno-main -Wno-trigraphs -Wno-missing-braces -Wno-stringop-overflow -DPROFILE_$(profile) -fdiagnostics-color=always
 export ldflags=-L$(bin)/$(profile) -Wl,-rpath=bin/$(profile)
-export lib=ppc$(version-major)-
+export lib=ppc-$(version-major).$(version-minor)-
 export profile=release
 
 ############# SETTINGS ############
@@ -45,7 +45,7 @@ export CC=gcc
 export CXX=g++
 
 # export version-build=$(if $(wildcard build.version),$(shell type build.version),0)
-export binary = $(bin)/$(output)$(version-major)-windows.exe
+export binary = $(bin)/$(output)-$(version-major).$(version-minor)-windows.exe
 
 build: version
 	echo ======================== Compiling =========================
@@ -75,7 +75,7 @@ export rmdir=rm -rf $$1
 export echo=echo "$$1"
 export so=.so
 # export version-build=$(if $(wildcard build.version),$(shell cat build.version),0)
-export binary = $(bin)/$(output)$(version-major)-linux
+export binary = $(bin)/$(output)-$(version-major).$(version-minor)-linux
 
 build: version
 	echo ======================== Compiling =========================
