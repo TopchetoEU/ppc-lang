@@ -37,7 +37,7 @@ fs::path find_file(fs::path original, fs::path include) {
     return original;
 }
 
-bool get_import(std::string line, std::string &import) {
+bool get_import(std::string line, fs::path root, fs::path &import) {
     if (line.rfind("#include") != 0) return false;
     line = line.substr(8);
     trim(line);
@@ -45,7 +45,13 @@ bool get_import(std::string line, std::string &import) {
     if (line[0] == '<') return false;
     if (line[0] == '"') {
         if (line[line.length() - 1] != '"') throw "Invalid import syntax."s;
-        import = line.substr(1, line.length() - 2);
+        auto path = line.substr(1, line.length() - 2);
+
+        if (path.rfind("./") == 0 || path.rfind(".\\") == 0) {
+            import = root / path.substr(2);
+        }
+        else import = path;
+
         return true;
     }
 
@@ -64,8 +70,8 @@ void get_imports(fs::path file, fs::path include, std::set<fs::path> &res) {
         std::string line;
 
         while (read_line(f, line)) {
-            std::string import;
-            if (get_import(line, import)) {
+            fs::path import;
+            if (get_import(line, file.parent_path(), import)) {
                 auto child = find_file(import, include);
                 res.emplace(child);
                 get_imports(child, include, res);
