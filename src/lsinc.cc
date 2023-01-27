@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
         return 0;
     }
     catch (std::string err) {
-        std::cerr << "Error: " << err << std::endl;
+        std::cerr << "error: lsinc: " << err << std::endl;
     }
 
     return -1;
