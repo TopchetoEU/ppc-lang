@@ -18,7 +18,6 @@
 !src/*/**/*.cc
 !src/*/**/*.h
 !src/*/**/*.hh
-!src/*.proj
 !src/ls*.cc
 
 !scripts
@@ -26,6 +25,9 @@
 !scripts/ls.mak
 !scripts/install.bat
 !scripts/uninstall.bat
+
+!deps
+!deps/*
 
 !LICENSE
 !CONTRIBUTING.md
