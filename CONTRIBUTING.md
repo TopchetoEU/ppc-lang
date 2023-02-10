@@ -31,7 +31,7 @@ This Code of Conduct applies both within project spaces and in public spaces whe
 
 ### Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting me at 36534413+TopchetoEU@users.noreply.github.com. All complaints will be reviewed and investigated and will result in a response that is deemed necessary and appropriate to the circumstances. Confidentiality with regard to the reporter of an incident will be maintained. Further details of specific enforcement policies may be posted separately.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting me at [ppc.lang.contact@gmail.com]. All complaints will be reviewed and investigated and will result in a response that is deemed necessary and appropriate to the circumstances. Confidentiality with regard to the reporter of an incident will be maintained. Further details of specific enforcement policies may be posted separately.
 
 TLDR: Keep all interactions civil and constructive, don't be a jerk.
 
