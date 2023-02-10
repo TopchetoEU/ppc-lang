@@ -1,8 +1,14 @@
-#include "treeifier/constr.hh"
-#include "treeifier/constr/helper.hh"
-#include "treeifier/constr/nmsp.hh"
+#pragma once
 
-namespace ppc::tree::constr {
+#include "treeifier/constr.hh"
+#include "treeifier/parsers/helper.hh"
+
+#ifdef PROFILE_debug
+#include <iostream>
+#endif
+
+namespace ppc::tree::parse {
+
     struct named_t {
         virtual std::string name() = 0;
         virtual ~named_t() = default;
@@ -31,18 +37,13 @@ namespace ppc::tree::constr {
             return *this;
         }
 
-        bool operator()(ast_ctx_t &ctx, size_t &i, std::unique_ptr<ResT> &out) const override {
+        bool operator()(ppc::tree::parse_ctx_t &ctx, size_t &i, std::unique_ptr<ResT> &out) const override {
             helper_t h(ctx, i);
 
             if (h.ended()) return false;
 
             for (std::pair<std::string, std::unique_ptr<ParserT>> &pair : parsers) {
-                ResT res;
-
-                if (pair.second(ctx, i, res)) {
-                    out = std::make_unique<ResT>(res);
-                    return true;
-                }
+                if (pair.second(ctx, i, out)) return true;
             }
 
             return false;

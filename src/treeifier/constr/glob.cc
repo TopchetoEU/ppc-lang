@@ -1,9 +1,11 @@
 #include "treeifier/constr.hh"
-#include "treeifier/constr/helper.hh"
+#include "treeifier/parsers/helper.hh"
+#include "treeifier/parsers/glob.hh"
+#include "treeifier/constructs/glob.hh"
 
-using namespace ppc::tree::constr;
+using namespace ppc::tree;
 
-bool ppc::tree::constr::glob_parser_t::operator()(ast_ctx_t &ctx, glob_t &out) const {
+bool parse::glob_parser_t::operator()(parse_ctx_t &ctx, constr::global_t &out) const {
     size_t res_i = 0;
     helper_t h(ctx, res_i);
     out = {};

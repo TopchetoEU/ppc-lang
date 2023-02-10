@@ -26,7 +26,7 @@ struct res_t {
 };
 
 
-static inline bool isoct(char c) {
+static inline bool is_oct(char c) {
     return c >= '0' && c <= '7';
 }
 static inline bool is_any(char c, std::string chars) {
@@ -70,7 +70,7 @@ static res_t lexlet_bin(char c, std::vector<char> &tok) {
     else return lexer_end(token_t::BIN_LITERAL);
 };
 static res_t lexlet_oct(char c, std::vector<char> &tok) {
-    if (isoct(c)) return lexer_none();
+    if (is_oct(c)) return lexer_none();
     else if (isdigit(c)) throw message_t::error("An octal literal may only contain octal digits.");
     else return lexer_end(token_t::OCT_LITERAL);
 };

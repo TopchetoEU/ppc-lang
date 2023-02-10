@@ -2,17 +2,15 @@
 #include <iostream>
 
 using namespace ppc;
-using namespace ppc::data;
 using namespace ppc::lang;
-using namespace ppc::tree::constr;
+using namespace ppc::tree;
 
-// ppc::tree::constr::inspoint_t &ast_ctx_t::group(const std::string &name) {
+// ppc::tree::constr::inspoint_t &parse_ctx_t::group(const std::string &name) {
 //     if (groups.find(name) == groups.end()) return groups[name] = {};
 //     else return groups[name];
 // }
 
-ast_ctx_t::ast_ctx_t(msg_stack_t &messages, std::vector<token_t> &tokens):
-    messages(messages), tokens(tokens) {
+parse_ctx_t::parse_ctx_t(msg_stack_t &messages, std::vector<token_t> &tokens): messages(messages), tokens(tokens) {
     // group("$_exp_val")
     //     .add("$_var", parse_exp_var)
     //     .add("$_int", parse_exp_int_lit)

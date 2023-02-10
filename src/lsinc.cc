@@ -60,10 +60,26 @@ bool get_import(std::string line, fs::path root, fs::path &import) {
 
 void get_imports(fs::path file, fs::path include, std::set<fs::path> &res) {
     static std::set<fs::path> parents = { };
+    static std::vector<fs::path> tmp = { };
 
     if (!parents.emplace(file).second) {
-        throw "Circular dependency encountered."s;
+        std::stringstream ss;
+        ss << "Circular dependency encountered (";
+        auto it = tmp.rbegin();
+
+        for (; it != tmp.rend(); it++) {
+            if (*it == file) break;
+            ss << *it << "<-";
+        }
+
+        ss << *it << ")";
+
+        parents.clear();
+        tmp.clear();
+
+        throw ss.str();
     }
+    tmp.push_back(file);
 
     std::ifstream f(file.string());
     if (f.is_open() && !f.eof()) {
@@ -80,6 +96,7 @@ void get_imports(fs::path file, fs::path include, std::set<fs::path> &res) {
     }
 
     parents.erase(file);
+    tmp.pop_back();
 }
 
 int main(int argc, char **argv) {

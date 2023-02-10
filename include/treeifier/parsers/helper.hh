@@ -1,15 +1,11 @@
+#pragma once
+
 #include "treeifier/constr.hh"
 
-using namespace ppc;
-using namespace ppc::lang;
-using namespace ppc::data;
-using namespace ppc::tree;
-using namespace ppc::tree::constr;
-
-namespace ppc::tree::constr {
+namespace ppc::tree::parse {
     struct helper_t {
     private:
-        ast_ctx_t &ctx;
+        parse_ctx_t &ctx;
         size_t &res_i;
 
     public:
@@ -122,7 +118,7 @@ namespace ppc::tree::constr {
             }
         }
 
-        helper_t(ast_ctx_t &ctx, size_t &i): ctx(ctx), res_i(i) {
+        helper_t(parse_ctx_t &ctx, size_t &i): ctx(ctx), res_i(i) {
             this->i = i;
         }
     };

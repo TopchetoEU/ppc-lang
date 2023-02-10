@@ -17,9 +17,10 @@
 #endif
 
 #include "./opions.hh"
-#include "treeifier/constr.hh"
 #include "treeifier/lexer.hh"
 #include "treeifier/tokenizer.hh"
+#include "treeifier/constructs/glob.hh"
+#include "treeifier/parsers/glob.hh"
 #include "utils/json.hh"
 #include "utils/strings.hh"
 #include "utils/threading.hh"
@@ -32,7 +33,6 @@ using std::cout;
 using std::size_t;
 using namespace ppc;
 using namespace ppc::tree;
-using namespace ppc::tree::constr;
 
 void add_flags(options::parser_t &parser) {
     parser.add_flag({
@@ -162,9 +162,9 @@ int main(int argc, const char *argv[]) {
                 std::ifstream f { file, std::ios_base::in };
                 if (!f.is_open()) throw message_t::error("The file doesn't exist.", { file });
                 auto tokens = token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
-                glob_t glob;
-                auto ctx = ast_ctx_t(msg_stack, tokens);
-                glob_parser_t()(ctx, glob);
+                constr::global_t glob;
+                auto ctx = parse_ctx_t(msg_stack, tokens);
+                parse::glob_parser_t()(ctx, glob);
                 #ifdef PROFILE_debug
                 glob.print();
                 #endif
