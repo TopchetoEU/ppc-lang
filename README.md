@@ -73,4 +73,4 @@ For now, there's no official support, but the build scripts should in theory wor
 
 ## Licensing
 
-The project uses the Creative Commons Attributuins Non-Commersial license. This license was picked since I wanted to allow anyone to use my project for non-commersial purposes for free. If you're interested in using this project for commersial purposes, contact me at [ppc.lang.contact@gmail.com](ppc.lang.contact@gmail.com).
+The project uses the Creative Commons Attributuins Non-Commersial license. This license was picked since I wanted to allow anyone to use my project for non-commersial purposes for free. If you're interested in using this project for commersial purposes, contact me at ppc.lang.contact@gmail.com.
