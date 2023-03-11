@@ -116,5 +116,5 @@ namespace ppc::data {
         }
     };
 
-    class array_t : public std::vector<value_t> { };
+    class array_t: public std::vector<value_t> { };
 }

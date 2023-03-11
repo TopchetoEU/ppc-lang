@@ -39,7 +39,7 @@ location_t location_t::intersect(location_t other) const {
     location_t a = *this;
     location_t b = other;
 
-    if (a.start == -1u || b.start == -1u) return { };
+    if (a.start == -1u || b.start == -1u) return {};
 
     if (a.start > b.start) return other.intersect(*this);
 
@@ -67,7 +67,6 @@ bool location_t::operator==(const location_t &other) const {
 }
 
 
-
 std::string empty = "";
 
 location_t::location_t():
@@ -84,11 +83,12 @@ location_t::location_t(const std::string &filename, std::size_t line, std::size_
     location_t(filename, line, start, code_start, -1) { }
 location_t::location_t(std::size_t line, std::size_t start, std::size_t code_start, std::size_t length):
     location_t(empty, line, start, code_start, length) { }
-location_t::location_t(const std::string &filename, std::size_t line, std::size_t start, std::size_t code_start, std::size_t length): filename(filename) {
+location_t::location_t(const std::string &filename, std::size_t line, std::size_t start, std::size_t code_start, std::size_t length):
+    filename(filename) {
     this->length = length;
     this->code_start = code_start;
     this->line = line;
     this->start = start;
 }
 
-const location_t location_t::NONE = { };
+const location_t location_t::NONE = {};

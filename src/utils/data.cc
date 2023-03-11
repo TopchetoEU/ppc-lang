@@ -1,4 +1,7 @@
 #include "utils/data.hh"
+#include <string>
+
+using namespace std::string_literals;
 
 namespace ppc::data {
     bool value_t::is_null() const {
@@ -44,45 +47,45 @@ namespace ppc::data {
 
     array_t &value_t::array() {
         if (is_array()) return *val.arr;
-        else throw (std::string)"The value isn't an array.";
+        else throw "The value isn't an array."s;
     }
     map_t &value_t::map() {
         if (is_map()) return *val.map;
-        else throw (std::string)"The value isn't a map.";
+        else throw "The value isn't a map."s;
     }
     number_t &value_t::number() {
         if (is_number()) return val.num;
-        else throw (std::string)"The value isn't a number.";
+        else throw "The value isn't a number."s;
     }
     string_t &value_t::string() {
         if (is_string()) return *val.str;
-        else throw (std::string)"The value isn't a string.";
+        else throw "The value isn't a string."s;
     }
     bool_t &value_t::boolean() {
         if (is_bool()) return val.bl;
-        else throw (std::string)"The value isn't a bool.";
+        else throw "The value isn't a bool."s;
     }
 
 
     const array_t &value_t::array() const {
         if (is_array()) return *val.arr;
-        else throw (std::string)"The value isn't an array.";
+        else throw "The value isn't an array."s;
     }
     const map_t &value_t::map() const {
         if (is_map()) return *val.map;
-        else throw (std::string)"The value isn't a map.";
+        else throw "The value isn't a map."s;
     }
     number_t value_t::number() const {
         if (is_number()) return val.num;
-        else throw (std::string)"The value isn't a number.";
+        else throw "The value isn't a number."s;
     }
     const string_t &value_t::string() const {
         if (is_string()) return *val.str;
-        else throw (std::string)"The value isn't a string.";
+        else throw "The value isn't a string."s;
     }
     bool_t value_t::boolean() const {
         if (is_bool()) return val.bl;
-        else throw (std::string)"The value isn't a bool.";
+        else throw "The value isn't a bool."s;
     }
 
     value_t::value_t() {

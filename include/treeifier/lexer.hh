@@ -3,7 +3,7 @@
 #include "utils/location.hh"
 #include "utils/message.hh"
 
-namespace ppc::comp::tree::lex {
+namespace ppc::tree::lex {
     struct token_t {
         enum kind_t {
             NONE,

@@ -1,15 +1,11 @@
-#include "compiler/treeifier/ast.hh"
+#pragma once
 
-using namespace ppc;
-using namespace ppc::lang;
-using namespace ppc::data;
-using namespace ppc::comp::tree;
-using namespace ppc::comp::tree::ast;
+#include "treeifier/constr.hh"
 
-namespace ppc::comp::tree::ast {
-    struct tree_helper_t {
+namespace ppc::tree::parse {
+    struct helper_t {
     private:
-        ast_ctx_t &ctx;
+        parse_ctx_t &ctx;
         size_t &res_i;
 
     public:
@@ -104,53 +100,25 @@ namespace ppc::comp::tree::ast {
             throw_ended(reason);
         }
 
-        template <class T>
-        bool push_parse(const T &parser, data::array_t &out) {
-            data::map_t res;
-            if (parse(parser, res)) {
-                out.push_back(res);
-                return true;
-            }
-            else return false;
+        template <class ParserT, class ...ArgsT>
+        bool parse(const ParserT &parser, ArgsT &...args) {
+            return parser(ctx, i, args...);
         }
 
-        template <class T>
-        bool parse(const T &parser, data::map_t &out) {
-            return ctx.parse(parser, i, out);
-        }
-
-        template <class T>
-        void force_push_parse(const T &parser, std::string message, data::array_t &out) {
+        template <class ParserT, class ...ArgsT>
+        void force_parse(const ParserT &parser, std::string message, ArgsT &...args) {
             throw_ended(message);
-            bool success;
 
             try {
-                success = push_parse(parser, out);
+                if (!parser(ctx, i, args...)) err(message);
             }
             catch (const message_t &msg) {
                 ctx.messages.push(msg);
-                success = false;
+                err(message);
             }
-            
-            if (!success) err(message);
-        }
-        template <class T>
-        void force_parse(const T &parser, std::string message, data::map_t &out) {
-            throw_ended(message);
-            bool success;
-
-            try {
-                success = parse(parser, out);
-            }
-            catch (const message_t &msg) {
-                ctx.messages.push(msg);
-                success = false;
-            }
-            
-            if (!success) err(message);
         }
 
-        tree_helper_t(ast_ctx_t &ctx, size_t &i): ctx(ctx), res_i(i) {
+        helper_t(parse_ctx_t &ctx, size_t &i): ctx(ctx), res_i(i) {
             this->i = i;
         }
     };

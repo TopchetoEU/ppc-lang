@@ -1,11 +1,11 @@
-#include <string>
+#include "treeifier/lexer.hh"
+#include "treeifier/tokenizer.hh"
 #include <algorithm>
-#include "compiler/treeifier/tokenizer.hh"
-#include "compiler/treeifier/lexer.hh"
+#include <string>
 
 using namespace ppc;
 using namespace messages;
-using namespace comp::tree;
+using namespace ppc::tree;
 using namespace std::string_literals;
 
 static std::vector<uint8_t> parse_string(msg_stack_t &msg_stack, bool is_char, const lex::token_t &token) {

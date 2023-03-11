@@ -2,9 +2,9 @@
 
 #include "utils/location.hh"
 #include "utils/message.hh"
-#include "compiler/treeifier/lexer.hh"
+#include "treeifier/lexer.hh"
 
-namespace ppc::comp::tree {
+namespace ppc::tree {
     enum operator_t {
         NONE,
 

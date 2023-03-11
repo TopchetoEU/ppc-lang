@@ -1,5 +1,5 @@
-#include <sstream>
 #include "utils/strings.hh"
+#include <sstream>
 
 using namespace ppc;
 
@@ -11,10 +11,10 @@ std::vector<std::string> str::split(const std::string &splittable, std::initiali
         if (std::string { splitters }.find(c) == std::string::npos) {
             buff << c;
         }
-        else {  
+        else {
             if (!buff.str().empty() || !remove_empty_entries) {
                 res.push_back(buff.str());
-                buff = { };
+                buff = {};
             }
         }
     }

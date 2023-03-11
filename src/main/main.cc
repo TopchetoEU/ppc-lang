@@ -8,31 +8,31 @@
 #define DISABLE_NEWLINE_AUTO_RETURN 0x8
 #endif
 
-#include <windows.h>
 #include <conio.h>
+#include <windows.h>
 
 #undef ERROR
 #undef INFO
 
 #endif
 
-#include <sstream>
+#include "./opions.hh"
+#include "treeifier/lexer.hh"
+#include "treeifier/tokenizer.hh"
+#include "treeifier/constructs/glob.hh"
+#include "treeifier/parsers/glob.hh"
+#include "utils/json.hh"
+#include "utils/strings.hh"
+#include "utils/threading.hh"
+#include <cstdio>
 #include <fstream>
 #include <iostream>
-#include <cstdio>
-#include "utils/threading.hh"
-#include "utils/strings.hh"
-#include "utils/json.hh"
-#include "compiler/treeifier/lexer.hh"
-#include "compiler/treeifier/tokenizer.hh"
-#include "compiler/treeifier/ast.hh"
-#include "./opions.hh"
+#include <sstream>
 
 using std::cout;
 using std::size_t;
 using namespace ppc;
-using namespace ppc::comp::tree;
-using namespace ppc::comp::tree::ast;
+using namespace ppc::tree;
 
 void add_flags(options::parser_t &parser) {
     parser.add_flag({
@@ -40,15 +40,15 @@ void add_flags(options::parser_t &parser) {
         .shorthands = "v",
         .description = "Displays version and license agreement of this binary",
         .execute = [](options::parser_t &parser, const std::string &option, ppc::messages::msg_stack_t &global_stack) {
-            cout << "++C compiler\n"
-                 << "    Version: v" << PPC_VERSION_MAJOR << '.' << PPC_VERSION_MINOR << '.' << PPC_VERSION_BUILD
-            #if WINDOWS
-                 << " (Windows)"
-            #elif LINUX
-                 << " (Linux)"
-            #endif
-                 << "\n"
-                 << "    License: MIT Copyright (C) TopchetoEU\n";
+            cout << "++C compiler\n";
+            cout << "    Version: v" << PPC_VERSION_MAJOR << '.' << PPC_VERSION_MINOR << '.' << PPC_VERSION_BUILD;
+#if WINDOWS
+            cout << " (Windows)";
+#elif LINUX
+            cout << " (Linux)";
+#endif
+            cout << "\n";
+            cout << "    License: MIT Copyright (C) TopchetoEU\n";
             exit(0);
         }
     });
@@ -57,10 +57,10 @@ void add_flags(options::parser_t &parser) {
         .shorthands = "h",
         .description = "Displays a list of all flags and their meaning",
         .execute = [](options::parser_t &parser, const std::string &option, ppc::messages::msg_stack_t &global_stack) {
-            cout << "Usage: ...flags ...files\n\n"
-                 << "Flags and file names can be interlaced\n"
-                 << "Flags will execute in the order they're written, then compilation begins\n\n"
-                 << "Flags:\n";
+            cout << "Usage: ...flags ...files\n\n";
+            cout << "Flags and file names can be interlaced\n";
+            cout << "Flags will execute in the order they're written, then compilation begins\n\n";
+            cout << "Flags:\n";
 
             for (const auto &flag : parser) {
                 std::stringstream buff;
@@ -89,19 +89,23 @@ void add_flags(options::parser_t &parser) {
                     const size_t padding = 24;
                     const size_t msg_width = 80 - padding;
 
-                    for (size_t i = 0; i < padding - n; i++) cout << ' ';
+                    for (size_t i = 0; i < padding - n; i++)
+                        cout << ' ';
 
                     int len = flag.description.length();
 
                     for (size_t i = 0; i < len / msg_width; i++) {
-                        for (size_t j = 0; j < msg_width; j++) cout << flag.description[i * msg_width + j];
+                        for (size_t j = 0; j < msg_width; j++)
+                            cout << flag.description[i * msg_width + j];
                         cout << std::endl;
-                        for (size_t j = 0; j < padding; j++) cout << ' ';
+                        for (size_t j = 0; j < padding; j++)
+                            cout << ' ';
                     }
 
                     int remainder = len % msg_width;
 
-                    for (int i = 0; i < remainder; i++) cout << flag.description[len - remainder + i];
+                    for (int i = 0; i < remainder; i++)
+                        cout << flag.description[len - remainder + i];
                 }
 
                 printf("\n");
@@ -129,16 +133,16 @@ void add_flags(options::parser_t &parser) {
 }
 
 int main(int argc, const char *argv[]) {
-    #ifdef WINDOWS
+#ifdef WINDOWS
     HANDLE handleOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD consoleMode;
     GetConsoleMode(handleOut, &consoleMode);
     consoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
     consoleMode |= DISABLE_NEWLINE_AUTO_RETURN;
     SetConsoleMode(handleOut, consoleMode);
-    #endif
+#endif
 
-    std::vector<std::string> args{ argv + 1, argv + argc };
+    std::vector<std::string> args { argv + 1, argv + argc };
     std::vector<std::string> files;
     messages::msg_stack_t msg_stack;
 
@@ -158,9 +162,12 @@ int main(int argc, const char *argv[]) {
                 std::ifstream f { file, std::ios_base::in };
                 if (!f.is_open()) throw message_t::error("The file doesn't exist.", { file });
                 auto tokens = token_t::parse_many(msg_stack, lex::token_t::parse_file(msg_stack, file, f));
-                auto ast = ast_ctx_t::parse(ast::parse_glob, msg_stack, tokens);
-
-                std::cout << data::json::stringify(ast) << std::endl;
+                constr::global_t glob;
+                auto ctx = parse_ctx_t(msg_stack, tokens);
+                parse::glob_parser_t()(ctx, glob);
+                #ifdef PROFILE_debug
+                glob.print();
+                #endif
             }
             catch (const messages::message_t &msg) {
                 msg_stack.push(msg);
@@ -170,7 +177,7 @@ int main(int argc, const char *argv[]) {
     catch (const messages::message_t &msg) {
         msg_stack.push(msg);
     }
-    #ifndef PROFILE_debug
+#ifndef PROFILE_debug
     catch (const std::string &msg) {
         msg_stack.push(message_t::error(msg));
     }
@@ -178,7 +185,7 @@ int main(int argc, const char *argv[]) {
         std::cout << std::endl;
         msg_stack.push(message_t::error("A fatal error occurred."));
     }
-    #endif
+#endif
 
     msg_stack.print(std::cout, messages::message_t::DEBUG, true);
 
