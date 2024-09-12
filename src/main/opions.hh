@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
-#include "utils/message.hh"
 #include "utils/data.hh"
+#include "utils/message.hh"
+#include <vector>
 
 namespace ppc::options {
     enum flag_match_type_t {
@@ -21,9 +21,9 @@ namespace ppc::options {
     };
 
     struct parser_t {
-    private:
+       private:
         std::vector<flag_t> flags;
-    public:
+       public:
         void add_flag(const flag_t &flag);
         void clear_flags();
 

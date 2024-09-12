@@ -1,34 +1,19 @@
-export lsproj = $(bin)/lsproj$(exe)
+export lsdep = $(bin)/lsdep$(exe)
+export lsinc = $(bin)/lsinc$(exe)
 export flags += "-I$(inc)" -D$(OS) -DPPC_VERSION_MAJOR=$(version-major) -DPPC_VERSION_MINOR=$(version-minor) -DPPC_VERSION_BUILD=$(version-build)
 
-$(shell make -f scripts/lsproj.mak lsproj=$(lsproj) src=$(src) $(lsproj))
+$(shell make -f scripts/ls.mak lsinc=$(lsinc) lsdep=$(lsdep) src=$(src) "flags=$(flags)" all)
 
 rwildcard=$(foreach d, $(wildcard $(1:=/*)),\
 	$(call rwildcard,$d,$2)\
 	$(filter $(subst *,%,$2),$d)\
 )
 
-uniq=$(if $1,$(firstword $1) $(call uniq,$(filter-out $(firstword $1),$1)))
-modoutput=$(shell ./$(lsproj) $(src) $1 output)
-deps=$(strip \
-	$(foreach dep, $(shell ./$(lsproj) $(src) $1 deps),\
-		$(if $(wildcard src/$(dep)), $(dep),\
-			$(error The module '$(dep)' (dependency of '$1') doesn't exist)\
-		)\
-	)\
-)
-rdeps=$(call uniq,$(strip \
-	$(foreach dep, $(call deps,$1),\
-		$(call rdeps,$(dep))\
-		$(dep)\
-	)\
-))
+deps=$(shell $(lsdep) --dir=deps $1)
+rdeps=$(shell $(lsdep) --dir=deps --rec $1)
 
-fdeps=$(foreach dep,$(call deps,$1),$(bin)/lib$(lib)$(call modoutput,$(dep))$(so))
-frdeps=$(foreach dep,$(call rdeps,$1),$(bin)/lib$(lib)$(call modoutput,$(dep))$(so))
-
-ldeps=$(foreach dep,$(call deps,$1),-l$(lib)$(call modoutput,$(dep)))
-lrdeps=$(foreach dep,$(call rdeps,$1),-l$(lib)$(call modoutput,$(dep)))
+frdeps=$(shell $(lsdep) --dir=deps --rec --transform=$(bin)/lib$(lib)*$(so) $1)
+ldeps=$(shell $(lsdep) --dir=deps --transform=-l$(lib) $1)
 
 modules = $(patsubst $(src)/%/,$(bin)/lib$(lib)%$(so),$(filter-out $(src)/$(mainmodule)/,$(wildcard $(src)/*/)))
 sources = $(call rwildcard,$(src)/$1,*.cc)
@@ -52,7 +37,8 @@ $(bin)/lib$(lib)%$(so): $$(call frdeps,$$*) $$(call binaries,$$*)
 	$(CXX) -shared -fPIC $(flags) $(call binaries,$*) -o $@ $(ldflags) $(call ldeps,$*) -L$(bin) "-I$(inc)"
 	echo Compiling library '$(notdir $@)'...
 
-$(bin)/tmp/%.o: $(src)/%.cc $(headers)
+.SECONDEXPANSION:
+$(bin)/tmp/%.o: $(src)/%.cc $$(shell $(lsinc) $(inc) $(src)/%.cc)
 	$(call mkdir,$(dir $@))
 	$(CXX) -fPIC -c $(flags) $< -o $@
 	echo - Compiling '$*.cc'...
